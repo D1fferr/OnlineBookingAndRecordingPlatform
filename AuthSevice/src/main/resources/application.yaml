@@ -1,3 +1,15 @@
 spring:
   application:
-    name: AuthSevice
+    name: AuthService
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+  profiles:
+    active: local
+server:
+  port: 8082

@@ -1,0 +1,7 @@
+services:
+  providers: "${PROVIDERS_URL}"
+  auth: "${AUTH_URL}"
+  frontend: "${FRONTEND_URL}"
+  minio: "${MINIO_URL}"
+jwt:
+  secret: "${JWT_SECRET}"

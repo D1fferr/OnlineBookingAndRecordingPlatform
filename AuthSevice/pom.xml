@@ -9,7 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.platform.booking.recording</groupId>
-	<artifactId>AuthSevice</artifactId>
+	<artifactId>AuthService</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name/>
 	<description/>

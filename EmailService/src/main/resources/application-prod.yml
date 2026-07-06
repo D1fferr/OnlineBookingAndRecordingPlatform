@@ -1,0 +1,14 @@
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: "${DB_URL}"
+    username: "${DB_USERNAME}"
+    password: "${DB_PASSWORD}"
+external:
+  kafka:
+    endpoint: "${KAFKA_ENDPOINT}"
+    mail:
+      login: "${MAIL_LOGIN}"
+      password: "${MAIL_PASSWORD}"
+      from: "${MAIL_FROM}"
+      host: "${MAIL_HOST}"
