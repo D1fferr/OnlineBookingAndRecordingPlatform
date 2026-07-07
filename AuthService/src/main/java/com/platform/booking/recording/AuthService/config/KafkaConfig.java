@@ -1,6 +1,6 @@
-package com.platform.booking.recording.AuthSevice.config;
+package com.platform.booking.recording.AuthService.config;
 
-import com.platform.booking.recording.AuthSevice.dtos.UserForKafkaDTO;
+import com.platform.booking.recording.AuthService.dtos.UserForKafkaDTO;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
