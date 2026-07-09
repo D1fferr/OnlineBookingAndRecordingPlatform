@@ -1,0 +1,50 @@
+package com.platform.booking.recording.AuthService.security;
+
+import com.platform.booking.recording.AuthService.dtos.TokenResponse;
+import com.platform.booking.recording.AuthService.models.RefreshToken;
+import com.platform.booking.recording.AuthService.models.User;
+import com.platform.booking.recording.AuthService.services.RedisService;
+import com.platform.booking.recording.AuthService.services.UserService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseCookie;
+import org.springframework.stereotype.Component;
+
+@Component
+@RequiredArgsConstructor
+public class TokenProvider {
+    private final JwtProvider jwtProvider;
+    private final RedisService redisService;
+    private final UserService userService;
+
+    public TokenResponse refreshTokens(String refreshTokenOld){
+        RefreshToken refreshToken = redisService.findByRefreshToken(refreshTokenOld);
+        User user = userService.findUserById(refreshToken.getUserId());
+        redisService.delete(refreshToken);
+        return createTokens(user);
+    }
+    public TokenResponse createTokens(User user){
+        String accessToken = jwtProvider.generateToken(user);
+        String refreshToken = jwtProvider.generateRefreshToken();
+        redisService.saveRefreshToken(user.getId(), refreshToken);
+        return new TokenResponse(accessToken, refreshToken);
+    }
+    public ResponseCookie createResponseCookie(String refreshToken){
+        return ResponseCookie.from("refreshToken", refreshToken)
+                .httpOnly(true)                             //xss protection
+                .secure(false)                              //http
+                .path("/api/v1/auth")
+                .maxAge(7 * 24 * 60 * 60)
+                .sameSite("Strict")                         //csrf protection
+                .build();
+    }
+    public ResponseCookie createClearShareCookie() {
+        return ResponseCookie.from("refreshToken", "")
+                .httpOnly(true)
+                .secure(false)
+                .path("/api/v1/auth")
+                .maxAge(0)
+                .sameSite("Strict")
+                .build();
+    }
+
+}
