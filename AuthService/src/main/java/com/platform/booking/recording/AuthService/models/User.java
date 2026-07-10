@@ -34,6 +34,10 @@ public class User {
     private String role;
     @Column(name = "avatar_url")
     private String avatarURL;
+    @Column(name = "is_blocked")
+    private Boolean isBlocked;
+    @Column(name = "block_reason")
+    private String blockReason;
     @Column(name = "created_at")
     private OffsetDateTime createdAt;
 }

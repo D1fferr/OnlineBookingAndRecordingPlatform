@@ -5,5 +5,7 @@ CREATE TABLE users
     password_hash VARCHAR(255)        NOT NULL,
     role          VARCHAR(50)         NOT NULL DEFAULT 'ROLE_PROVIDER',
     avatar_url    VARCHAR,
+    is_blocked    BOOLEAN                      DEFAULT FALSE,
+    block_reason  VARCHAR                      DEFAULT NULL,
     created_at    TIMESTAMPTZ                  DEFAULT NOW()
 );

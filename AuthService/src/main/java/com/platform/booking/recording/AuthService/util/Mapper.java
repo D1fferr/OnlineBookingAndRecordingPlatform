@@ -1,6 +1,7 @@
 package com.platform.booking.recording.AuthService.util;
 
 import com.platform.booking.recording.AuthService.dtos.RegistrationUserDTO;
+import com.platform.booking.recording.AuthService.dtos.UserForGetRequestDTO;
 import com.platform.booking.recording.AuthService.dtos.UserForKafkaDTO;
 import com.platform.booking.recording.AuthService.models.User;
 import org.springframework.stereotype.Component;
@@ -23,6 +24,16 @@ public class Mapper {
         user.setEmail(dto.getEmail());
         user.setPassword(dto.getPassword());
         return user;
+    }
+    public UserForGetRequestDTO userToGetDTO (User user){
+        UserForGetRequestDTO dto = new UserForGetRequestDTO();
+        dto.setId(user.getId());
+        dto.setEmail(user.getEmail());
+        dto.setRole(user.getRole());
+        dto.setAvatarURL(user.getAvatarURL());
+        dto.setIsBlocked(user.getIsBlocked());
+        dto.setBlockReason(user.getBlockReason());
+        return dto;
     }
 
 

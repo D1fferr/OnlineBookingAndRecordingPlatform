@@ -1,6 +1,7 @@
 package com.platform.booking.recording.AuthService.config;
 
 import com.platform.booking.recording.AuthService.dtos.UserForKafkaDTO;
+import com.platform.booking.recording.AuthService.models.ResetPassword;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
@@ -18,20 +19,34 @@ import java.util.Map;
 public class KafkaConfig {
 
     private final ExternalConfig config;
+    private final String kafkaEndpoint = config.getKafka().getEndpoint();
 
     @Bean
-    public ProducerFactory<String, UserForKafkaDTO> userProducerFactory(){
-        String kafkaEndpoint = config.getKafka().getEndpoint();
+    public ProducerFactory<String, UserForKafkaDTO> userRegistrationProducerFactory(){
         Map<String, Object> configKafkaProducer = new HashMap<>();
         configKafkaProducer.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaEndpoint);
         configKafkaProducer.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         configKafkaProducer.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JacksonJsonSerializer.class);
-        configKafkaProducer.put(JacksonJsonSerializer.TYPE_MAPPINGS, "com.platform.booking.recording.AuthSevice.dtos.UserForKafkaDTO");
+        configKafkaProducer.put(JacksonJsonSerializer.TYPE_MAPPINGS, "com.platform.booking.recording.AuthService.dtos.UserForKafkaDTO");
         return new DefaultKafkaProducerFactory<>(configKafkaProducer);
     }
     @Bean
-    public KafkaTemplate<String, UserForKafkaDTO> userKafkaTemplate(){
-        return new KafkaTemplate<>(userProducerFactory());
+    public KafkaTemplate<String, UserForKafkaDTO> userRegistrationKafkaTemplate(){
+        return new KafkaTemplate<>(userRegistrationProducerFactory());
     }
+    @Bean
+    public ProducerFactory<String, ResetPassword> userResetPasswordProducerFactory(){
+        Map<String, Object> configKafkaProducer = new HashMap<>();
+        configKafkaProducer.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaEndpoint);
+        configKafkaProducer.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        configKafkaProducer.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JacksonJsonSerializer.class);
+        configKafkaProducer.put(JacksonJsonSerializer.TYPE_MAPPINGS, "com.platform.booking.recording.AuthService.models.ResetPassword");
+        return new DefaultKafkaProducerFactory<>(configKafkaProducer);
+    }
+    @Bean
+    public KafkaTemplate<String, UserForKafkaDTO> userResetPasswordKafkaTemplate(){
+        return new KafkaTemplate<>(userRegistrationProducerFactory());
+    }
+
 
 }

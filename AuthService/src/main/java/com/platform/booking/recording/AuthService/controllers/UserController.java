@@ -4,13 +4,15 @@ import com.platform.booking.recording.AuthService.dtos.*;
 import com.platform.booking.recording.AuthService.exceptions.ValidationUserException;
 import com.platform.booking.recording.AuthService.models.RefreshToken;
 import com.platform.booking.recording.AuthService.models.User;
-import com.platform.booking.recording.AuthService.security.JwtProvider;
 import com.platform.booking.recording.AuthService.security.TokenProvider;
-import com.platform.booking.recording.AuthService.services.KafkaProducerService;
-import com.platform.booking.recording.AuthService.services.RedisService;
+import com.platform.booking.recording.AuthService.services.KafkaRegistrationProducerService;
+import com.platform.booking.recording.AuthService.services.RefreshTokenService;
 import com.platform.booking.recording.AuthService.services.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
@@ -29,9 +31,8 @@ import java.util.UUID;
 @RequestMapping("/user")
 public class UserController {
     private final UserService userService;
-    private final KafkaProducerService kafkaProducerService;
-    private final JwtProvider jwtProvider;
-    private final RedisService redisService;
+    private final KafkaRegistrationProducerService kafkaRegistrationProducerService;
+    private final RefreshTokenService refreshTokenService;
     private final TokenProvider tokenProvider;
 
     @PostMapping("/public/register")
@@ -40,7 +41,21 @@ public class UserController {
                                                     BindingResult bindingResult){
         checkErrors(bindingResult);
         User user = userService.save(dto, file);
-        kafkaProducerService.send(dto, user);
+        kafkaRegistrationProducerService.send(dto, user);
+        TokenResponse tokenResponse = tokenProvider.createTokens(user);
+        ResponseCookie responseCookie = tokenProvider.createResponseCookie(tokenResponse.getRefreshToken());
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .header(HttpHeaders.SET_COOKIE, responseCookie.toString())
+                .body(new AuthResponseDTO(tokenResponse.getAccessToken()));
+
+    }
+    @PostMapping("/public/register/as-admin")
+    public ResponseEntity<AuthResponseDTO> registerAsAdmin(@RequestPart(name = "userData")  @Valid RegistrationUserDTO dto,
+                                                           @RequestPart(name = "imageData", required = false) MultipartFile file,
+                                                           BindingResult bindingResult){
+        checkErrors(bindingResult);
+        User user = userService.saveAsAdmin(dto, file);
+        kafkaRegistrationProducerService.send(dto, user);
         TokenResponse tokenResponse = tokenProvider.createTokens(user);
         ResponseCookie responseCookie = tokenProvider.createResponseCookie(tokenResponse.getRefreshToken());
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -69,8 +84,8 @@ public class UserController {
     @PostMapping("/logout")
     public ResponseEntity<String> logout(@CookieValue(name = "refreshToken") String refreshToken){
         if (refreshToken!=null){
-            Optional<RefreshToken> refreshRedisToken = redisService.findByRefreshTokenForLogout(refreshToken);
-            refreshRedisToken.ifPresent(redisService::delete);
+            Optional<RefreshToken> refreshRedisToken = refreshTokenService.findByRefreshTokenForLogout(refreshToken);
+            refreshRedisToken.ifPresent(refreshTokenService::delete);
         }
         return ResponseEntity.noContent()
                 .header(HttpHeaders.SET_COOKIE, tokenProvider.createClearShareCookie().toString())
@@ -94,7 +109,45 @@ public class UserController {
         userService.updateAvatar(id, file);
         return ResponseEntity.ok().build();
     }
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Void> delete(@PathVariable(name = "id") UUID id){
+        userService.deleteById(id);
+        return ResponseEntity.noContent().build();
+    }
+    @PostMapping("/block-user")
+    public ResponseEntity<Void> blockUser(@RequestBody @Valid BlockUserDTO dto,
+                                          BindingResult bindingResult){
+        checkErrors(bindingResult);
+        userService.blockUser(dto);
+        refreshTokenService.deleteByUserId(dto.getUserId());
+        return ResponseEntity.noContent()
+                .build();
+    }
+    @PostMapping("/logout-user/{id}")
+    public ResponseEntity<Void> logoutUser(@PathVariable(name = "id") UUID id){
+        refreshTokenService.deleteByUserId(id);
+        return ResponseEntity.noContent().build();
+    }
+    @GetMapping("/get-all-users")
+    public ResponseEntity<PageUserDTO> getAllUsers(@RequestParam(value = "page", defaultValue = "0") Integer page,
+                                                   @RequestParam(value = "usersPerPage", defaultValue = "8", required = false) Integer usersPerPage,
+                                                   @RequestParam(value = "sortBy", defaultValue = "createdAt") String sortBy,
+                                                   @RequestParam(value = "search", required = false) String search,
+                                                   @RequestParam(value = "sortDir", defaultValue = "desc") String sortDir){
+        PageUserDTO dto;
+        Pageable pageable = PageRequest.of(page, usersPerPage, Sort.by(Sort.Direction.fromString(sortDir), sortBy));
+        if (search!=null){
+            dto = userService.findAllUsersWithSearch(search, pageable);
+        }else {
+            dto = userService.findAllUsers(pageable);
+        }
+        return ResponseEntity.ok(dto);
+    }
 
+    @GetMapping("/get-one-user/{id}")
+    public ResponseEntity<UserForGetRequestDTO> getOneUser(@PathVariable(name = "id") UUID id){
+        return ResponseEntity.ok(userService.findOneById(id));
+    }
 
     private void checkErrors(BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {

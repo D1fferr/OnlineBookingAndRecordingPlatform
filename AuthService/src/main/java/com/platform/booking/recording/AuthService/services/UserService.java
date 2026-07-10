@@ -1,21 +1,22 @@
 package com.platform.booking.recording.AuthService.services;
 
-import com.platform.booking.recording.AuthService.dtos.ChangeCredentialsDTO;
-import com.platform.booking.recording.AuthService.dtos.LoginDTO;
-import com.platform.booking.recording.AuthService.dtos.RegistrationUserDTO;
+import com.platform.booking.recording.AuthService.dtos.*;
 import com.platform.booking.recording.AuthService.exceptions.BadCredentialsException;
 import com.platform.booking.recording.AuthService.exceptions.FailedSaveImageException;
+import com.platform.booking.recording.AuthService.exceptions.UserIsBlockedException;
 import com.platform.booking.recording.AuthService.exceptions.UserNotFoundException;
 import com.platform.booking.recording.AuthService.models.User;
 import com.platform.booking.recording.AuthService.repositories.jpa.UserRepository;
 import com.platform.booking.recording.AuthService.util.Mapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.time.OffsetDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -31,6 +32,8 @@ public class UserService {
         dto.setPassword(passwordEncoder.encode(dto.getPassword()));
         User user = mapper.registrationUserToUser(dto);
         user.setCreatedAt(OffsetDateTime.now());
+        user.setIsBlocked(Boolean.FALSE);
+        user.setRole("ROLE_PROVIDER");
         userRepository.saveAndFlush(user);
         if (file!=null){
             try {
@@ -42,10 +45,36 @@ public class UserService {
         }
         return userRepository.save(user);
     }
+    @Transactional(noRollbackFor = FailedSaveImageException.class)
+    public User saveAsAdmin(RegistrationUserDTO dto, MultipartFile file){
+        dto.setPassword(passwordEncoder.encode(dto.getPassword()));
+        User user = mapper.registrationUserToUser(dto);
+        user.setCreatedAt(OffsetDateTime.now());
+        user.setIsBlocked(Boolean.FALSE);
+        user.setRole("ROLE_ADMIN");
+        userRepository.saveAndFlush(user);
+        if (file!=null){
+            try {
+                String url = imageService.storeImage(file, user.getId());
+                user.setAvatarURL(url);
+            } catch (Exception e) {
+                throw new FailedSaveImageException(e.getMessage() + e.getCause());
+            }
+        }
+        return userRepository.save(user);
+    }
+    @Transactional
+    public void saveAfterResetPassword(User user){
+        userRepository.save(user);
+    }
     @Transactional(readOnly = true)
     public User findUserById(UUID id){
         return userRepository.findById(id)
                 .orElseThrow(()->new UserNotFoundException("User not found"));
+    }
+    @Transactional(readOnly = true)
+    public Optional<User> findUserByEmail(String email){
+        return userRepository.findByEmail(email);
     }
     @Transactional(readOnly = true)
     public User login(LoginDTO dto){
@@ -54,6 +83,8 @@ public class UserService {
         if (!passwordEncoder.matches(dto.getPassword(), user.getPassword())){
             throw new BadCredentialsException("Password or email are incorrect");
         }
+        if (user.getIsBlocked())
+            throw new UserIsBlockedException(user.getBlockReason());
         return user;
     }
     @Transactional
@@ -81,5 +112,43 @@ public class UserService {
             }
         }
         userRepository.save(user);
+    }
+    @Transactional
+    public void deleteById(UUID id){
+        userRepository.deleteById(id);
+    }
+    @Transactional
+    public void blockUser(BlockUserDTO dto){
+        User user = userRepository.findById(dto.getUserId())
+                .orElseThrow(()->new UserNotFoundException("User not found"));
+        user.setIsBlocked(Boolean.TRUE);
+        user.setBlockReason(dto.getReason());
+        userRepository.save(user);
+    }
+    @Transactional(readOnly = true)
+    public PageUserDTO findAllUsers(Pageable pageable){
+        Page<User> users = userRepository.findAll(pageable);
+        PageUserDTO dto = new PageUserDTO();
+        dto.setDtos(users.getContent().stream().map(mapper::userToGetDTO).toList());
+        dto.setTotalPages(users.getTotalPages());
+        dto.setTotalElements(users.getTotalElements());
+        return dto;
+    }
+    @Transactional(readOnly = true)
+    public PageUserDTO findAllUsersWithSearch(String search, Pageable pageable){
+        String searchPattern = "%" + search.replaceAll("\\s+", "%") + "%";
+        Page<User> users = userRepository.findUsers(searchPattern, pageable);
+        PageUserDTO dto = new PageUserDTO();
+        dto.setDtos(users.getContent().stream().map(mapper::userToGetDTO).toList());
+        dto.setTotalPages(users.getTotalPages());
+        dto.setTotalElements(users.getTotalElements());
+        return dto;
+    }
+    @Transactional(readOnly = true)
+    public UserForGetRequestDTO findOneById(UUID id){
+        User user = userRepository.findById(id)
+                .orElseThrow(()->new UserNotFoundException("User not found"));
+        return mapper.userToGetDTO(user);
+
     }
 }

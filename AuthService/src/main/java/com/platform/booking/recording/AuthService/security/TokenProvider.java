@@ -1,9 +1,10 @@
 package com.platform.booking.recording.AuthService.security;
 
 import com.platform.booking.recording.AuthService.dtos.TokenResponse;
+import com.platform.booking.recording.AuthService.exceptions.UserIsBlockedException;
 import com.platform.booking.recording.AuthService.models.RefreshToken;
 import com.platform.booking.recording.AuthService.models.User;
-import com.platform.booking.recording.AuthService.services.RedisService;
+import com.platform.booking.recording.AuthService.services.RefreshTokenService;
 import com.platform.booking.recording.AuthService.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseCookie;
@@ -13,19 +14,21 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class TokenProvider {
     private final JwtProvider jwtProvider;
-    private final RedisService redisService;
+    private final RefreshTokenService refreshTokenService;
     private final UserService userService;
 
     public TokenResponse refreshTokens(String refreshTokenOld){
-        RefreshToken refreshToken = redisService.findByRefreshToken(refreshTokenOld);
+        RefreshToken refreshToken = refreshTokenService.findByRefreshToken(refreshTokenOld);
         User user = userService.findUserById(refreshToken.getUserId());
-        redisService.delete(refreshToken);
+        if (user.getIsBlocked())
+            throw new UserIsBlockedException(user.getBlockReason());
+        refreshTokenService.delete(refreshToken);
         return createTokens(user);
     }
     public TokenResponse createTokens(User user){
         String accessToken = jwtProvider.generateToken(user);
         String refreshToken = jwtProvider.generateRefreshToken();
-        redisService.saveRefreshToken(user.getId(), refreshToken);
+        refreshTokenService.saveRefreshToken(user.getId(), refreshToken);
         return new TokenResponse(accessToken, refreshToken);
     }
     public ResponseCookie createResponseCookie(String refreshToken){

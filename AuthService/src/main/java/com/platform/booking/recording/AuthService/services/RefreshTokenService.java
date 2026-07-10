@@ -11,7 +11,7 @@ import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
-public class RedisService {
+public class RefreshTokenService {
     private final RefreshTokenRepository refreshTokenRepository;
 
     public void saveRefreshToken(UUID id, String token){
@@ -30,5 +30,8 @@ public class RedisService {
     }
     public void delete(RefreshToken refreshToken){
         refreshTokenRepository.delete(refreshToken);
+    }
+    public void deleteByUserId(UUID id){
+        refreshTokenRepository.deleteByUserId(id);
     }
 }
