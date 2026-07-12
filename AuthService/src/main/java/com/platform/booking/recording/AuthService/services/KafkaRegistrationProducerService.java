@@ -19,7 +19,7 @@ public class KafkaRegistrationProducerService {
     public void send(RegistrationUserDTO dto, User user){
         UserForKafkaDTO userForKafkaDTO = mapper.registrationUserToUserToKafkaDTO(dto, user);
         try {
-            userRegistrationKafkaTemplate.send("user-topic", userForKafkaDTO);
+            userRegistrationKafkaTemplate.send("user-topic", userForKafkaDTO).get();
         }catch (Exception e){
             //add logs with cause
             throw new KafkaException(e.getMessage());

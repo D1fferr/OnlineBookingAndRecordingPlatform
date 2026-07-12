@@ -1,10 +1,7 @@
 package com.platform.booking.recording.AuthService.services;
 
 import com.platform.booking.recording.AuthService.dtos.*;
-import com.platform.booking.recording.AuthService.exceptions.BadCredentialsException;
-import com.platform.booking.recording.AuthService.exceptions.FailedSaveImageException;
-import com.platform.booking.recording.AuthService.exceptions.UserIsBlockedException;
-import com.platform.booking.recording.AuthService.exceptions.UserNotFoundException;
+import com.platform.booking.recording.AuthService.exceptions.*;
 import com.platform.booking.recording.AuthService.models.User;
 import com.platform.booking.recording.AuthService.repositories.jpa.UserRepository;
 import com.platform.booking.recording.AuthService.util.Mapper;
@@ -29,6 +26,8 @@ public class UserService {
 
     @Transactional(noRollbackFor = FailedSaveImageException.class)
     public User save(RegistrationUserDTO dto, MultipartFile file){
+        if (userRepository.findByEmail(dto.getEmail()).isPresent())
+            throw new UserAlreadyExistException("User with this email already exist");
         dto.setPassword(passwordEncoder.encode(dto.getPassword()));
         User user = mapper.registrationUserToUser(dto);
         user.setCreatedAt(OffsetDateTime.now());
@@ -47,6 +46,8 @@ public class UserService {
     }
     @Transactional(noRollbackFor = FailedSaveImageException.class)
     public User saveAsAdmin(RegistrationUserDTO dto, MultipartFile file){
+        if (userRepository.findByEmail(dto.getEmail()).isPresent())
+            throw new UserAlreadyExistException("User with this email already exist");
         dto.setPassword(passwordEncoder.encode(dto.getPassword()));
         User user = mapper.registrationUserToUser(dto);
         user.setCreatedAt(OffsetDateTime.now());
