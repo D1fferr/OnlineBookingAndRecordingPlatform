@@ -35,4 +35,6 @@ public class Provider {
     private OffsetDateTime createdAt;
     @OneToMany(mappedBy = "provider", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<WorkingHours> workingHours = new ArrayList<>();
+    @OneToMany(mappedBy = "provider", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Appointment> appointments = new ArrayList<>();
 }

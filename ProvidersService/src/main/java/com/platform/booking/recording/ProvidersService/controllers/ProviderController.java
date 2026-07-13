@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class ProviderController {
     private final ProviderService providerService;
 
-    @PostMapping("/set-working-hours")
-    public ResponseEntity<Void> setWorkingHours(@RequestBody @Valid ){
-
-    }
+//    @PostMapping("/set-working-hours")
+//    public ResponseEntity<Void> setWorkingHours(@RequestBody @Valid ){
+//
+//    }
 }

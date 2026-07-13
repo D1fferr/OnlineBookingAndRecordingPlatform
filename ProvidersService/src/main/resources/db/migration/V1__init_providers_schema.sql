@@ -17,6 +17,22 @@ CREATE TABLE working_hours
     end_time TIME,
     break_start_time TIME,
     break_end_time TIME,
+    session_time INT NOT NULL DEFAULT 30,
     is_active BOOLEAN DEFAULT FALSE,
     unique (provider_id, day_of_week)
+);
+CREATE TABLE appointments
+(
+    id           uuid PRIMARY KEY,
+    provider_id uuid references providers(id) ON DELETE CASCADE NOT NULL,
+    start_time TIMESTAMPTZ,
+    end_time TIMESTAMPTZ,
+    client_name VARCHAR NOT NULL,
+    client_email VARCHAR NOT NULL,
+    client_comment VARCHAR,
+    status VARCHAR DEFAULT 'PENDING',
+    is_reminder_sent BOOLEAN DEFAULT FALSE,
+    secure_token uuid NOT NULL,
+    created_at   TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE (provider_id, start_time)
 );

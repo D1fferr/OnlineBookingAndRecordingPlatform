@@ -4,9 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.CollectionId;
+import org.hibernate.annotations.UuidGenerator;
 
-import java.sql.Time;
 import java.time.LocalTime;
 import java.util.UUID;
 
@@ -18,6 +17,7 @@ import java.util.UUID;
 public class WorkingHours {
     @Id
     @Column(name = "id")
+    @UuidGenerator(style = UuidGenerator.Style.TIME)
     private UUID id;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "provider_id")
@@ -32,6 +32,8 @@ public class WorkingHours {
     private LocalTime breakStartTime;
     @Column(name = "break_end_time")
     private LocalTime breakEndTime;
+    @Column(name = "session_time")
+    private Integer sessionTime;
     @Column(name = "is_active")
     private Boolean isActive;
 }

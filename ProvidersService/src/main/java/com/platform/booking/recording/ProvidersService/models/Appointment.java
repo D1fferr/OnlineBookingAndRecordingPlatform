@@ -38,7 +38,7 @@ public class Appointment {
     @Column(name = "is_reminder_sent")
     private Boolean isReminderSent;
     @Column(name = "secure_token")
-    private AppointmentsStatus secureToken;
+    private UUID secureToken;
     @Column(name = "created_at")
     private OffsetDateTime createdAt;
 

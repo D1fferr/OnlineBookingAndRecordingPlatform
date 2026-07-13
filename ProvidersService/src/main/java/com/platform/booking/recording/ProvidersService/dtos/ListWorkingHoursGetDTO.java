@@ -11,9 +11,9 @@ import java.util.UUID;
 @NoArgsConstructor
 @Getter
 @Setter
-public class ListWorkingHoursCreateDTO {
+public class ListWorkingHoursGetDTO {
 
-    private List<WorkingHoursCreateDTO> workingHoursCreateDTOList;
+    private List<WorkingHoursGetDTO> workingHoursGetDTODTOList;
     @NotNull
     private UUID providerId;
 }
