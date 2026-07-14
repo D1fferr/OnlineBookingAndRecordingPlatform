@@ -1,4 +1,4 @@
-package com.platform.booking.recording.AuthService.dtos;
+package com.platform.booking.recording.ProvidersService.dtos;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

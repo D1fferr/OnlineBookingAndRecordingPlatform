@@ -1,6 +1,8 @@
 package com.platform.booking.recording.ProvidersService.services;
 
+import com.platform.booking.recording.ProvidersService.dtos.ProviderChangeDataDTO;
 import com.platform.booking.recording.ProvidersService.dtos.ProviderCreateDTO;
+import com.platform.booking.recording.ProvidersService.dtos.ProviderUpdateEmailDTO;
 import com.platform.booking.recording.ProvidersService.exceptions.ProviderNotFoundException;
 import com.platform.booking.recording.ProvidersService.models.Provider;
 import com.platform.booking.recording.ProvidersService.repositories.ProviderRepository;
@@ -35,6 +37,25 @@ public class ProviderService {
         Provider provider = providerRepository.findById(id)
                 .orElseThrow(()->new ProviderNotFoundException("Provider not found"));
         return provider.getEmail();
+    }
+    @Transactional
+    public void update(UUID id, ProviderChangeDataDTO dto){
+        Provider provider = providerRepository.findById(id)
+                .orElseThrow(()->new ProviderNotFoundException("Provider not found"));
+        if (dto.getName()!=null)
+            provider.setName(dto.getName());
+        if (dto.getTimezone()!=null)
+            provider.setTimezone(dto.getTimezone());
+        if (dto.getServiceType()!=null)
+            provider.setServiceType(dto.getServiceType());
+        providerRepository.save(provider);
+    }
+    @Transactional
+    public void updateEmail(ProviderUpdateEmailDTO dto){
+        Provider provider = providerRepository.findById(dto.getId())
+                .orElseThrow(()->new ProviderNotFoundException("Provider not found"));
+        provider.setEmail(dto.getEmail());
+        providerRepository.save(provider);
     }
 
 

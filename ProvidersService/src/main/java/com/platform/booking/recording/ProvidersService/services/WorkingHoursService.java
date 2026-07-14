@@ -54,7 +54,7 @@ public class WorkingHoursService {
         ListWorkingHoursGetDTO dto = new ListWorkingHoursGetDTO();
         if (!providerRepository.existsById(id))
                 throw new ProviderNotFoundException("Provider not found");
-        List<WorkingHours> workingHours = workingHoursRepository.findAllByProviderId(id);
+        List<WorkingHours> workingHours = workingHoursRepository.findAllByProvider_Id(id);
         dto.setWorkingHoursGetDTODTOList(workingHours
                 .stream()
                 .map(workingHoursMapper::entityToListGetDTO)

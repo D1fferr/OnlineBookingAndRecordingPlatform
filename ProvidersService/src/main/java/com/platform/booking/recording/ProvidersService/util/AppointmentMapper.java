@@ -2,6 +2,7 @@ package com.platform.booking.recording.ProvidersService.util;
 
 import com.platform.booking.recording.ProvidersService.dtos.AppointmentCreateDTO;
 import com.platform.booking.recording.ProvidersService.dtos.AppointmentCreateForKafkaDTO;
+import com.platform.booking.recording.ProvidersService.dtos.AppointmentGetDTO;
 import com.platform.booking.recording.ProvidersService.models.Appointment;
 import com.platform.booking.recording.ProvidersService.models.Provider;
 import org.springframework.stereotype.Component;
@@ -30,6 +31,19 @@ public class AppointmentMapper {
         appointment.setProvider(provider);
         return appointment;
     }
+    public AppointmentGetDTO entityToGetDTO(Appointment appointment){
+        AppointmentGetDTO dto = new AppointmentGetDTO();
+        dto.setId(appointment.getId());
+        dto.setProviderId(appointment.getProvider().getId());
+        dto.setStatus(appointment.getStatus());
+        dto.setEndTime(appointment.getEndTime());
+        dto.setStartTime(appointment.getStartTime());
+        dto.setClientName(appointment.getClientName());
+        dto.setClientEmail(appointment.getClientEmail());
+        dto.setClientComment(appointment.getClientComment());
+        return dto;
+    }
+
 
 
 }

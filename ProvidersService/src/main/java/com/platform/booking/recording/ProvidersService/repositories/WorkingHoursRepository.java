@@ -11,5 +11,5 @@ import java.util.UUID;
 @Repository
 public interface WorkingHoursRepository extends JpaRepository<WorkingHours, UUID> {
     List<WorkingHours> findAllByProvider(Provider provider);
-    List<WorkingHours> findAllByProviderId(UUID providerId);
+    List<WorkingHours> findAllByProvider_Id(UUID providerId);
 }
