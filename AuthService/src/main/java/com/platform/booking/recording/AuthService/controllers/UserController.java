@@ -97,6 +97,8 @@ public class UserController {
                                                              BindingResult bindingResult){
         checkErrors(bindingResult);
         User user = userService.updateUser(id, dto);
+        if (dto.getEmail()!=null)
+            kafkaRegistrationProducerService.sendEmail(user.getId(), user.getEmail());
         TokenResponse tokenResponse = tokenProvider.createTokens(user);
         ResponseCookie responseCookie = tokenProvider.createResponseCookie(tokenResponse.getRefreshToken());
         return ResponseEntity.status(HttpStatus.OK)

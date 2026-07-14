@@ -1,5 +1,6 @@
 package com.platform.booking.recording.AuthService.services;
 
+import com.platform.booking.recording.AuthService.dtos.ProviderUpdateEmailDTO;
 import com.platform.booking.recording.AuthService.dtos.RegistrationUserDTO;
 import com.platform.booking.recording.AuthService.dtos.UserForKafkaDTO;
 import com.platform.booking.recording.AuthService.models.User;
@@ -10,16 +11,29 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
+import java.util.UUID;
+
 @RequiredArgsConstructor
 @Component
 public class KafkaRegistrationProducerService {
     private final KafkaTemplate<String, UserForKafkaDTO> userRegistrationKafkaTemplate;
+    private final KafkaTemplate<String, ProviderUpdateEmailDTO> userEmailKafkaTemplate;
     private final Mapper mapper;
 
     public void send(RegistrationUserDTO dto, User user){
         UserForKafkaDTO userForKafkaDTO = mapper.registrationUserToUserToKafkaDTO(dto, user);
         try {
             userRegistrationKafkaTemplate.send("user-topic", userForKafkaDTO).get();
+        }catch (Exception e){
+            //add logs with cause
+            throw new KafkaException(e.getMessage());
+        }
+
+    }
+    public void sendEmail(UUID id, String email){
+        ProviderUpdateEmailDTO dto = new ProviderUpdateEmailDTO(id, email);
+        try {
+            userEmailKafkaTemplate.send("user-email-topic", dto).get();
         }catch (Exception e){
             //add logs with cause
             throw new KafkaException(e.getMessage());
