@@ -8,6 +8,7 @@ import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
 
@@ -23,6 +24,12 @@ public class ProviderController {
                                               @RequestBody ProviderChangeDataDTO dto){
         providerService.update(id, dto);
         return ResponseEntity.status(HttpStatus.OK).build();
+    }
+    @PostMapping("/change-avatar/{id}")
+    public ResponseEntity<Void> changeAvatar(@PathVariable(name = "id") UUID id,
+                                             @RequestPart(name = "imageData") MultipartFile file){
+        providerService.updateAvatar(id, file);
+        return ResponseEntity.ok().build();
     }
 
 

@@ -3,6 +3,7 @@ package com.platform.booking.recording.ProvidersService.services;
 import com.platform.booking.recording.ProvidersService.dtos.ProviderChangeDataDTO;
 import com.platform.booking.recording.ProvidersService.dtos.ProviderCreateDTO;
 import com.platform.booking.recording.ProvidersService.dtos.ProviderUpdateEmailDTO;
+import com.platform.booking.recording.ProvidersService.exceptions.FailedSaveImageException;
 import com.platform.booking.recording.ProvidersService.exceptions.ProviderNotFoundException;
 import com.platform.booking.recording.ProvidersService.models.Provider;
 import com.platform.booking.recording.ProvidersService.repositories.ProviderRepository;
@@ -10,6 +11,7 @@ import com.platform.booking.recording.ProvidersService.util.ProviderMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.OffsetDateTime;
 import java.util.Optional;
@@ -20,7 +22,7 @@ import java.util.UUID;
 public class ProviderService {
     private final ProviderRepository providerRepository;
     private final ProviderMapper providerMapper;
-
+    private final ImageService imageService;
 
     @Transactional
     public void save(ProviderCreateDTO dto){
@@ -55,6 +57,20 @@ public class ProviderService {
         Provider provider = providerRepository.findById(dto.getId())
                 .orElseThrow(()->new ProviderNotFoundException("Provider not found"));
         provider.setEmail(dto.getEmail());
+        providerRepository.save(provider);
+    }
+    @Transactional
+    public void updateAvatar(UUID id, MultipartFile file){
+        Provider provider = providerRepository.findById(id)
+                .orElseThrow(()->  new ProviderNotFoundException("Provider not found"));
+        if (file!=null){
+            try {
+                String url = imageService.storeImage(file, provider.getId());
+                provider.setAvatarURL(url);
+            } catch (Exception e) {
+                throw new FailedSaveImageException(e.getMessage() + e.getCause());
+            }
+        }
         providerRepository.save(provider);
     }
 
