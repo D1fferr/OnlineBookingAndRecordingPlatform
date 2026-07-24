@@ -21,51 +21,11 @@ import java.util.Map;
 
 @Configuration
 @RequiredArgsConstructor
-@EnableKafka
-public class KafkaProviderConsumersConfig {
+public class KafkaAppointmentConsumersConfig {
     private final ExternalConfig config;
     private final String kafkaEndpoint = config.getKafka().getEndpoint();
 
-    @Bean
-    public ConsumerFactory<String, ProviderCreateDTO> providerRegistrationConsumerFactory() {
-        Map<String, Object> configKafkaConsumer = new HashMap<>();
-        configKafkaConsumer.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaEndpoint);
-        configKafkaConsumer.put(ConsumerConfig.GROUP_ID_CONFIG, "email-service");
-        configKafkaConsumer.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JacksonJsonSerializer.class);
-        JacksonJsonDeserializer<ProviderCreateDTO> jacksonDeserializer =
-                new JacksonJsonDeserializer<>(ProviderCreateDTO.class);
-        return new DefaultKafkaConsumerFactory<>(
-                configKafkaConsumer,
-                new StringDeserializer(),
-                jacksonDeserializer
-        );
-    }
-    @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, ProviderCreateDTO> providerRegistrationKafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, ProviderCreateDTO> factory = new ConcurrentKafkaListenerContainerFactory<>();
-        factory.setConsumerFactory(providerRegistrationConsumerFactory());
-        return factory;
-    }
-    @Bean
-    public ConsumerFactory<String, ResetPasswordDTO> providerResetPasswordConsumerFactory() {
-        Map<String, Object> configKafkaConsumer = new HashMap<>();
-        configKafkaConsumer.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaEndpoint);
-        configKafkaConsumer.put(ConsumerConfig.GROUP_ID_CONFIG, "email-service");
-        configKafkaConsumer.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JacksonJsonSerializer.class);
-        JacksonJsonDeserializer<ResetPasswordDTO> jacksonDeserializer =
-                new JacksonJsonDeserializer<>(ResetPasswordDTO.class);
-        return new DefaultKafkaConsumerFactory<>(
-                configKafkaConsumer,
-                new StringDeserializer(),
-                jacksonDeserializer
-        );
-    }
-    @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, ResetPasswordDTO> providerResetPasswordKafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, ResetPasswordDTO> factory = new ConcurrentKafkaListenerContainerFactory<>();
-        factory.setConsumerFactory(providerResetPasswordConsumerFactory());
-        return factory;
-    }
+
     @Bean
     public ConsumerFactory<String, AppointmentCreateDTO> providerAppointmentConsumerFactory() {
         Map<String, Object> configKafkaConsumer = new HashMap<>();
