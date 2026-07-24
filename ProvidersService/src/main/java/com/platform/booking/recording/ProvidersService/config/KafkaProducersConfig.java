@@ -1,6 +1,7 @@
 package com.platform.booking.recording.ProvidersService.config;
 
-import com.platform.booking.recording.ProvidersService.dtos.AppointmentCreateForKafkaDTO;
+import com.platform.booking.recording.ProvidersService.dtos.AppointmentCancelledForKafkaDTO;
+import com.platform.booking.recording.ProvidersService.dtos.AppointmentForKafkaDTO;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
@@ -22,16 +23,29 @@ public class KafkaProducersConfig {
     private final ExternalConfig config;
     private final String kafkaEndpoint = config.getKafka().getEndpoint();
     @Bean
-    public ProducerFactory<String, AppointmentCreateForKafkaDTO> appointmentCreateProducerFactory(){
+    public ProducerFactory<String, AppointmentForKafkaDTO> appointmentCreateProducerFactory(){
         Map<String, Object> configKafkaProducer = new HashMap<>();
         configKafkaProducer.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaEndpoint);
         configKafkaProducer.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         configKafkaProducer.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JacksonJsonSerializer.class);
-        configKafkaProducer.put(JacksonJsonSerializer.TYPE_MAPPINGS, "AppointmentCreateForKafkaDTO:package com.platform.booking.recording.ProvidersService.dtos.AppointmentCreateForKafkaDTO");
+        configKafkaProducer.put(JacksonJsonSerializer.TYPE_MAPPINGS, "AppointmentForKafkaDTO:package com.platform.booking.recording.ProvidersService.dtos.AppointmentForKafkaDTO");
         return new DefaultKafkaProducerFactory<>(configKafkaProducer);
     }
     @Bean
-    public KafkaTemplate<String, AppointmentCreateForKafkaDTO> appointmentCreateKafkaTemplate(){
+    public KafkaTemplate<String, AppointmentForKafkaDTO> appointmentCreateKafkaTemplate(){
         return new KafkaTemplate<>(appointmentCreateProducerFactory());
+    }
+    @Bean
+    public ProducerFactory<String, AppointmentCancelledForKafkaDTO> appointmentCancelledProducerFactory(){
+        Map<String, Object> configKafkaProducer = new HashMap<>();
+        configKafkaProducer.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaEndpoint);
+        configKafkaProducer.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        configKafkaProducer.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JacksonJsonSerializer.class);
+        configKafkaProducer.put(JacksonJsonSerializer.TYPE_MAPPINGS, "AppointmentCancelledForKafkaDTO:package com.platform.booking.recording.ProvidersService.dtos.AppointmentCancelledForKafkaDTO");
+        return new DefaultKafkaProducerFactory<>(configKafkaProducer);
+    }
+    @Bean
+    public KafkaTemplate<String, AppointmentCancelledForKafkaDTO> appointmentCancelledKafkaTemplate(){
+        return new KafkaTemplate<>(appointmentCancelledProducerFactory());
     }
 }

@@ -32,11 +32,10 @@ public class AppointmentService {
 
     @Transactional
     public Appointment save(AppointmentCreateDTO dto){
-        if (!providerRepository.existsById(dto.getProviderId()))
-            throw new ProviderNotFoundException("Provider not found");
+        Provider provider = providerRepository.findById(dto.getProviderId())
+                .orElseThrow(()->new ProviderNotFoundException("Provider not found"));
         if(appointmentRepository.existsOverlappingAppointment(dto.getProviderId(), dto.getStartTime(), dto.getEndTime()))
             throw new AppointmentConflictException("This time is already taken by another client!");
-        Provider provider = providerRepository.getReferenceById(dto.getProviderId());
         Appointment appointment = appointmentMapper.createDTOtoEntity(dto, provider);
         appointment.setCreatedAt(OffsetDateTime.now());
         appointment.setIsReminderSent(Boolean.FALSE);

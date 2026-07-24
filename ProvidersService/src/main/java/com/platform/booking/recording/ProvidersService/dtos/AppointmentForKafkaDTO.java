@@ -1,7 +1,5 @@
 package com.platform.booking.recording.ProvidersService.dtos;
 
-import com.platform.booking.recording.ProvidersService.models.AppointmentsStatus;
-import jakarta.persistence.Column;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,7 +10,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Getter
 @Setter
-public class AppointmentCreateForKafkaDTO {
+public class AppointmentForKafkaDTO {
     private UUID secureToken;
     private String clientName;
     private String clientEmail;
@@ -20,5 +18,6 @@ public class AppointmentCreateForKafkaDTO {
     private OffsetDateTime startTime;
     private OffsetDateTime endTime;
     private String providerEmail;
+    private String timezone;
 
 }
