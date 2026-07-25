@@ -19,13 +19,13 @@ public class ProviderController {
     private final ProviderService providerService;
 
 
-    @PatchMapping("/change-profile/{id}")
+    @PatchMapping("/auth/change-profile/{id}")
     public ResponseEntity<Void> changeProfile(@PathVariable(name = "id")UUID id,
                                               @RequestBody ProviderChangeDataDTO dto){
         providerService.update(id, dto);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
-    @PostMapping("/change-avatar/{id}")
+    @PostMapping("/auth/change-avatar/{id}")
     public ResponseEntity<Void> changeAvatar(@PathVariable(name = "id") UUID id,
                                              @RequestPart(name = "imageData") MultipartFile file){
         providerService.updateAvatar(id, file);

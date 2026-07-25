@@ -23,7 +23,7 @@ public class WorkingHoursController {
 
     private final WorkingHoursService workingHoursService;
 
-    @PostMapping("/set-working-hours")
+    @PostMapping("/auth/set-working-hours")
     public ResponseEntity<Void> setWorkingHours(@RequestBody @Valid ListWorkingHoursCreateDTO dto,
                                                 BindingResult bindingResult){
 
@@ -31,7 +31,7 @@ public class WorkingHoursController {
         workingHoursService.saveOrUpdate(dto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
-    @GetMapping("/get-working-hours/{id}")
+    @GetMapping("/public/get-working-hours/{id}")
     public ResponseEntity<ListWorkingHoursGetDTO> getWorkingHours(@PathVariable(name = "id") UUID id){
         return ResponseEntity.ok(workingHoursService.findWorkingHours(id));
     }

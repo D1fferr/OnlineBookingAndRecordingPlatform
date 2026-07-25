@@ -31,7 +31,7 @@ public class AppointmentController {
     private final ProviderService providerService;
     private final KafkaAppointmentProducerService kafkaAppointmentProducerService;
 
-    @PostMapping("/create")
+    @PostMapping("/auth/create")
     public ResponseEntity<Void> createAppointment(@RequestBody @Valid AppointmentCreateDTO dto,
                                                   BindingResult bindingResult){
         checkErrors(bindingResult);
@@ -39,13 +39,13 @@ public class AppointmentController {
         kafkaAppointmentProducerService.sendToCreate(appointment, appointment.getProvider().getEmail(), appointment.getProvider().getTimezone());
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
-    @PostMapping("change-status-to-confirmed/{id}")
+    @PostMapping("/auth/change-status-to-confirmed/{id}")
     public ResponseEntity<Void> changeStatusToConfirmed(@PathVariable(name = "id") UUID id){
         Appointment appointment = appointmentService.changeStatusToConformed(id);
         kafkaAppointmentProducerService.sendToConfirmed(appointment, appointment.getProvider().getEmail(), appointment.getProvider().getTimezone());
         return ResponseEntity.ok().build();
     }
-    @PostMapping("change-status-to-cancelled/{id}")
+    @PostMapping("/auth/change-status-to-cancelled/{id}")
     public ResponseEntity<Void> changeStatusToCancelled(@PathVariable(name = "id") UUID id,
                                                         @RequestBody @Valid AppointmentCancelledReasonDTO reason,
                                                         BindingResult bindingResult){
@@ -56,13 +56,13 @@ public class AppointmentController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/delete-appointment-by-user/{secure-token}")
+    @PostMapping("public/delete-appointment-by-user/{secure-token}")
     public ResponseEntity<Void> deleteAppointment(@PathVariable(name = "secure-token") UUID token){
         Appointment appointment = appointmentService.deleteByToken(token);
         kafkaAppointmentProducerService.sendToDeleted(appointment, appointment.getProvider().getEmail(), appointment.getProvider().getTimezone());
         return ResponseEntity.ok().build();
     }
-    @GetMapping("/get-appointments-by-provider/{id}")
+    @GetMapping("/auth/get-appointments-by-provider/{id}")
     public ResponseEntity<AppointmentPageDTO> getAppointmentsByProvider(@PathVariable(name = "id") UUID id,
                                                                         @RequestParam(value = "page", defaultValue = "0") Integer page,
                                                                         @RequestParam(value = "appPerPage", defaultValue = "8", required = false) Integer appPerPage,
@@ -77,7 +77,7 @@ public class AppointmentController {
         }
         return ResponseEntity.ok(pageDTO);
     }
-    @GetMapping("/get-appointment/{id}")
+    @GetMapping("/auth/get-appointment/{id}")
     public ResponseEntity<AppointmentGetDTO> getAppointment(@PathVariable(name = "id") UUID id){
         return ResponseEntity.ok(appointmentService.findById(id));
     }
