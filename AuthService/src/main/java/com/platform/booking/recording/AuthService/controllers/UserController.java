@@ -63,7 +63,7 @@ public class UserController {
                 .body(new AuthResponseDTO(tokenResponse.getAccessToken()));
 
     }
-    @PostMapping("/refresh")
+    @PostMapping("/public/refresh")
     public ResponseEntity<AuthResponseDTO> refreshToken(@CookieValue(name = "refreshToken") String refreshToken){
         TokenResponse newTokens = tokenProvider.refreshTokens(refreshToken);
         ResponseCookie responseCookie = tokenProvider.createResponseCookie(newTokens.getRefreshToken());
@@ -72,7 +72,7 @@ public class UserController {
                 .body(new AuthResponseDTO(newTokens.getAccessToken()));
     }
 
-    @PostMapping("/login")
+    @PostMapping("/public/login")
     public ResponseEntity<AuthResponseDTO> login(@RequestBody LoginDTO loginDTO){
         User user = userService.login(loginDTO);
         TokenResponse tokenResponse = tokenProvider.createTokens(user);
@@ -81,7 +81,7 @@ public class UserController {
                 .header(HttpHeaders.SET_COOKIE, responseCookie.toString())
                 .body(new AuthResponseDTO(tokenResponse.getAccessToken()));
     }
-    @PostMapping("/logout")
+    @PostMapping("/auth/logout")
     public ResponseEntity<String> logout(@CookieValue(name = "refreshToken") String refreshToken){
         if (refreshToken!=null){
             Optional<RefreshToken> refreshRedisToken = refreshTokenService.findByRefreshTokenForLogout(refreshToken);
@@ -91,7 +91,7 @@ public class UserController {
                 .header(HttpHeaders.SET_COOKIE, tokenProvider.createClearShareCookie().toString())
                 .build();
     }
-    @PostMapping("/change-credentials/{id}")
+    @PostMapping("/auth/change-credentials/{id}")
     public ResponseEntity<AuthResponseDTO> changeCredentials(@PathVariable(name = "id") UUID id,
                                                              @RequestBody ChangeCredentialsDTO dto,
                                                              BindingResult bindingResult){
@@ -105,18 +105,18 @@ public class UserController {
                 .header(HttpHeaders.SET_COOKIE, responseCookie.toString())
                 .body(new AuthResponseDTO(tokenResponse.getAccessToken()));
     }
-    @PostMapping("/change-avatar/{id}")
+    @PostMapping("/auth/change-avatar/{id}")
     public ResponseEntity<Void> changeAvatar(@PathVariable(name = "id") UUID id,
                                              @RequestPart(name = "imageData") MultipartFile file){
         userService.updateAvatar(id, file);
         return ResponseEntity.ok().build();
     }
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/auth/delete/{id}")
     public ResponseEntity<Void> delete(@PathVariable(name = "id") UUID id){
         userService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
-    @PostMapping("/block-user")
+    @PostMapping("/auth/block-user")
     public ResponseEntity<Void> blockUser(@RequestBody @Valid BlockUserDTO dto,
                                           BindingResult bindingResult){
         checkErrors(bindingResult);
@@ -125,12 +125,12 @@ public class UserController {
         return ResponseEntity.noContent()
                 .build();
     }
-    @PostMapping("/logout-user/{id}")
+    @PostMapping("/auth/logout-user/{id}")
     public ResponseEntity<Void> logoutUser(@PathVariable(name = "id") UUID id){
         refreshTokenService.deleteByUserId(id);
         return ResponseEntity.noContent().build();
     }
-    @GetMapping("/get-all-users")
+    @GetMapping("/auth/get-all-users")
     public ResponseEntity<PageUserDTO> getAllUsers(@RequestParam(value = "page", defaultValue = "0") Integer page,
                                                    @RequestParam(value = "usersPerPage", defaultValue = "8", required = false) Integer usersPerPage,
                                                    @RequestParam(value = "sortBy", defaultValue = "createdAt") String sortBy,
@@ -146,7 +146,7 @@ public class UserController {
         return ResponseEntity.ok(dto);
     }
 
-    @GetMapping("/get-one-user/{id}")
+    @GetMapping("/auth/get-one-user/{id}")
     public ResponseEntity<UserForGetRequestDTO> getOneUser(@PathVariable(name = "id") UUID id){
         return ResponseEntity.ok(userService.findOneById(id));
     }

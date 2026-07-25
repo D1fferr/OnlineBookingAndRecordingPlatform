@@ -24,7 +24,7 @@ public class ResetPasswordController {
 
     private final ResetPasswordService resetPasswordService;
 
-    @PostMapping("/send-code")
+    @PostMapping("public/send-code")
     public ResponseEntity<SendCodeDTO> sendCode(@RequestBody @Valid SendCodeDTO dto,
                                                 BindingResult bindingResult){
         if (bindingResult.hasErrors()){
@@ -34,7 +34,7 @@ public class ResetPasswordController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(dto);
     }
-    @PostMapping("/reset")
+    @PostMapping("public/reset")
     public ResponseEntity<Void> resetPassword(@RequestBody @Valid ResetPasswordDTO dto,
                                               BindingResult bindingResult){
         if (bindingResult.hasErrors()){
