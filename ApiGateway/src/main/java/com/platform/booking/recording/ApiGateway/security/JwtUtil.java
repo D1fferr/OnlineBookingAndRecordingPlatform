@@ -4,15 +4,12 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import io.jsonwebtoken.Claims;
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
-import java.util.Date;
 
-@Slf4j
 @Component
 public class JwtUtil {
 
@@ -31,7 +28,6 @@ public class JwtUtil {
         try {
             return jwtParser.parseSignedClaims(token).getPayload();
         } catch (JwtException | IllegalArgumentException e) {
-            log.warn("JWT validation failed: {}", e.getMessage());
             throw e;
         }
     }
@@ -39,14 +35,6 @@ public class JwtUtil {
     public String extractRoles(String token) {
         return extractAllClaims(token).get("role", String.class);
     }
-
-//    public String extractSubject(String token) {
-//        return extractAllClaims(token).getSubject();
-//    }
-//
-//    public Date extractExpirationDate(String token) {
-//        return extractAllClaims(token).getExpiration();
-//    }
 
     public boolean validateToken(String token) {
         try {

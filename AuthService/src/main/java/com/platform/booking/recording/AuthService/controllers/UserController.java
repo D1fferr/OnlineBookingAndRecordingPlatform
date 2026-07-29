@@ -1,7 +1,6 @@
 package com.platform.booking.recording.AuthService.controllers;
 
 import com.platform.booking.recording.AuthService.dtos.*;
-import com.platform.booking.recording.AuthService.exceptions.ValidationUserException;
 import com.platform.booking.recording.AuthService.models.RefreshToken;
 import com.platform.booking.recording.AuthService.models.User;
 import com.platform.booking.recording.AuthService.security.TokenProvider;
@@ -37,9 +36,7 @@ public class UserController {
 
     @PostMapping("/public/register")
     public ResponseEntity<AuthResponseDTO> register(@RequestPart(name = "userData")  @Valid RegistrationUserDTO dto,
-                                                    @RequestPart(name = "imageData", required = false) MultipartFile file,
-                                                    BindingResult bindingResult){
-        checkErrors(bindingResult);
+                                                    @RequestPart(name = "imageData", required = false) MultipartFile file){
         User user = userService.save(dto, file);
         kafkaRegistrationProducerService.send(dto, user);
         TokenResponse tokenResponse = tokenProvider.createTokens(user);
@@ -51,9 +48,7 @@ public class UserController {
     }
     @PostMapping("/public/register/as-admin")
     public ResponseEntity<AuthResponseDTO> registerAsAdmin(@RequestPart(name = "userData")  @Valid RegistrationUserDTO dto,
-                                                           @RequestPart(name = "imageData", required = false) MultipartFile file,
-                                                           BindingResult bindingResult){
-        checkErrors(bindingResult);
+                                                           @RequestPart(name = "imageData", required = false) MultipartFile file){
         User user = userService.saveAsAdmin(dto, file);
         kafkaRegistrationProducerService.send(dto, user);
         TokenResponse tokenResponse = tokenProvider.createTokens(user);
@@ -93,9 +88,7 @@ public class UserController {
     }
     @PostMapping("/auth/change-credentials/{id}")
     public ResponseEntity<AuthResponseDTO> changeCredentials(@PathVariable(name = "id") UUID id,
-                                                             @RequestBody ChangeCredentialsDTO dto,
-                                                             BindingResult bindingResult){
-        checkErrors(bindingResult);
+                                                             @RequestBody @Valid ChangeCredentialsDTO dto){
         User user = userService.updateUser(id, dto);
         if (dto.getEmail()!=null)
             kafkaRegistrationProducerService.sendEmail(user.getId(), user.getEmail());
@@ -117,9 +110,7 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
     @PostMapping("/auth/block-user")
-    public ResponseEntity<Void> blockUser(@RequestBody @Valid BlockUserDTO dto,
-                                          BindingResult bindingResult){
-        checkErrors(bindingResult);
+    public ResponseEntity<Void> blockUser(@RequestBody @Valid BlockUserDTO dto){
         userService.blockUser(dto);
         refreshTokenService.deleteByUserId(dto.getUserId());
         return ResponseEntity.noContent()
@@ -151,16 +142,5 @@ public class UserController {
         return ResponseEntity.ok(userService.findOneById(id));
     }
 
-    private void checkErrors(BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            StringBuilder errorMessage = new StringBuilder();
-            List<FieldError> errors = bindingResult.getFieldErrors();
-            for (FieldError error : errors) {
-                errorMessage.append(error.getField()).append(" - ")
-                        .append(error.getDefaultMessage()).append(";");
-            }
-            throw new ValidationUserException(errorMessage.toString());
-        }
-    }
 
 }

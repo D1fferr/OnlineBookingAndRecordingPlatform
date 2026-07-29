@@ -24,10 +24,8 @@ public class WorkingHoursController {
     private final WorkingHoursService workingHoursService;
 
     @PostMapping("/auth/set-working-hours")
-    public ResponseEntity<Void> setWorkingHours(@RequestBody @Valid ListWorkingHoursCreateDTO dto,
-                                                BindingResult bindingResult){
+    public ResponseEntity<Void> setWorkingHours(@RequestBody @Valid ListWorkingHoursCreateDTO dto){
 
-        checkErrors(bindingResult);
         workingHoursService.saveOrUpdate(dto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -37,16 +35,6 @@ public class WorkingHoursController {
     }
 
 
-    private void checkErrors(BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            StringBuilder errorMessage = new StringBuilder();
-            List<FieldError> errors = bindingResult.getFieldErrors();
-            for (FieldError error : errors) {
-                errorMessage.append(error.getField()).append(" - ")
-                        .append(error.getDefaultMessage()).append(";");
-            }
-            throw new ValidationException(errorMessage.toString());
-        }
-    }
+
 
 }

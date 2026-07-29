@@ -7,16 +7,13 @@ import com.platform.booking.recording.ProvidersService.dtos.AppointmentPageDTO;
 import com.platform.booking.recording.ProvidersService.models.Appointment;
 import com.platform.booking.recording.ProvidersService.services.AppointmentService;
 import com.platform.booking.recording.ProvidersService.services.KafkaAppointmentProducerService;
-import com.platform.booking.recording.ProvidersService.services.ProviderService;
 import jakarta.validation.Valid;
-import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
+
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,13 +25,10 @@ import java.util.UUID;
 public class AppointmentController {
 
     private final AppointmentService appointmentService;
-    private final ProviderService providerService;
     private final KafkaAppointmentProducerService kafkaAppointmentProducerService;
 
     @PostMapping("/auth/create")
-    public ResponseEntity<Void> createAppointment(@RequestBody @Valid AppointmentCreateDTO dto,
-                                                  BindingResult bindingResult){
-        checkErrors(bindingResult);
+    public ResponseEntity<Void> createAppointment(@RequestBody @Valid AppointmentCreateDTO dto){
         Appointment appointment = appointmentService.save(dto);
         kafkaAppointmentProducerService.sendToCreate(appointment, appointment.getProvider().getEmail(), appointment.getProvider().getTimezone());
         return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -47,10 +41,7 @@ public class AppointmentController {
     }
     @PostMapping("/auth/change-status-to-cancelled/{id}")
     public ResponseEntity<Void> changeStatusToCancelled(@PathVariable(name = "id") UUID id,
-                                                        @RequestBody @Valid AppointmentCancelledReasonDTO reason,
-                                                        BindingResult bindingResult){
-        if (bindingResult.hasErrors())
-            throw new ValidationException(bindingResult.getFieldErrors().toString());
+                                                        @RequestBody @Valid AppointmentCancelledReasonDTO reason){
         Appointment appointment = appointmentService.changeStatusToCancelled(id);
         kafkaAppointmentProducerService.sendToCancelled(appointment, appointment.getProvider().getEmail(), appointment.getProvider().getTimezone(), reason.getReason());
         return ResponseEntity.ok().build();
@@ -82,17 +73,7 @@ public class AppointmentController {
         return ResponseEntity.ok(appointmentService.findById(id));
     }
 
-    private void checkErrors(BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            StringBuilder errorMessage = new StringBuilder();
-            List<FieldError> errors = bindingResult.getFieldErrors();
-            for (FieldError error : errors) {
-                errorMessage.append(error.getField()).append(" - ")
-                        .append(error.getDefaultMessage()).append(";");
-            }
-            throw new ValidationException(errorMessage.toString());
-        }
-    }
+
 }
 
 

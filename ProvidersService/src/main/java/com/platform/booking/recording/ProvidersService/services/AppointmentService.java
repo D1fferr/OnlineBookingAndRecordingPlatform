@@ -13,13 +13,13 @@ import com.platform.booking.recording.ProvidersService.repositories.AppointmentR
 import com.platform.booking.recording.ProvidersService.repositories.ProviderRepository;
 import com.platform.booking.recording.ProvidersService.util.AppointmentMapper;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.MDC;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.OffsetDateTime;
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -32,6 +32,9 @@ public class AppointmentService {
 
     @Transactional
     public Appointment save(AppointmentCreateDTO dto){
+        MDC.put("providerId", dto.getProviderId().toString());
+        MDC.put("startTime", dto.getStartTime().toString());
+        MDC.put("endTime", dto.getEndTime().toString());
         Provider provider = providerRepository.findById(dto.getProviderId())
                 .orElseThrow(()->new ProviderNotFoundException("Provider not found"));
         if(appointmentRepository.existsOverlappingAppointment(dto.getProviderId(), dto.getStartTime(), dto.getEndTime()))
@@ -45,6 +48,7 @@ public class AppointmentService {
     }
     @Transactional
     public void setIsRemindedSentToTrue(UUID id){
+        MDC.put("appointmentId", id.toString());
         Appointment appointment = appointmentRepository.findById(id)
                 .orElseThrow(()->new AppointmentNotFoundException("Appointment not found"));
         appointment.setIsReminderSent(Boolean.TRUE);
@@ -52,6 +56,7 @@ public class AppointmentService {
     }
     @Transactional
     public Appointment changeStatusToConformed(UUID id){
+        MDC.put("appointmentId", id.toString());
         Appointment appointment = appointmentRepository.findByIdWithProvider(id)
                 .orElseThrow(()->new AppointmentNotFoundException("Appointment not found"));
         appointment.setStatus(AppointmentsStatus.CONFIRMED);
@@ -59,6 +64,7 @@ public class AppointmentService {
     }
     @Transactional
     public Appointment changeStatusToCancelled(UUID id){
+        MDC.put("appointmentId", id.toString());
         Appointment appointment = appointmentRepository.findByIdWithProvider(id)
                 .orElseThrow(()->new AppointmentNotFoundException("Appointment not found"));
         appointment.setStatus(AppointmentsStatus.CANCELLED);
@@ -66,6 +72,7 @@ public class AppointmentService {
     }
     @Transactional
     public Appointment deleteByToken(UUID token){
+        MDC.put("secureToken", token.toString());
         Appointment appointment = appointmentRepository.findBySecureTokenWithProvider(token)
                 .orElseThrow(()->new AppointmentNotFoundException("Appointment not found"));
         appointmentRepository.delete(appointment);
@@ -98,6 +105,7 @@ public class AppointmentService {
     }
     @Transactional(readOnly = true)
     public AppointmentGetDTO findById(UUID id){
+        MDC.put("appointmentId", id.toString());
         Appointment appointment = appointmentRepository.findById(id)
                 .orElseThrow(()->new AppointmentNotFoundException("Appointment not found"));
     return appointmentMapper.entityToGetDTO(appointment);

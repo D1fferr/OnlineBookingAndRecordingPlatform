@@ -9,6 +9,7 @@ import com.platform.booking.recording.ProvidersService.models.Provider;
 import com.platform.booking.recording.ProvidersService.repositories.ProviderRepository;
 import com.platform.booking.recording.ProvidersService.util.ProviderMapper;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.MDC;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,18 +31,9 @@ public class ProviderService {
         provider.setCreatedAt(OffsetDateTime.now());
         providerRepository.save(provider);
     }
-    @Transactional(readOnly = true)
-    public Optional<Provider> findById(UUID id){
-        return providerRepository.findById(id);
-    }
-    @Transactional(readOnly = true)
-    public String findEmailById(UUID id){
-        Provider provider = providerRepository.findById(id)
-                .orElseThrow(()->new ProviderNotFoundException("Provider not found"));
-        return provider.getEmail();
-    }
     @Transactional
     public void update(UUID id, ProviderChangeDataDTO dto){
+        MDC.put("providerId", id.toString());
         Provider provider = providerRepository.findById(id)
                 .orElseThrow(()->new ProviderNotFoundException("Provider not found"));
         if (dto.getName()!=null)
@@ -54,6 +46,7 @@ public class ProviderService {
     }
     @Transactional
     public void updateEmail(ProviderUpdateEmailDTO dto){
+        MDC.put("providerId", dto.getId().toString());
         Provider provider = providerRepository.findById(dto.getId())
                 .orElseThrow(()->new ProviderNotFoundException("Provider not found"));
         provider.setEmail(dto.getEmail());
@@ -61,6 +54,7 @@ public class ProviderService {
     }
     @Transactional
     public void updateAvatar(UUID id, MultipartFile file){
+        MDC.put("providerId", id.toString());
         Provider provider = providerRepository.findById(id)
                 .orElseThrow(()->  new ProviderNotFoundException("Provider not found"));
         if (file!=null){

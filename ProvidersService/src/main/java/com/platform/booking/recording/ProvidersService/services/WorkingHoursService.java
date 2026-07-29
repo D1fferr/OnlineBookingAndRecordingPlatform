@@ -9,6 +9,7 @@ import com.platform.booking.recording.ProvidersService.repositories.ProviderRepo
 import com.platform.booking.recording.ProvidersService.repositories.WorkingHoursRepository;
 import com.platform.booking.recording.ProvidersService.util.WorkingHoursMapper;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.MDC;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +31,7 @@ public class WorkingHoursService {
         if (dto.getWorkingHoursCreateDTOList().isEmpty()){
             return;
         }
+        MDC.put("providerId", dto.getProviderId().toString());
         Provider provider = providerRepository.findById(dto.getProviderId())
                 .orElseThrow(() -> new ProviderNotFoundException("Provider not found"));
         List<WorkingHours> existingHours = workingHoursRepository.findAllByProvider(provider);
@@ -51,6 +53,7 @@ public class WorkingHoursService {
 
     @Transactional(readOnly = true)
     public ListWorkingHoursGetDTO findWorkingHours(UUID id){
+        MDC.put("providerId", id.toString());
         ListWorkingHoursGetDTO dto = new ListWorkingHoursGetDTO();
         if (!providerRepository.existsById(id))
                 throw new ProviderNotFoundException("Provider not found");
