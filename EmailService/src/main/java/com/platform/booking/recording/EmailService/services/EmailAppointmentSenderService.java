@@ -3,7 +3,7 @@ package com.platform.booking.recording.EmailService.services;
 import com.platform.booking.recording.EmailService.config.ExternalConfig;
 import com.platform.booking.recording.EmailService.dtos.AppointmentCancelledDTO;
 import com.platform.booking.recording.EmailService.dtos.AppointmentCreateDTO;
-import com.platform.booking.recording.EmailService.dtos.ProviderCreateDTO;
+import com.platform.booking.recording.EmailService.util.MetricsCounter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.SimpleMailMessage;
@@ -20,8 +20,8 @@ public class EmailAppointmentSenderService {
     private final JavaMailSender mailSender;
     private final TextAppointmentPrepareService textAppointmentPrepareService;
     private final ExternalConfig config;
+    private final MetricsCounter metricsCounter;
     private final String FROM = config.getMail().getFrom();
-
     @Retryable(maxAttempts = 3, backoff = @Backoff(delay = 1000, multiplier = 2))
     public void sendCreateMessageToClient(AppointmentCreateDTO dto){
         SimpleMailMessage message = new SimpleMailMessage();
@@ -30,6 +30,7 @@ public class EmailAppointmentSenderService {
         message.setSubject("New appointment was created");
         message.setText(textAppointmentPrepareService.prepareCreateMessageToClient(dto));
         mailSender.send(message);
+        metricsCounter.incrementEmailCounter("crete_message_to_client", "success");
         log.atInfo()
                 .addKeyValue("providerEmail", dto.getProviderEmail())
                 .addKeyValue("clientName", dto.getClientName())
@@ -43,6 +44,7 @@ public class EmailAppointmentSenderService {
         message.setSubject("New appointment was created");
         message.setText(textAppointmentPrepareService.prepareCreateMessageToProvider(dto));
         mailSender.send(message);
+        metricsCounter.incrementEmailCounter("crete_message_to_provider", "success");
         log.atInfo()
                 .addKeyValue("providerEmail", dto.getProviderEmail())
                 .addKeyValue("clientName", dto.getClientName())
@@ -56,6 +58,7 @@ public class EmailAppointmentSenderService {
         message.setSubject("Appointment confirmed");
         message.setText(textAppointmentPrepareService.prepareConfirmedMessageToClient(dto));
         mailSender.send(message);
+        metricsCounter.incrementEmailCounter("confirmed_message_to_client", "success");
         log.atInfo()
                 .addKeyValue("providerEmail", dto.getProviderEmail())
                 .addKeyValue("clientName", dto.getClientName())
@@ -69,6 +72,7 @@ public class EmailAppointmentSenderService {
         message.setSubject("Appointment cancelled");
         message.setText(textAppointmentPrepareService.prepareCancelledMessageToClient(dto));
         mailSender.send(message);
+        metricsCounter.incrementEmailCounter("cancelled_message_to_client", "success");
         log.atInfo()
                 .addKeyValue("providerEmail", dto.getProviderEmail())
                 .addKeyValue("clientName", dto.getClientName())
@@ -82,6 +86,7 @@ public class EmailAppointmentSenderService {
         message.setSubject("Appointment cancelled");
         message.setText(textAppointmentPrepareService.prepareCancelledMessageToProvider(dto));
         mailSender.send(message);
+        metricsCounter.incrementEmailCounter("deleted_message_to_provider", "success");
         log.atInfo()
                 .addKeyValue("providerEmail", dto.getProviderEmail())
                 .addKeyValue("clientName", dto.getClientName())
@@ -91,6 +96,7 @@ public class EmailAppointmentSenderService {
 
     @Recover
     public void recover(Exception e, AppointmentCreateDTO dto) {
+        metricsCounter.incrementEmailCounter("failed_appointment", "failure");
         log.atWarn()
                 .addKeyValue("exception", e.getClass().getSimpleName())
                 .addKeyValue("providerEmail", dto.getProviderEmail())
@@ -99,6 +105,7 @@ public class EmailAppointmentSenderService {
     }
     @Recover
     public void recover(Exception e, AppointmentCancelledDTO dto) {
+        metricsCounter.incrementEmailCounter("failed_appointment", "failure");
         log.atWarn()
                 .addKeyValue("exception", e.getClass().getSimpleName())
                 .addKeyValue("providerEmail", dto.getProviderEmail())

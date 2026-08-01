@@ -3,6 +3,7 @@ package com.platform.booking.recording.EmailService.services;
 import com.platform.booking.recording.EmailService.config.ExternalConfig;
 import com.platform.booking.recording.EmailService.dtos.ProviderCreateDTO;
 import com.platform.booking.recording.EmailService.dtos.ResetPasswordDTO;
+import com.platform.booking.recording.EmailService.util.MetricsCounter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.SimpleMailMessage;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 public class EmailUserDataSenderService {
     private final JavaMailSender mailSender;
     private final TextUserDataPrepareService textUserDataPrepareService;
+    private final MetricsCounter metricsCounter;
     private final ExternalConfig config;
     private final String FROM = config.getMail().getFrom();
 
@@ -29,6 +31,7 @@ public class EmailUserDataSenderService {
         message.setSubject("Registration");
         message.setText(textUserDataPrepareService.prepareTextForRegistration(dto));
         mailSender.send(message);
+        metricsCounter.incrementEmailCounter("registration_message", "success");
         log.atInfo()
                 .addKeyValue("providerId", dto.getId())
                 .log("The registration message sent to provider");
@@ -41,6 +44,7 @@ public class EmailUserDataSenderService {
         message.setSubject("Reset password");
         message.setText(textUserDataPrepareService.prepareTextForResetPassword(dto));
         mailSender.send(message);
+        metricsCounter.incrementEmailCounter("reset_password_message", "success");
         log.atInfo()
                 .addKeyValue("providerEmail", dto.getEmail())
                 .log("The reset password message sent to provider");
@@ -48,6 +52,7 @@ public class EmailUserDataSenderService {
 
     @Recover
     public void recover(Exception e, ProviderCreateDTO dto) {
+        metricsCounter.incrementEmailCounter("failed_registration_message", "failure");
         log.atWarn()
                 .addKeyValue("exception", e.getClass().getSimpleName())
                 .addKeyValue("providerId", dto.getId())
@@ -55,6 +60,7 @@ public class EmailUserDataSenderService {
     }
     @Recover
     public void recover(Exception e, ResetPasswordDTO dto) {
+        metricsCounter.incrementEmailCounter("failed_reset_password_message", "failure");
         log.atWarn()
                 .addKeyValue("exception", e.getClass().getSimpleName())
                 .addKeyValue("providerEmail", dto.getEmail())
