@@ -5,6 +5,7 @@ import com.platform.booking.recording.EmailService.dtos.AppointmentCancelledDTO;
 import com.platform.booking.recording.EmailService.dtos.AppointmentCreateDTO;
 import com.platform.booking.recording.EmailService.dtos.ProviderCreateDTO;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.retry.annotation.Backoff;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class EmailAppointmentSenderService {
     private final JavaMailSender mailSender;
     private final TextAppointmentPrepareService textAppointmentPrepareService;
@@ -28,6 +30,10 @@ public class EmailAppointmentSenderService {
         message.setSubject("New appointment was created");
         message.setText(textAppointmentPrepareService.prepareCreateMessageToClient(dto));
         mailSender.send(message);
+        log.atInfo()
+                .addKeyValue("providerEmail", dto.getProviderEmail())
+                .addKeyValue("clientName", dto.getClientName())
+                .log("The create message sent to client");
     }
     @Retryable(maxAttempts = 3, backoff = @Backoff(delay = 1000, multiplier = 2))
     public void sendCreateMessageToProvider(AppointmentCreateDTO dto){
@@ -37,6 +43,10 @@ public class EmailAppointmentSenderService {
         message.setSubject("New appointment was created");
         message.setText(textAppointmentPrepareService.prepareCreateMessageToProvider(dto));
         mailSender.send(message);
+        log.atInfo()
+                .addKeyValue("providerEmail", dto.getProviderEmail())
+                .addKeyValue("clientName", dto.getClientName())
+                .log("The create message sent to provider");
     }
     @Retryable(maxAttempts = 3, backoff = @Backoff(delay = 1000, multiplier = 2))
     public void sendConfirmedMessage(AppointmentCreateDTO dto){
@@ -46,6 +56,10 @@ public class EmailAppointmentSenderService {
         message.setSubject("Appointment confirmed");
         message.setText(textAppointmentPrepareService.prepareConfirmedMessageToClient(dto));
         mailSender.send(message);
+        log.atInfo()
+                .addKeyValue("providerEmail", dto.getProviderEmail())
+                .addKeyValue("clientName", dto.getClientName())
+                .log("The confirmed message sent to client");
     }
     @Retryable(maxAttempts = 3, backoff = @Backoff(delay = 1000, multiplier = 2))
     public void sendCancelledMessage(AppointmentCancelledDTO dto){
@@ -55,6 +69,10 @@ public class EmailAppointmentSenderService {
         message.setSubject("Appointment cancelled");
         message.setText(textAppointmentPrepareService.prepareCancelledMessageToClient(dto));
         mailSender.send(message);
+        log.atInfo()
+                .addKeyValue("providerEmail", dto.getProviderEmail())
+                .addKeyValue("clientName", dto.getClientName())
+                .log("The cancelled message sent to client");
     }
     @Retryable(maxAttempts = 3, backoff = @Backoff(delay = 1000, multiplier = 2))
     public void sendDeletedMessageToProvider(AppointmentCreateDTO dto){
@@ -64,16 +82,29 @@ public class EmailAppointmentSenderService {
         message.setSubject("Appointment cancelled");
         message.setText(textAppointmentPrepareService.prepareCancelledMessageToProvider(dto));
         mailSender.send(message);
+        log.atInfo()
+                .addKeyValue("providerEmail", dto.getProviderEmail())
+                .addKeyValue("clientName", dto.getClientName())
+                .log("The deleted message sent to provider");
     }
 
 
     @Recover
     public void recover(Exception e, AppointmentCreateDTO dto) {
-        //add logging
+        log.atWarn()
+                .addKeyValue("exception", e.getClass().getSimpleName())
+                .addKeyValue("providerEmail", dto.getProviderEmail())
+                .addKeyValue("clientName", dto.getClientName())
+                .log(e.getMessage());
     }
     @Recover
     public void recover(Exception e, AppointmentCancelledDTO dto) {
-        //add logging
+        log.atWarn()
+                .addKeyValue("exception", e.getClass().getSimpleName())
+                .addKeyValue("providerEmail", dto.getProviderEmail())
+                .addKeyValue("clientName", dto.getClientName())
+                .addKeyValue("reason", dto.getReason())
+                .log(e.getMessage());
     }
 
 }

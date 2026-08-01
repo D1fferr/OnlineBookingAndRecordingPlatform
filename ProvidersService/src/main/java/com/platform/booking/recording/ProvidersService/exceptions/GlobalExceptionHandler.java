@@ -3,6 +3,7 @@ package com.platform.booking.recording.ProvidersService.exceptions;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.common.KafkaException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -89,6 +90,18 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(errorResponse);
+    }
+    @ExceptionHandler(KafkaException.class)
+    public ResponseEntity<ErrorResponse> handleKafkaException(KafkaException e){
+        log.atWarn()
+                .addKeyValue("exception", e.getClass().getSimpleName())
+                .log(e.getMessage());
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .error("Failed to send message to kafka")
+                .message(e.getMessage())
+                .build();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
     }
 
 

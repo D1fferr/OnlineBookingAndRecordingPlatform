@@ -9,6 +9,7 @@ import com.platform.booking.recording.ProvidersService.repositories.ProviderRepo
 import com.platform.booking.recording.ProvidersService.repositories.WorkingHoursRepository;
 import com.platform.booking.recording.ProvidersService.util.WorkingHoursMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +20,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class WorkingHoursService {
 
@@ -49,6 +51,7 @@ public class WorkingHoursService {
                 })
                 .toList();
         workingHoursRepository.saveAll(entities);
+        log.atInfo().log("Working hours were updated");
     }
 
     @Transactional(readOnly = true)

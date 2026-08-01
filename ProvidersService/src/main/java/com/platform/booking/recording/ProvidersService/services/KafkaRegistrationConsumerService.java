@@ -4,6 +4,8 @@ import com.platform.booking.recording.ProvidersService.dtos.ProviderCreateDTO;
 import com.platform.booking.recording.ProvidersService.dtos.ProviderUpdateEmailDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.messaging.handler.annotation.Header;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -14,7 +16,7 @@ public class KafkaRegistrationConsumerService {
 
     @KafkaListener(topics = "user-topic",
                    containerFactory = "providerRegistrationKafkaListenerContainerFactory")
-    public void getProvider(ProviderCreateDTO dto){
+    public void getProvider(@Payload ProviderCreateDTO dto){
         providerService.save(dto);
     }
     @KafkaListener(topics = "user-email-topic",

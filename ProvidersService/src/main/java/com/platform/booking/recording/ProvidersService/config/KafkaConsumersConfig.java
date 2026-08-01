@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.*;
+import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
 import org.springframework.kafka.support.serializer.JacksonJsonDeserializer;
 import org.springframework.kafka.support.serializer.JacksonJsonSerializer;
 
@@ -31,10 +32,12 @@ public class KafkaConsumersConfig {
         configKafkaConsumer.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JacksonJsonSerializer.class);
         JacksonJsonDeserializer<ProviderCreateDTO> jacksonDeserializer =
                 new JacksonJsonDeserializer<>(ProviderCreateDTO.class);
+        jacksonDeserializer.addTrustedPackages("*");
+        jacksonDeserializer.setUseTypeHeaders(false);
         return new DefaultKafkaConsumerFactory<>(
                 configKafkaConsumer,
                 new StringDeserializer(),
-                jacksonDeserializer
+                new ErrorHandlingDeserializer<>(jacksonDeserializer)
         );
     }
     @Bean
@@ -52,10 +55,12 @@ public class KafkaConsumersConfig {
         configKafkaConsumer.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JacksonJsonSerializer.class);
         JacksonJsonDeserializer<ProviderUpdateEmailDTO> jacksonDeserializer =
                 new JacksonJsonDeserializer<>(ProviderUpdateEmailDTO.class);
+        jacksonDeserializer.addTrustedPackages("*");
+        jacksonDeserializer.setUseTypeHeaders(false);
         return new DefaultKafkaConsumerFactory<>(
                 configKafkaConsumer,
                 new StringDeserializer(),
-                jacksonDeserializer
+                new ErrorHandlingDeserializer<>(jacksonDeserializer)
         );
     }
     @Bean

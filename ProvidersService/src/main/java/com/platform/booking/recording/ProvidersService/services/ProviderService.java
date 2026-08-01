@@ -9,6 +9,7 @@ import com.platform.booking.recording.ProvidersService.models.Provider;
 import com.platform.booking.recording.ProvidersService.repositories.ProviderRepository;
 import com.platform.booking.recording.ProvidersService.util.ProviderMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +19,7 @@ import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ProviderService {
@@ -30,6 +32,9 @@ public class ProviderService {
         Provider provider = providerMapper.createDTOToProvider(dto);
         provider.setCreatedAt(OffsetDateTime.now());
         providerRepository.save(provider);
+        log.atInfo()
+                .addKeyValue("providerId", provider.getId())
+                .log("The provider was created");
     }
     @Transactional
     public void update(UUID id, ProviderChangeDataDTO dto){
@@ -43,6 +48,8 @@ public class ProviderService {
         if (dto.getServiceType()!=null)
             provider.setServiceType(dto.getServiceType());
         providerRepository.save(provider);
+        log.atInfo().log("The provider was updated");
+
     }
     @Transactional
     public void updateEmail(ProviderUpdateEmailDTO dto){
@@ -51,6 +58,7 @@ public class ProviderService {
                 .orElseThrow(()->new ProviderNotFoundException("Provider not found"));
         provider.setEmail(dto.getEmail());
         providerRepository.save(provider);
+        log.atInfo().log("The email was updated");
     }
     @Transactional
     public void updateAvatar(UUID id, MultipartFile file){
@@ -66,6 +74,8 @@ public class ProviderService {
             }
         }
         providerRepository.save(provider);
+        log.atInfo().log("The avatar was updated");
+
     }
 
 

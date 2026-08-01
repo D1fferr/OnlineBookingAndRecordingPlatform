@@ -1,5 +1,6 @@
 package com.platform.booking.recording.ProvidersService.config;
 
+import com.platform.booking.recording.ProvidersService.util.MdcLoggingInterceptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;

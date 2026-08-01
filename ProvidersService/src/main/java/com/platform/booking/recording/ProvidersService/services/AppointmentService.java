@@ -13,6 +13,7 @@ import com.platform.booking.recording.ProvidersService.repositories.AppointmentR
 import com.platform.booking.recording.ProvidersService.repositories.ProviderRepository;
 import com.platform.booking.recording.ProvidersService.util.AppointmentMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AppointmentService {
@@ -44,7 +46,11 @@ public class AppointmentService {
         appointment.setIsReminderSent(Boolean.FALSE);
         appointment.setSecureToken(UUID.randomUUID());
         appointment.setStatus(AppointmentsStatus.PENDING);
-        return appointmentRepository.save(appointment);
+        appointmentRepository.save(appointment);
+        log.atInfo()
+                .addKeyValue("appointmentId", appointment.getId())
+                .log("The appointment was created");
+        return appointment;
     }
     @Transactional
     public void setIsRemindedSentToTrue(UUID id){
@@ -53,6 +59,8 @@ public class AppointmentService {
                 .orElseThrow(()->new AppointmentNotFoundException("Appointment not found"));
         appointment.setIsReminderSent(Boolean.TRUE);
         appointmentRepository.save(appointment);
+        log.atInfo().log("The appointment is reminded sent was changed to true");
+
     }
     @Transactional
     public Appointment changeStatusToConformed(UUID id){
@@ -60,6 +68,7 @@ public class AppointmentService {
         Appointment appointment = appointmentRepository.findByIdWithProvider(id)
                 .orElseThrow(()->new AppointmentNotFoundException("Appointment not found"));
         appointment.setStatus(AppointmentsStatus.CONFIRMED);
+        log.atInfo().log("The appointment status was changed to confirmed");
         return appointment;
     }
     @Transactional
@@ -68,6 +77,8 @@ public class AppointmentService {
         Appointment appointment = appointmentRepository.findByIdWithProvider(id)
                 .orElseThrow(()->new AppointmentNotFoundException("Appointment not found"));
         appointment.setStatus(AppointmentsStatus.CANCELLED);
+        log.atInfo().log("The appointment status was changed to cancelled");
+
         return appointment;
     }
     @Transactional
@@ -76,6 +87,7 @@ public class AppointmentService {
         Appointment appointment = appointmentRepository.findBySecureTokenWithProvider(token)
                 .orElseThrow(()->new AppointmentNotFoundException("Appointment not found"));
         appointmentRepository.delete(appointment);
+        log.atInfo().log("The appointment was deleted");
         return appointment;
     }
     @Transactional(readOnly = true)

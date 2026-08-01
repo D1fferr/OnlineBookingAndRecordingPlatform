@@ -6,6 +6,7 @@ import com.platform.booking.recording.AuthService.models.User;
 import com.platform.booking.recording.AuthService.repositories.jpa.UserRepository;
 import com.platform.booking.recording.AuthService.util.Mapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,6 +19,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserService {
     private final UserRepository userRepository;
     private final Mapper mapper;
@@ -34,15 +36,10 @@ public class UserService {
         user.setIsBlocked(Boolean.FALSE);
         user.setRole("ROLE_PROVIDER");
         userRepository.saveAndFlush(user);
-        if (file!=null){
-            try {
-                String url = imageService.storeImage(file, user.getId());
-                user.setAvatarURL(url);
-            } catch (Exception e) {
-                throw new FailedSaveImageException(e.getMessage() + e.getCause());
-            }
-        }
-        return userRepository.save(user);
+        log.atInfo()
+                .addKeyValue("userId", user.getId())
+                .log("The user saved");
+        return storeImage(file, user);
     }
     @Transactional(noRollbackFor = FailedSaveImageException.class)
     public User saveAsAdmin(RegistrationUserDTO dto, MultipartFile file){
@@ -54,6 +51,12 @@ public class UserService {
         user.setIsBlocked(Boolean.FALSE);
         user.setRole("ROLE_ADMIN");
         userRepository.saveAndFlush(user);
+        log.atInfo()
+                .addKeyValue("userId", user.getId())
+                .log("The user saved as admin");
+        return storeImage(file, user);
+    }
+    private User storeImage(MultipartFile file, User user) {
         if (file!=null){
             try {
                 String url = imageService.storeImage(file, user.getId());
@@ -86,6 +89,9 @@ public class UserService {
         }
         if (user.getIsBlocked())
             throw new UserIsBlockedException(user.getBlockReason());
+        log.atInfo()
+                .addKeyValue("userId", user.getId())
+                .log("Login successful");
         return user;
     }
     @Transactional
@@ -98,25 +104,19 @@ public class UserService {
             user.setEmail(dto.getEmail());
         if (dto.getPassword()!=null)
             user.setPassword(passwordEncoder.encode(dto.getPassword()));
+        userRepository.save(user);
+        log.atInfo()
+                .addKeyValue("userId", user.getId())
+                .log("The user updated");
         return userRepository.save(user);
     }
-    @Transactional
-    public void updateAvatar(UUID id, MultipartFile file){
-        User user = userRepository.findById(id)
-                .orElseThrow(()->  new UserNotFoundException("User not found"));
-        if (file!=null){
-            try {
-                String url = imageService.storeImage(file, user.getId());
-                user.setAvatarURL(url);
-            } catch (Exception e) {
-                throw new FailedSaveImageException(e.getMessage() + e.getCause());
-            }
-        }
-        userRepository.save(user);
-    }
+
     @Transactional
     public void deleteById(UUID id){
         userRepository.deleteById(id);
+        log.atInfo()
+                .addKeyValue("userId", id)
+                .log("The user deleted");
     }
     @Transactional
     public void blockUser(BlockUserDTO dto){
@@ -124,6 +124,10 @@ public class UserService {
                 .orElseThrow(()->new UserNotFoundException("User not found"));
         user.setIsBlocked(Boolean.TRUE);
         user.setBlockReason(dto.getReason());
+        log.atInfo()
+                .addKeyValue("userId", user.getId())
+                .addKeyValue("reason", user.getBlockReason())
+                .log("The user blocked");
         userRepository.save(user);
     }
     @Transactional(readOnly = true)

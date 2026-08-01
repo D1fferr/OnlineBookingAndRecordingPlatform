@@ -98,12 +98,7 @@ public class UserController {
                 .header(HttpHeaders.SET_COOKIE, responseCookie.toString())
                 .body(new AuthResponseDTO(tokenResponse.getAccessToken()));
     }
-    @PostMapping("/auth/change-avatar/{id}")
-    public ResponseEntity<Void> changeAvatar(@PathVariable(name = "id") UUID id,
-                                             @RequestPart(name = "imageData") MultipartFile file){
-        userService.updateAvatar(id, file);
-        return ResponseEntity.ok().build();
-    }
+
     @DeleteMapping("/auth/delete/{id}")
     public ResponseEntity<Void> delete(@PathVariable(name = "id") UUID id){
         userService.deleteById(id);

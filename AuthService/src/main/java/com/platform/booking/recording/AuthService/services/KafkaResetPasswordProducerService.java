@@ -1,10 +1,15 @@
 package com.platform.booking.recording.AuthService.services;
 
+import com.platform.booking.recording.AuthService.dtos.ProviderUpdateEmailDTO;
 import com.platform.booking.recording.AuthService.dtos.UserForKafkaDTO;
 import com.platform.booking.recording.AuthService.models.ResetPassword;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.common.KafkaException;
+import org.slf4j.MDC;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.KafkaHeaders;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -12,12 +17,18 @@ import org.springframework.stereotype.Component;
 public class KafkaResetPasswordProducerService {
 
     private final KafkaTemplate<String, ResetPassword> userResetPasswordKafkaTemplate;
+    private static final String TRACE_ID_KEY = "traceId";
 
     public void send(ResetPassword resetPassword){
+        String traceId = MDC.get(TRACE_ID_KEY);
+        Message<ResetPassword> message = MessageBuilder
+                .withPayload(resetPassword)
+                .setHeader(KafkaHeaders.TOPIC, "reset-password-topic")
+                .setHeader(TRACE_ID_KEY, traceId)
+                .build();
         try {
-            userResetPasswordKafkaTemplate.send("reset-password-topic", resetPassword).get();
+            userResetPasswordKafkaTemplate.send(message).get();
         }catch (Exception e){
-            //add logs with cause
             throw new KafkaException(e.getMessage());
         }
     }

@@ -5,6 +5,7 @@ import com.platform.booking.recording.EmailService.dtos.AppointmentCreateDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
+import org.springframework.util.backoff.FixedBackOff;
 
 @Component
 @RequiredArgsConstructor

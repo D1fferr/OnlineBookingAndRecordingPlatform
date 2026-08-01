@@ -4,11 +4,13 @@ import com.platform.booking.recording.AuthService.exceptions.TokenNotFoundExcept
 import com.platform.booking.recording.AuthService.models.RefreshToken;
 import com.platform.booking.recording.AuthService.repositories.redis.RefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 import java.util.UUID;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class RefreshTokenService {
@@ -20,6 +22,9 @@ public class RefreshTokenService {
         refreshToken.setUserId(id);
         refreshToken.setTtlInSeconds(604800L);                  //7days
         refreshTokenRepository.save(refreshToken);
+        log.atInfo()
+                .addKeyValue("userId", id)
+                .log("The refresh token saved");
     }
     public RefreshToken findByRefreshToken(String refreshToken){
         return refreshTokenRepository.findByToken(refreshToken)
@@ -30,8 +35,14 @@ public class RefreshTokenService {
     }
     public void delete(RefreshToken refreshToken){
         refreshTokenRepository.delete(refreshToken);
+        log.atInfo()
+                .addKeyValue("userId", refreshToken.getUserId())
+                .log("The refresh token deleted by entity");
     }
     public void deleteByUserId(UUID id){
         refreshTokenRepository.deleteByUserId(id);
+        log.atInfo()
+                .addKeyValue("userId", id)
+                .log("The refresh token deleted by user id");
     }
 }
