@@ -1,0 +1,13 @@
+<mat-toolbar color="primary" class="header-toolbar">
+  <span class="logo" routerLink="/">BookingService</span>
+  <span class="spacer"></span>
+
+  @if (authService.isAuthenticated()) {
+    <button mat-button routerLink="/appointments">My Appointments</button>
+    <button mat-icon-button (click)="onLogout()" title="Logout">
+      <mat-icon>exit_to_app</mat-icon>
+    </button>
+  } @else {
+    <button mat-raised-button class="login-btn" routerLink="/login">Sign In</button>
+  }
+</mat-toolbar>

@@ -1,0 +1,24 @@
+.header-toolbar {
+  display: flex;
+  justify-content: space-between;
+  background-color: #984e00 !important;
+  color: #ffffff !important;
+  padding: 0 24px;
+}
+
+.logo {
+  font-weight: 700;
+  font-size: 20px;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.login-btn {
+  background-color: #ffffff !important;
+  color: #c84100 !important;
+  font-weight: 600 !important;
+}
