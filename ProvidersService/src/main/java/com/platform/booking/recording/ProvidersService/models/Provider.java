@@ -37,4 +37,6 @@ public class Provider {
     private List<WorkingHours> workingHours = new ArrayList<>();
     @OneToMany(mappedBy = "provider", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Appointment> appointments = new ArrayList<>();
+    @OneToMany(mappedBy = "provider", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ServiceProvider> serviceProviders = new ArrayList<>();
 }

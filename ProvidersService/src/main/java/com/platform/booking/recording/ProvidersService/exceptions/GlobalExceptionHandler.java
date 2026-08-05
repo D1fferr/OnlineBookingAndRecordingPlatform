@@ -104,5 +104,19 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
     }
 
+    @ExceptionHandler(ServiceProviderNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleServiceProviderNotFoundException(ServiceProviderNotFoundException e,
+                                                                            HttpServletRequest request){
+        log.atWarn()
+                .addKeyValue("exception", e.getClass().getSimpleName())
+                .addKeyValue("uri", request.getRequestURI())
+                .log(e.getMessage());
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .status(HttpStatus.NOT_FOUND.value())
+                .error("Service not found")
+                .message(e.getMessage())
+                .build();
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+    }
 
 }

@@ -36,3 +36,15 @@ CREATE TABLE appointments
     created_at   TIMESTAMPTZ DEFAULT NOW(),
     UNIQUE (provider_id, start_time)
 );
+CREATE TABLE services
+(
+    id           uuid PRIMARY KEY,
+    provider_id uuid references providers(id) ON DELETE CASCADE NOT NULL,
+    service_name VARCHAR NOT NULL,
+    duration INT NOT NULL,
+    price INT NOT NULL,
+    description VARCHAR NOT NULL ,
+    created_at   TIMESTAMPTZ DEFAULT NOW(),
+    updated_at   TIMESTAMPTZ DEFAULT NOW()
+
+);
