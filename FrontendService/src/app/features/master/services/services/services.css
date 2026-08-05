@@ -1,0 +1,78 @@
+.services-container {
+  max-width: 1100px;
+  margin: 24px auto;
+  padding: 0 16px;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.page-header h2 {
+  font-size: 24px;
+  color: #000000;
+  margin-bottom: 4px;
+}
+
+.page-header p {
+  color: #333333;
+  margin: 0;
+}
+
+.add-btn {
+  background-color: #f57c00 !important;
+  color: #ffffff !important;
+  font-weight: 500;
+}
+
+.table-card {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  padding: 20px;
+}
+
+.services-table {
+  width: 100%;
+  background-color: #ffffff !important;
+}
+
+.services-table th.mat-mdc-header-cell {
+  color: #000000 !important;
+  font-weight: 600;
+}
+
+.services-table td.mat-mdc-cell {
+  color: #000000 !important;
+}
+
+.name-cell {
+  font-weight: 600;
+  color: #4a2800 !important;
+}
+
+.price-cell {
+  font-weight: 600;
+}
+
+.description-cell {
+  color: #222222 !important;
+  font-size: 13px;
+  line-height: 1.4;
+  max-width: 300px;
+}
+
+.actions-header, .actions-cell {
+  text-align: center;
+}
+
+.action-btn.edit {
+  color: #1976d2 !important;
+}
+
+.action-btn.delete {
+  color: #c62828 !important;
+}

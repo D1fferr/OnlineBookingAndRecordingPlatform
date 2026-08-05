@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, tap, catchError, finalize, of } from 'rxjs';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { environment } from '../../../environments/environment';
-
+import { decodeJwtToken } from '../utils/jwt-decoder';
 export interface AuthResponse {
   token: string;
   refreshToken?: string;
@@ -58,6 +58,13 @@ export class AuthService {
 
   getTokenFromStorage(): string | null {
     return localStorage.getItem(this.TOKEN_KEY);
+  }
+  getProviderId(): string | null {
+    const token = this.getTokenFromStorage();
+    if (!token) return null;
+
+    const payload = decodeJwtToken(token);
+    return payload?.['user_id'] || null;
   }
 
   private isTokenExpired(): boolean {

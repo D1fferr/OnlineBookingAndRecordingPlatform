@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal, effect } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { MatTableModule } from '@angular/material/table';
@@ -10,6 +10,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatNativeDateModule } from '@angular/material/core';
 
 import { AppointmentGetDTO, AppointmentsStatus } from '../../../core/models/appointment';
+import { AppointmentService } from '../../../core/services/appointment';
 
 @Component({
   selector: 'app-dashboard',
@@ -28,42 +29,37 @@ import { AppointmentGetDTO, AppointmentsStatus } from '../../../core/models/appo
   styleUrl: './dashboard.css'
 })
 export class DashboardComponent {
+  private appointmentService = inject(AppointmentService);
+
   displayedColumns: string[] = ['time', 'client', 'duration', 'comment', 'status', 'actions'];
 
   selectedDate = signal<Date>(new Date());
 
-  appointments = signal<AppointmentGetDTO[]>([
-    {
-      id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
-      providerId: 'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22',
-      startTime: '2026-08-02T09:00:00+03:00',
-      endTime: '2026-08-02T09:45:00+03:00',
-      clientName: 'John Doe',
-      clientEmail: 'john@example.com',
-      clientComment: 'Client asked for short sides and scissors on top',
-      status: 'CONFIRMED'
-    },
-    {
-      id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12',
-      providerId: 'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22',
-      startTime: '2026-08-02T10:30:00+03:00',
-      endTime: '2026-08-02T11:15:00+03:00',
-      clientName: 'Alex Smith',
-      clientEmail: 'alex@example.com',
-      clientComment: 'Beard trim and styling',
-      status: 'PENDING'
-    },
-    {
-      id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a13',
-      providerId: 'b1eebc99-9c0b-4ef8-bb6d-6bb9bd380a22',
-      startTime: '2026-08-02T11:30:00+03:00',
-      endTime: '2026-08-02T13:00:00+03:00',
-      clientName: 'Sarah Connor',
-      clientEmail: 'sarah@example.com',
-      clientComment: 'Prefers quiet space during haircut',
-      status: 'CANCELLED'
-    }
-  ]);
+  appointments = signal<AppointmentGetDTO[]>([]);
+
+  constructor() {
+    effect(() => {
+      this.loadDashboardData();
+    });
+  }
+
+  loadDashboardData(): void {
+    const page = 0;
+    const size = 50;
+
+    this.appointmentService.getAppointments(
+      page,
+      size,
+      undefined, // searchQuery
+      undefined, // status
+      this.selectedDate()
+    ).subscribe({
+      next: (response) => {
+        this.appointments.set(response.dtoList);
+      },
+      error: (err) => console.error('Failed to load dashboard appointments', err)
+    });
+  }
 
   formatTime(isoString: string): string {
     if (!isoString) return '-';
@@ -87,8 +83,9 @@ export class DashboardComponent {
   }
 
   updateStatus(id: string, newStatus: AppointmentsStatus): void {
-    this.appointments.update(items =>
-      items.map(item => item.id === id ? { ...item, status: newStatus } : item)
-    );
+    this.appointmentService.updateAppointmentStatus(id, newStatus).subscribe({
+      next: () => this.loadDashboardData(),
+      error: (err) => console.error('Failed to update status', err)
+    });
   }
 }

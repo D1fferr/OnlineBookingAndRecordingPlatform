@@ -1,0 +1,30 @@
+<h2 mat-dialog-title>{{ isEditMode ? 'Edit Service' : 'Add New Service' }}</h2>
+
+<mat-dialog-content [formGroup]="form" class="dialog-content">
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>Service Name</mat-label>
+    <input matInput formControlName="serviceName" placeholder="e.g. Men's Haircut" />
+  </mat-form-field>
+
+  <div class="row">
+    <mat-form-field appearance="outline" class="half-width">
+      <mat-label>Duration (minutes)</mat-label>
+      <input matInput type="number" formControlName="duration" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="half-width">
+      <mat-label>Price ($)</mat-label>
+      <input matInput type="number" formControlName="price" />
+    </mat-form-field>
+  </div>
+
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>Description</mat-label>
+    <textarea matInput formControlName="description" rows="3" placeholder="Describe the service..."></textarea>
+  </mat-form-field>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button mat-raised-button color="primary" [disabled]="form.invalid" (click)="onSave()">Save</button>
+</mat-dialog-actions>

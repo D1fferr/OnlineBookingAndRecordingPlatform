@@ -1,0 +1,115 @@
+<div class="appointments-container">
+  <div class="page-header">
+    <h2>Appointments Management</h2>
+    <p>View, filter, and manage all client appointments.</p>
+  </div>
+
+  <div class="table-card">
+    <div class="filter-bar">
+      <mat-form-field appearance="outline" class="filter-input">
+        <mat-label>Search by client name</mat-label>
+        <input matInput [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)" placeholder="Type name..." />
+        @if (searchQuery()) {
+          <button matSuffix mat-icon-button aria-label="Clear" (click)="searchQuery.set('')">
+            <mat-icon>close</mat-icon>
+          </button>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-select">
+        <mat-label>Status</mat-label>
+        <mat-select [ngModel]="selectedStatus()" (ngModelChange)="selectedStatus.set($event)">
+          <mat-option value="ALL">All Statuses</mat-option>
+          <mat-option value="PENDING">PENDING</mat-option>
+          <mat-option value="CONFIRMED">CONFIRMED</mat-option>
+          <mat-option value="CANCELLED">CANCELLED</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-date">
+        <mat-label>Filter Date</mat-label>
+        <input matInput [matDatepicker]="picker" [ngModel]="selectedDate()" (ngModelChange)="selectedDate.set($event)" />
+        @if (selectedDate()) {
+          <button matSuffix mat-icon-button aria-label="Clear date" (click)="clearDateFilter(); $event.stopPropagation()">
+            <mat-icon>close</mat-icon>
+          </button>
+        }
+        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+      </mat-form-field>
+    </div>
+
+    <table mat-table [dataSource]="appointments()" class="appointments-table">
+      <ng-container matColumnDef="dateTime">
+        <th mat-header-cell *matHeaderCellDef> Date & Time </th>
+        <td mat-cell *matCellDef="let element" class="datetime-cell">
+          <div class="date-text">{{ element.startTime | date:'MMM dd, yyyy' }}</div>
+          <div class="time-text">
+            {{ element.startTime | date:'HH:mm' }} - {{ element.endTime | date:'HH:mm' }}
+          </div>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="client">
+        <th mat-header-cell *matHeaderCellDef> Client </th>
+        <td mat-cell *matCellDef="let element" class="client-cell">
+          {{ element.clientName }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="duration">
+        <th mat-header-cell *matHeaderCellDef> Duration </th>
+        <td mat-cell *matCellDef="let element">
+          {{ getDuration(element.startTime, element.endTime) }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="comment">
+        <th mat-header-cell *matHeaderCellDef> Client Comment </th>
+        <td mat-cell *matCellDef="let element" class="comment-cell">
+          {{ element.clientComment || '-' }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef> Status </th>
+        <td mat-cell *matCellDef="let element">
+          <span class="status-badge" [attr.data-status]="element.status">
+            {{ element.status }}
+          </span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef class="actions-header"> Actions </th>
+        <td mat-cell *matCellDef="let element" class="actions-cell">
+          @if (element.status === 'PENDING') {
+            <button mat-icon-button class="action-btn approve" (click)="updateStatus(element.id, 'CONFIRMED')" title="Approve">
+              <mat-icon>check_circle</mat-icon>
+            </button>
+            <button mat-icon-button class="action-btn cancel" (click)="updateStatus(element.id, 'CANCELLED')" title="Cancel">
+              <mat-icon>cancel</mat-icon>
+            </button>
+          } @else if (element.status === 'CONFIRMED') {
+            <button mat-icon-button class="action-btn cancel" (click)="updateStatus(element.id, 'CANCELLED')" title="Cancel">
+              <mat-icon>cancel</mat-icon>
+            </button>
+          } @else {
+            <span class="no-actions">-</span>
+          }
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+
+    <mat-paginator
+      [length]="totalElements()"
+      [pageSize]="pageSize()"
+      [pageSizeOptions]="[5, 10, 25]"
+      (page)="onPageChange($event)"
+      aria-label="Select page">
+    </mat-paginator>
+  </div>
+</div>

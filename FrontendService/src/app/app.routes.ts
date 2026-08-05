@@ -12,8 +12,17 @@ export const routes: Routes = [
     // canActivate: [authGuard]
   },
   {
+    path: 'appointments',
+    loadComponent: () => import('./features/master/appointments/appointments').then(m => m.AppointmentsComponent)
+  },
+  {
+    path: 'services',
+    loadComponent: () => import('./features/master/services/services/services').then(m => m.ServicesComponent),
+    // canActivate: [authGuard]
+  },
+  {
     path: '',
-    redirectTo: 'dashboard',
+    redirectTo: 'appointments',
     pathMatch: 'full'
   }
 ];

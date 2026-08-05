@@ -1,0 +1,119 @@
+.appointments-container {
+  max-width: 1100px;
+  margin: 24px auto;
+  padding: 0 16px;
+}
+
+.page-header h2 {
+  font-size: 24px;
+  color: #000000;
+  margin-bottom: 4px;
+}
+
+.page-header p {
+  color: #000000;
+  margin-bottom: 20px;
+}
+
+.table-card {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  padding: 20px;
+}
+
+.filter-bar {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.filter-input {
+  flex: 1 1 240px;
+}
+
+.filter-select {
+  width: 180px;
+}
+
+.filter-date {
+  width: 200px;
+}
+
+.appointments-table {
+  width: 100%;
+  background-color: #ffffff !important;
+}
+
+.appointments-table th.mat-mdc-header-cell {
+  color: #000000 !important;
+  font-weight: 600;
+}
+
+
+.appointments-table td.mat-mdc-cell {
+  color: #000000 !important;
+}
+
+.datetime-cell .date-text {
+  font-weight: 600;
+  color: #000000 !important;
+}
+
+.datetime-cell .time-text {
+  font-size: 13px;
+  color: #222222 !important;
+}
+
+.client-cell {
+  font-weight: 500;
+  color: #ffffff !important;
+}
+
+.comment-cell {
+  color: #000000 !important;
+  font-size: 13px;
+  line-height: 1.4;
+  word-break: break-word;
+  padding-right: 16px !important;
+}
+
+.status-badge {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-badge[data-status="CONFIRMED"] {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status-badge[data-status="PENDING"] {
+  background-color: #fff8e1;
+  color: #f57f17;
+}
+
+.status-badge[data-status="CANCELLED"] {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+.actions-header, .actions-cell {
+  text-align: center;
+}
+
+.action-btn.approve {
+  color: #2e7d32 !important;
+}
+
+.action-btn.cancel {
+  color: #c62828 !important;
+}
+
+.no-actions {
+  color: #000000;
+}
