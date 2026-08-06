@@ -8,9 +8,12 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatNativeDateModule } from '@angular/material/core';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 
-import { AppointmentGetDTO, AppointmentsStatus } from '../../../core/models/appointment';
+import { AppointmentGetDTO, AppointmentCancelledReasonDTO } from '../../../core/models/appointment';
 import { AppointmentService } from '../../../core/services/appointment';
+import { AuthService } from '../../../core/services/auth';
+import { CancelDialogComponent } from '../appointments/cancel-dialog/cancel-dialog';
 
 @Component({
   selector: 'app-dashboard',
@@ -23,18 +26,21 @@ import { AppointmentService } from '../../../core/services/appointment';
     MatDatepickerModule,
     MatInputModule,
     MatFormFieldModule,
-    MatNativeDateModule
+    MatNativeDateModule,
+    MatDialogModule
   ],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css'
 })
 export class DashboardComponent {
   private appointmentService = inject(AppointmentService);
+  private authService = inject(AuthService);
+  private dialog = inject(MatDialog);
 
   displayedColumns: string[] = ['time', 'client', 'duration', 'comment', 'status', 'actions'];
 
   selectedDate = signal<Date>(new Date());
-
+  providerId = signal<string | null>(this.authService.getProviderId());
   appointments = signal<AppointmentGetDTO[]>([]);
 
   constructor() {
@@ -50,8 +56,8 @@ export class DashboardComponent {
     this.appointmentService.getAppointments(
       page,
       size,
-      undefined, // searchQuery
-      undefined, // status
+      undefined,
+      undefined,
       this.selectedDate()
     ).subscribe({
       next: (response) => {
@@ -82,10 +88,27 @@ export class DashboardComponent {
     return words.slice(0, 5).join(' ') + '...';
   }
 
-  updateStatus(id: string, newStatus: AppointmentsStatus): void {
-    this.appointmentService.updateAppointmentStatus(id, newStatus).subscribe({
+  confirmAppointment(id: string): void {
+    this.appointmentService.updateAppointmentStatus(id, 'CONFIRMED').subscribe({
       next: () => this.loadDashboardData(),
-      error: (err) => console.error('Failed to update status', err)
+      error: (err) => console.error('Failed to confirm appointment', err)
+    });
+  }
+
+  openCancelDialog(appointment: AppointmentGetDTO): void {
+    const currentProviderId = this.providerId() || appointment.providerId;
+
+    const dialogRef = this.dialog.open(CancelDialogComponent, {
+      width: '420px'
+    });
+
+    dialogRef.afterClosed().subscribe((result: AppointmentCancelledReasonDTO | null) => {
+      if (result) {
+        this.appointmentService.cancelAppointment(appointment.id, currentProviderId, result).subscribe({
+          next: () => this.loadDashboardData(),
+          error: (err) => console.error('Failed to cancel appointment', err)
+        });
+      }
     });
   }
 }

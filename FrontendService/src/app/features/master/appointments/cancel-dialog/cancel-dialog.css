@@ -1,0 +1,22 @@
+.dialog-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 380px;
+  padding-top: 8px !important;
+}
+
+.dialog-content p {
+  color: #333333;
+  margin: 0;
+  font-size: 14px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+button[color="warn"] {
+  background-color: #c62828 !important;
+  color: #ffffff !important;
+}

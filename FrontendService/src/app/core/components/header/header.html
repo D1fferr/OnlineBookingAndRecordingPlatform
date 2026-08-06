@@ -3,8 +3,15 @@
   <span class="spacer"></span>
 
   @if (authService.isAuthenticated()) {
-    <button mat-button routerLink="/appointments">My Appointments</button>
-    <button mat-icon-button (click)="onLogout()" title="Logout">
+    <nav class="nav-links">
+      <a mat-button routerLink="/dashboard" routerLinkActive="active-link">Dashboard</a>
+      <a mat-button routerLink="/appointments" routerLinkActive="active-link">Appointments</a>
+      <a mat-button routerLink="/services" routerLinkActive="active-link">Services</a>
+      <a mat-button routerLink="/working-hours" routerLinkActive="active-link">Working Hours</a>
+      <a mat-button routerLink="/profile" routerLinkActive="active-link">Profile</a>
+    </nav>
+
+    <button mat-icon-button (click)="onLogout()" title="Logout" class="logout-btn">
       <mat-icon>exit_to_app</mat-icon>
     </button>
   } @else {

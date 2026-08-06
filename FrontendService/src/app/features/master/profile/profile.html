@@ -1,0 +1,103 @@
+<div class="profile-container">
+  <div class="page-header">
+    <h2>Profile & Settings</h2>
+    <p>Manage your account details, credentials, and profile visibility.</p>
+  </div>
+
+  @if (userData()?.isBlocked) {
+    <div class="blocked-banner">
+      <mat-icon>error</mat-icon>
+      <div>
+        <strong>ACCOUNT STATUS: BLOCKED</strong>
+        <p>Reason: {{ userData()?.blockReason || 'Violation of service policies.' }}</p>
+      </div>
+    </div>
+  }
+
+  <mat-card class="profile-card">
+    <h3>Profile Picture</h3>
+    <div class="avatar-section">
+      <div class="avatar-wrapper">
+        @if (avatarPreview()) {
+          <img [src]="avatarPreview()" alt="Avatar" class="avatar-img" />
+        } @else {
+          <div class="avatar-placeholder">
+            <mat-icon>person</mat-icon>
+          </div>
+        }
+      </div>
+      <div class="avatar-actions">
+        <input type="file" #fileInput (change)="onFileSelected($event)" accept="image/*" style="display: none" />
+        <button mat-outlined-button (click)="fileInput.click()">Choose New File...</button>
+        @if (selectedFile) {
+          <button mat-raised-button class="save-btn" (click)="uploadAvatar()">Upload Avatar</button>
+        }
+      </div>
+    </div>
+  </mat-card>
+
+  <mat-card class="profile-card">
+    <h3>Personal Information</h3>
+    <form [formGroup]="personalForm" (ngSubmit)="savePersonalInfo()">
+      <div class="form-grid">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Full Name</mat-label>
+          <input matInput formControlName="name" placeholder="John Doe" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Service Type</mat-label>
+          <input matInput formControlName="serviceType" placeholder="e.g. Barber / Hairdresser" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Timezone</mat-label>
+          <mat-select formControlName="timezone">
+            @for (tz of timezones; track tz) {
+              <mat-option [value]="tz">{{ tz }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="card-actions">
+        <button mat-raised-button class="save-btn" [disabled]="personalForm.invalid">Save Info</button>
+      </div>
+    </form>
+  </mat-card>
+
+  <mat-card class="profile-card">
+    <h3>Security & Credentials</h3>
+    <form [formGroup]="securityForm" (ngSubmit)="saveCredentials()">
+      <div class="form-grid">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Email Address</mat-label>
+          <input matInput formControlName="email" type="email" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>New Password (leave blank to keep current)</mat-label>
+          <input matInput formControlName="password" type="password" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Current Password (required to save changes)</mat-label>
+          <input matInput formControlName="currentPassword" type="password" />
+        </mat-form-field>
+      </div>
+      <div class="card-actions">
+        <button mat-raised-button class="save-btn" [disabled]="securityForm.invalid">Update Security</button>
+      </div>
+    </form>
+  </mat-card>
+
+  <mat-card class="profile-card danger-card">
+    <h3 class="danger-title">Danger Zone</h3>
+    <div class="danger-section">
+      <div>
+        <strong>Delete Account</strong>
+        <p>Once you delete your account, all data will be permanently removed.</p>
+      </div>
+      <button mat-raised-button class="delete-btn" (click)="openDeleteDialog()">Delete Account</button>
+    </div>
+  </mat-card>
+</div>

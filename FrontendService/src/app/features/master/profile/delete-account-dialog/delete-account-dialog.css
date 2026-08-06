@@ -1,0 +1,25 @@
+.danger-title {
+  color: #c62828 !important;
+}
+
+.dialog-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 360px;
+}
+
+.warning-text {
+  color: #333333;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.delete-btn {
+  background-color: #c62828 !important;
+  color: #ffffff !important;
+}

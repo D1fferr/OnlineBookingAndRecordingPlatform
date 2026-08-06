@@ -26,6 +26,7 @@
         </mat-select>
       </mat-form-field>
 
+      <!-- Фільтр за датою -->
       <mat-form-field appearance="outline" class="filter-date">
         <mat-label>Filter Date</mat-label>
         <input matInput [matDatepicker]="picker" [ngModel]="selectedDate()" (ngModelChange)="selectedDate.set($event)" />
@@ -40,6 +41,7 @@
     </div>
 
     <table mat-table [dataSource]="appointments()" class="appointments-table">
+
       <ng-container matColumnDef="dateTime">
         <th mat-header-cell *matHeaderCellDef> Date & Time </th>
         <td mat-cell *matCellDef="let element" class="datetime-cell">
@@ -84,14 +86,14 @@
         <th mat-header-cell *matHeaderCellDef class="actions-header"> Actions </th>
         <td mat-cell *matCellDef="let element" class="actions-cell">
           @if (element.status === 'PENDING') {
-            <button mat-icon-button class="action-btn approve" (click)="updateStatus(element.id, 'CONFIRMED')" title="Approve">
+            <button mat-icon-button class="action-btn approve" (click)="confirmAppointment(element.id)" title="Approve">
               <mat-icon>check_circle</mat-icon>
             </button>
-            <button mat-icon-button class="action-btn cancel" (click)="updateStatus(element.id, 'CANCELLED')" title="Cancel">
+            <button mat-icon-button class="action-btn cancel" (click)="openCancelDialog(element)" title="Cancel">
               <mat-icon>cancel</mat-icon>
             </button>
           } @else if (element.status === 'CONFIRMED') {
-            <button mat-icon-button class="action-btn cancel" (click)="updateStatus(element.id, 'CANCELLED')" title="Cancel">
+            <button mat-icon-button class="action-btn cancel" (click)="openCancelDialog(element)" title="Cancel">
               <mat-icon>cancel</mat-icon>
             </button>
           } @else {
@@ -109,7 +111,7 @@
       [pageSize]="pageSize()"
       [pageSizeOptions]="[5, 10, 25]"
       (page)="onPageChange($event)"
-      aria-label="Select page">
+      aria-label="Select page of appointments">
     </mat-paginator>
   </div>
 </div>

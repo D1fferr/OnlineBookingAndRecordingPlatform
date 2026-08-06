@@ -1,50 +1,50 @@
 <div class="login-container">
   <mat-card class="login-card">
-    <mat-card-header>
-      <mat-card-title>Sign In</mat-card-title>
-      <mat-card-subtitle>Enter your credentials to access your account</mat-card-subtitle>
-    </mat-card-header>
+    <div class="logo-wrapper">
+      <mat-icon class="brand-icon">event_available</mat-icon>
+      <h2>BookingService</h2>
+    </div>
 
-    <mat-card-content>
-      @if (errorMessage()) {
-        <div class="error-banner">
-          {{ errorMessage() }}
-        </div>
-      }
+    <h3>Master Sign In</h3>
+    <p class="subtitle">Enter your credentials to manage your bookings</p>
 
-      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Email</mat-label>
-          <input matInput formControlName="email" type="email" placeholder="example@mail.com" />
-          @if (loginForm.get('email')?.hasError('required')) {
-            <mat-error>Email is required</mat-error>
-          }
-          @if (loginForm.get('email')?.hasError('email')) {
-            <mat-error>Please enter a valid email address</mat-error>
-          }
-        </mat-form-field>
+    @if (errorMessage()) {
+      <div class="error-banner">
+        {{ errorMessage() }}
+      </div>
+    }
 
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Password</mat-label>
-          <input matInput formControlName="password" type="password" />
-          @if (loginForm.get('password')?.hasError('required')) {
-            <mat-error>Password is required</mat-error>
-          }
-        </mat-form-field>
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Email Address</mat-label>
+        <input matInput formControlName="email" type="email" placeholder="master@example.com" />
+        @if (loginForm.get('email')?.hasError('required')) {
+          <mat-error>Email is required</mat-error>
+        }
+        @if (loginForm.get('email')?.hasError('email')) {
+          <mat-error>Enter a valid email address</mat-error>
+        }
+      </mat-form-field>
 
-        <button
-          mat-raised-button
-          color="primary"
-          type="submit"
-          class="full-width submit-btn"
-          [disabled]="loginForm.invalid || isLoading()">
-          @if (isLoading()) {
-            <mat-spinner diameter="20"></mat-spinner>
-          } @else {
-            Sign In
-          }
-        </button>
-      </form>
-    </mat-card-content>
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Password</mat-label>
+        <input matInput formControlName="password" type="password" />
+        @if (loginForm.get('password')?.hasError('required')) {
+          <mat-error>Password is required</mat-error>
+        }
+      </mat-form-field>
+
+      <div class="forgot-link-wrapper">
+        <a routerLink="/forgot-password" class="forgot-link">Forgot password?</a>
+      </div>
+
+      <button mat-raised-button class="submit-btn full-width" [disabled]="loginForm.invalid || isLoading()">
+        {{ isLoading() ? 'Signing in...' : 'Sign In' }}
+      </button>
+
+      <a routerLink="/register" mat-stroked-button class="register-btn full-width">
+        Register as Master
+      </a>
+    </form>
   </mat-card>
 </div>

@@ -1,24 +1,49 @@
 .header-toolbar {
   display: flex;
-  justify-content: space-between;
-  background-color: #984e00 !important;
-  color: #ffffff !important;
+  align-items: center;
   padding: 0 24px;
 }
 
 .logo {
-  font-weight: 700;
   font-size: 20px;
+  font-weight: bold;
   cursor: pointer;
-  letter-spacing: 0.5px;
+  user-select: none;
 }
 
 .spacer {
   flex: 1 1 auto;
 }
 
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-right: 16px;
+}
+
+.nav-links a {
+  font-weight: 500;
+  opacity: 0.85;
+  transition: opacity 0.2s ease;
+}
+
+.nav-links a:hover {
+  opacity: 1;
+}
+
+.active-link {
+  opacity: 1 !important;
+  background-color: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+
+.logout-btn {
+  margin-left: 8px;
+}
+
 .login-btn {
   background-color: #ffffff !important;
-  color: #c84100 !important;
-  font-weight: 600 !important;
+  color: #f57c00 !important;
+  font-weight: 600;
 }

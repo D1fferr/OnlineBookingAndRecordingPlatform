@@ -1,0 +1,17 @@
+<h2 mat-dialog-title>Cancel Appointment</h2>
+
+<mat-dialog-content [formGroup]="form" class="dialog-content">
+  <p>Please specify the reason for cancelling this appointment:</p>
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>Cancellation Reason</mat-label>
+    <textarea matInput formControlName="reason" rows="3" placeholder="e.g. Emergency, Master unavailable..."></textarea>
+    @if (form.get('reason')?.hasError('required')) {
+      <mat-error>Reason is required</mat-error>
+    }
+  </mat-form-field>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">Back</button>
+  <button mat-raised-button color="warn" [disabled]="form.invalid" (click)="onConfirm()">Confirm Cancellation</button>
+</mat-dialog-actions>

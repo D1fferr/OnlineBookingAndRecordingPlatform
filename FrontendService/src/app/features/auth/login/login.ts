@@ -6,9 +6,10 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatIconModule } from '@angular/material/icon';
 
 import { AuthService } from '../../../core/services/auth';
+import { LoginDTO, AuthResponseDTO } from '../../../core/models/auth';
 
 @Component({
   selector: 'app-login',
@@ -20,7 +21,7 @@ import { AuthService } from '../../../core/services/auth';
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
-    MatProgressSpinnerModule
+    MatIconModule
   ],
   templateUrl: './login.html',
   styleUrl: './login.css'
@@ -39,23 +40,25 @@ export class LoginComponent {
   });
 
   onSubmit(): void {
-    if (this.loginForm.invalid) {
-      return;
-    }
+    if (this.loginForm.invalid) return;
 
     this.isLoading.set(true);
     this.errorMessage.set(null);
 
-    this.authService.login(this.loginForm.value).subscribe({
-      next: () => {
+    const dto: LoginDTO = this.loginForm.value;
+
+    this.authService.login(dto).subscribe({
+      next: (response: AuthResponseDTO) => {
         this.isLoading.set(false);
-        this.router.navigate(['/']);
+        if (response && response.accessToken) {
+          this.authService.setToken(response.accessToken);
+          this.router.navigate(['/dashboard']);
+        }
       },
       error: (err) => {
         this.isLoading.set(false);
-        this.errorMessage.set(
-          err.error?.message || 'Invalid email or password'
-        );
+        console.error('Login failed', err);
+        this.errorMessage.set('Invalid email or password. Please try again.');
       }
     });
   }

@@ -32,8 +32,8 @@ public class WorkingHours {
     private LocalTime breakStartTime;
     @Column(name = "break_end_time")
     private LocalTime breakEndTime;
-    @Column(name = "session_time")
-    private Integer sessionTime;
+    @Column(name = "slot_step")
+    private Integer slotStep;
     @Column(name = "is_active")
     private Boolean isActive;
 }

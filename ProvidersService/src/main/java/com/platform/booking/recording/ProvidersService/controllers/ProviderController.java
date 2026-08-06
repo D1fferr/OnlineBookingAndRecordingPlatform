@@ -1,6 +1,7 @@
 package com.platform.booking.recording.ProvidersService.controllers;
 
 import com.platform.booking.recording.ProvidersService.dtos.ProviderChangeDataDTO;
+import com.platform.booking.recording.ProvidersService.dtos.ProviderForGetRequestDTO;
 import com.platform.booking.recording.ProvidersService.services.ProviderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,10 @@ public class ProviderController {
                                              @RequestPart(name = "imageData") MultipartFile file){
         providerService.updateAvatar(id, file);
         return ResponseEntity.ok().build();
+    }
+    @GetMapping("/auth/get-one/{id}")
+    public ResponseEntity<ProviderForGetRequestDTO> getOneUser(@PathVariable(name = "id") UUID id){
+        return ResponseEntity.ok(providerService.findOneById(id));
     }
 
 

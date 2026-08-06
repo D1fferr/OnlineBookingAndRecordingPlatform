@@ -15,5 +15,4 @@ public class UserForGetRequestDTO {
     private String avatarURL;
     private Boolean isBlocked;
     private String blockReason;
-
 }

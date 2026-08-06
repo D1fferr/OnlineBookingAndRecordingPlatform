@@ -2,6 +2,7 @@ package com.platform.booking.recording.ProvidersService.services;
 
 import com.platform.booking.recording.ProvidersService.dtos.ProviderChangeDataDTO;
 import com.platform.booking.recording.ProvidersService.dtos.ProviderCreateDTO;
+import com.platform.booking.recording.ProvidersService.dtos.ProviderForGetRequestDTO;
 import com.platform.booking.recording.ProvidersService.dtos.ProviderUpdateEmailDTO;
 import com.platform.booking.recording.ProvidersService.exceptions.FailedSaveImageException;
 import com.platform.booking.recording.ProvidersService.exceptions.ProviderNotFoundException;
@@ -76,6 +77,13 @@ public class ProviderService {
         providerRepository.save(provider);
         log.atInfo().log("The avatar was updated");
 
+    }
+
+    @Transactional(readOnly = true)
+    public ProviderForGetRequestDTO findOneById(UUID id){
+        Provider provider = providerRepository.findById(id)
+                .orElseThrow(()->new ProviderNotFoundException("Provider not found"));
+        return providerMapper.entityToGetRequestDTO(provider);
     }
 
 

@@ -19,7 +19,7 @@ public class WorkingHoursGetDTO {
     private LocalTime endTime;
     private LocalTime breakStartTime;
     private LocalTime breakEndTime;
-    private Integer sessionTime;
+    private Integer slotStep;
     @NotEmpty
     private Boolean isActive;
 

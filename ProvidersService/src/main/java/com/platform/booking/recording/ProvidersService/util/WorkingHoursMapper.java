@@ -25,6 +25,7 @@ public class WorkingHoursMapper {
         workingHours.setBreakEndTime(dto.getBreakEndTime());
         workingHours.setDayOfWeek(dto.getDayOfWeek());
         workingHours.setIsActive(dto.getIsActive());
+        workingHours.setSlotStep(dto.getSlotStep());
         return workingHours;
     }
     public WorkingHoursGetDTO entityToListGetDTO(WorkingHours workingHours){
@@ -36,6 +37,7 @@ public class WorkingHoursMapper {
         dto.setBreakEndTime(workingHours.getBreakEndTime());
         dto.setDayOfWeek(workingHours.getDayOfWeek());
         dto.setIsActive(workingHours.getIsActive());
+        dto.setSlotStep(workingHours.getSlotStep());
         return dto;
     }
 }

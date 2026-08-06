@@ -1,0 +1,88 @@
+<div class="working-hours-container">
+  <div class="page-header">
+    <div>
+      <h2>Working Hours Management</h2>
+      <p>Configure your daily schedule, breaks, and session slots.</p>
+    </div>
+    <button mat-raised-button class="save-btn" (click)="saveSchedule()" [disabled]="isLoading()">
+      <mat-icon>save</mat-icon> Save Schedule
+    </button>
+  </div>
+
+  <form [formGroup]="form">
+    <div formArrayName="daysFormArray" class="days-list">
+      @for (day of days; track day.dayOfWeek; let i = $index) {
+        <mat-card class="day-card" [formGroupName]="i">
+          <div class="day-header">
+            <div class="day-title">
+              <mat-slide-toggle formControlName="isActive" color="primary">
+                <span class="day-name">{{ day.name }}</span>
+              </mat-slide-toggle>
+            </div>
+            <span class="status-indicator" [class.active]="daysFormArray.at(i).get('isActive')?.value">
+              {{ daysFormArray.at(i).get('isActive')?.value ? 'Working Day' : 'Day Off' }}
+            </span>
+          </div>
+
+          @if (daysFormArray.at(i).get('isActive')?.value) {
+            <div class="day-settings">
+              <div class="settings-group">
+                <span class="group-label">Work Hours:</span>
+                <mat-form-field appearance="outline" class="time-field">
+                  <mat-label>Start</mat-label>
+                  <mat-select formControlName="startTime">
+                    @for (t of timeOptions; track t) {
+                      <mat-option [value]="t">{{ t }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+                <span class="dash">-</span>
+                <mat-form-field appearance="outline" class="time-field">
+                  <mat-label>End</mat-label>
+                  <mat-select formControlName="endTime">
+                    @for (t of timeOptions; track t) {
+                      <mat-option [value]="t">{{ t }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+              </div>
+
+              <div class="settings-group">
+                <span class="group-label">Break:</span>
+                <mat-form-field appearance="outline" class="time-field">
+                  <mat-label>Start</mat-label>
+                  <mat-select formControlName="breakStartTime">
+                    @for (t of timeOptions; track t) {
+                      <mat-option [value]="t">{{ t }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+                <span class="dash">-</span>
+                <mat-form-field appearance="outline" class="time-field">
+                  <mat-label>End</mat-label>
+                  <mat-select formControlName="breakEndTime">
+                    @for (t of timeOptions; track t) {
+                      <mat-option [value]="t">{{ t }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+              </div>
+
+              <div class="settings-group">
+                <span class="group-label">Slot Step:</span>
+                <mat-form-field appearance="outline" class="session-field">
+                  <mat-label>Grid Step</mat-label>
+                  <mat-select formControlName="sessionTime">
+                    <mat-option [value]="15">Every 15 min</mat-option>
+                    <mat-option [value]="30">Every 30 min</mat-option>
+                    <mat-option [value]="60">Every 1 hour</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+            </div>
+          }
+        </mat-card>
+      }
+    </div>
+  </form>
+</div>

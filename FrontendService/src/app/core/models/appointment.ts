@@ -15,3 +15,6 @@ export interface AppointmentPageDTO {
   totalPages: number;
   totalElements: number;
 }
+export interface AppointmentCancelledReasonDTO {
+  reason: string;
+}
