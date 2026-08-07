@@ -1,11 +1,15 @@
 package com.platform.booking.recording.ProvidersService.controllers;
 
 import com.platform.booking.recording.ProvidersService.dtos.ProviderChangeDataDTO;
+import com.platform.booking.recording.ProvidersService.dtos.ProviderForGetClientRequestDTO;
 import com.platform.booking.recording.ProvidersService.dtos.ProviderForGetRequestDTO;
+import com.platform.booking.recording.ProvidersService.dtos.ProviderPageForGetClientRequestDTO;
 import com.platform.booking.recording.ProvidersService.services.ProviderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.Response;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -36,6 +40,17 @@ public class ProviderController {
     public ResponseEntity<ProviderForGetRequestDTO> getOneUser(@PathVariable(name = "id") UUID id){
         return ResponseEntity.ok(providerService.findOneById(id));
     }
+    @GetMapping("/public/get-providers")
+    public ResponseEntity<ProviderPageForGetClientRequestDTO> getProviders(@RequestParam(value = "page", defaultValue = "0") Integer page,
+                                                                       @RequestParam(value = "providersPerPage", defaultValue = "6", required = false) Integer providersPerPage,
+                                                                       @RequestParam(value = "sortBy", defaultValue = "createdAt") String sortBy,
+                                                                       @RequestParam(value = "category", required = false) String category,
+                                                                       @RequestParam(value = "search", required = false) String search,
+                                                                       @RequestParam(value = "sortDir", defaultValue = "desc") String sortDir){
 
+        var dto = providerService.findProvidersForClient(search, category,
+                   PageRequest.of(page, providersPerPage, Sort.Direction.fromString(sortDir), sortBy));
+        return ResponseEntity.ok(dto);
+    }
 
 }

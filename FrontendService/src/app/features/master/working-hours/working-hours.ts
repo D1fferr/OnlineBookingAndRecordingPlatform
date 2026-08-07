@@ -108,7 +108,7 @@ export class WorkingHoursComponent {
                 endTime: this.normalizeTime(dto.endTime) || '18:00',
                 breakStartTime: this.normalizeTime(dto.breakStartTime) || '13:00',
                 breakEndTime: this.normalizeTime(dto.breakEndTime) || '14:00',
-                sessionTime: dto.sessionTime || 30
+                sessionTime: dto.slotStep || 30
               });
             }
           });

@@ -6,6 +6,7 @@ CREATE TABLE providers
     service_type VARCHAR(255)        NOT NULL,
     timezone     VARCHAR(255)        NOT NULL,
     avatar_url   VARCHAR,
+    is_blocked   BOOLEAN DEFAULT FALSE,
     created_at   TIMESTAMPTZ DEFAULT NOW()
 );
 CREATE TABLE working_hours

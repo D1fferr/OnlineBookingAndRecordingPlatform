@@ -1,9 +1,6 @@
 package com.platform.booking.recording.ProvidersService.services;
 
-import com.platform.booking.recording.ProvidersService.dtos.ProviderChangeDataDTO;
-import com.platform.booking.recording.ProvidersService.dtos.ProviderCreateDTO;
-import com.platform.booking.recording.ProvidersService.dtos.ProviderForGetRequestDTO;
-import com.platform.booking.recording.ProvidersService.dtos.ProviderUpdateEmailDTO;
+import com.platform.booking.recording.ProvidersService.dtos.*;
 import com.platform.booking.recording.ProvidersService.exceptions.FailedSaveImageException;
 import com.platform.booking.recording.ProvidersService.exceptions.ProviderNotFoundException;
 import com.platform.booking.recording.ProvidersService.models.Provider;
@@ -12,6 +9,8 @@ import com.platform.booking.recording.ProvidersService.util.ProviderMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -86,5 +85,24 @@ public class ProviderService {
         return providerMapper.entityToGetRequestDTO(provider);
     }
 
+    @Transactional(readOnly = true)
+    public ProviderPageForGetClientRequestDTO findProvidersForClient(String search, String category, Pageable pageable){
+        String searchPattern;
+        if (search==null){
+            searchPattern = null;
+        }else {
+            searchPattern = "%" + search.replaceAll("\\s+", "%") + "%";
+        }
+        Page<Provider> providerPage = providerRepository.findProviders(searchPattern, category, pageable);
+        var dto = new ProviderPageForGetClientRequestDTO();
+        dto.setDtos(providerPage
+                .getContent()
+                .stream()
+                .map(providerMapper::entityToGetForClientRequestDTO)
+                .toList());
+        dto.setTotalPages(providerPage.getTotalPages());
+        dto.setTotalElements(providerPage.getTotalElements());
+        return dto;
+    }
 
 }

@@ -3,6 +3,10 @@ import { authGuard } from './core/core/guards/auth';
 
 export const routes: Routes = [
   {
+    path: '',
+    loadComponent: () => import('./features/home/home').then(m => m.HomeComponent)
+  },
+  {
     path: 'login',
     loadComponent: () => import('./features/auth/login/login').then(m => m.LoginComponent)
   },
@@ -21,9 +25,8 @@ export const routes: Routes = [
   },
   {
     path: 'appointments',
-    loadComponent: () => import('./features/master/appointments/appointments').then(m => m.AppointmentsComponent)
+    loadComponent: () => import('./features/master/appointments/appointments').then(m => m.AppointmentsComponent),
     // canActivate: [authGuard]
-
   },
   {
     path: 'services',
@@ -38,11 +41,10 @@ export const routes: Routes = [
   {
     path: 'profile',
     loadComponent: () => import('./features/master/profile/profile').then(m => m.ProfileComponent),
-    canActivate: [authGuard]
+    // canActivate: [authGuard]
   },
   {
-    path: '',
-    redirectTo: 'appointments',
-    pathMatch: 'full'
+    path: '**',
+    redirectTo: ''
   }
 ];

@@ -1,0 +1,86 @@
+<div class="home-container">
+  <section class="hero-section">
+    <div class="hero-content">
+      <h1>Seamless Appointment Booking for Everyone</h1>
+      <p>
+        Book beauty, health, and maintenance services in just a few clicks,
+        or manage your professional master schedule effortlessly.
+      </p>
+      <div class="hero-actions">
+        <a mat-raised-button class="cta-primary" routerLink="/catalog">
+          Explore Masters & Services
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="features-section">
+    <h2>How It Works</h2>
+    <div class="features-grid">
+      <mat-card class="feature-card">
+        <div class="feature-icon-wrapper">
+          <mat-icon>search</mat-icon>
+        </div>
+        <h3>1. Choose Service</h3>
+        <p>Find the right specialist, compare prices, and check service duration.</p>
+      </mat-card>
+
+      <mat-card class="feature-card">
+        <div class="feature-icon-wrapper">
+          <mat-icon>calendar_month</mat-icon>
+        </div>
+        <h3>2. Select Time</h3>
+        <p>Pick an available real-time time slot that seamlessly fits your calendar.</p>
+      </mat-card>
+
+      <mat-card class="feature-card">
+        <div class="feature-icon-wrapper">
+          <mat-icon>verified</mat-icon>
+        </div>
+        <h3>3. Instant Confirm</h3>
+        <p>Get automated confirmations and appointment updates without calling.</p>
+      </mat-card>
+    </div>
+  </section>
+
+  <section class="banners-section">
+    <div class="banners-grid">
+      <!-- Client Banner -->
+      <mat-card class="role-card client-card">
+        <div class="role-icon">
+          <mat-icon>person_search</mat-icon>
+        </div>
+        <h3>For Clients</h3>
+        <p>
+          Looking to book an appointment? Browse available masters, check available time slots, and schedule your visit instantly.
+        </p>
+        <a mat-raised-button class="role-btn client-btn" routerLink="/catalog">
+          Browse Services & Masters <mat-icon>arrow_forward</mat-icon>
+        </a>
+      </mat-card>
+
+      <mat-card class="role-card master-card">
+        <div class="role-icon">
+          <mat-icon>storefront</mat-icon>
+        </div>
+        <h3>For Masters & Specialists</h3>
+        <p>
+          Are you a service provider? Manage your daily schedule, configure working hours, set service prices, and accept client bookings.
+        </p>
+        @if (authService.isAuthenticated()) {
+          <a mat-raised-button class="role-btn master-btn" routerLink="/dashboard">
+            Go to Dashboard <mat-icon>dashboard</mat-icon>
+          </a>
+        } @else {
+          <a mat-raised-button class="role-btn master-btn" routerLink="/login">
+            Master Sign In / Register <mat-icon>login</mat-icon>
+          </a>
+        }
+      </mat-card>
+    </div>
+  </section>
+
+  <footer class="home-footer">
+    <p>© 2026 BookingService. All rights reserved.</p>
+  </footer>
+</div>

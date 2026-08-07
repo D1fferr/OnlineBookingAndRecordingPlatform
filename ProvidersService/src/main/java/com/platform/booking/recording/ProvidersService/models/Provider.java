@@ -33,6 +33,8 @@ public class Provider {
     private String avatarURL;
     @Column(name = "created_at")
     private OffsetDateTime createdAt;
+    @Column(name = "is_blocked")
+    private Boolean isBlocked;
     @OneToMany(mappedBy = "provider", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<WorkingHours> workingHours = new ArrayList<>();
     @OneToMany(mappedBy = "provider", cascade = CascadeType.ALL, orphanRemoval = true)

@@ -2,6 +2,7 @@ package com.platform.booking.recording.ProvidersService.util;
 
 import com.platform.booking.recording.ProvidersService.dtos.ServiceCreateDTO;
 import com.platform.booking.recording.ProvidersService.dtos.ServiceGetDTO;
+import com.platform.booking.recording.ProvidersService.dtos.ServiceProviderForGetClientRequestDTO;
 import com.platform.booking.recording.ProvidersService.models.ServiceProvider;
 import org.springframework.stereotype.Component;
 
@@ -23,6 +24,13 @@ public class ServiceMapper {
         dto.setDuration(serviceProvider.getDuration());
         dto.setPrice(serviceProvider.getPrice());
         dto.setDescription(serviceProvider.getDescription());
+        return dto;
+    }
+    public ServiceProviderForGetClientRequestDTO entityToGetClientRequest(ServiceProvider serviceProvider){
+        var dto = new ServiceProviderForGetClientRequestDTO();
+        dto.setServiceName(serviceProvider.getServiceName());
+        dto.setDuration(serviceProvider.getDuration());
+        dto.setPrice(serviceProvider.getPrice());
         return dto;
     }
 }
