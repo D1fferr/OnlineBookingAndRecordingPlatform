@@ -61,6 +61,16 @@ public class ProviderService {
         log.atInfo().log("The email was updated");
     }
     @Transactional
+    public void updateIsBlocked(ProviderGetIsBlockedDTO dto){
+        MDC.put("providerId", dto.getId().toString());
+        Provider provider = providerRepository.findById(dto.getId())
+                .orElseThrow(()->new ProviderNotFoundException("Provider not found"));
+        provider.setIsBlocked(dto.getIsBlocked());
+        providerRepository.save(provider);
+        log.atInfo().log("The isBlocked was updated");
+    }
+
+    @Transactional
     public void updateAvatar(UUID id, MultipartFile file){
         MDC.put("providerId", id.toString());
         Provider provider = providerRepository.findById(id)
@@ -80,6 +90,7 @@ public class ProviderService {
 
     @Transactional(readOnly = true)
     public ProviderForGetRequestDTO findOneById(UUID id){
+        MDC.put("providerId", id.toString());
         Provider provider = providerRepository.findById(id)
                 .orElseThrow(()->new ProviderNotFoundException("Provider not found"));
         return providerMapper.entityToGetRequestDTO(provider);
@@ -103,6 +114,17 @@ public class ProviderService {
         dto.setTotalPages(providerPage.getTotalPages());
         dto.setTotalElements(providerPage.getTotalElements());
         return dto;
+    }
+    @Transactional(readOnly = true)
+    public ProviderListServiceTypeDTO finAllCategories(){
+        return new ProviderListServiceTypeDTO(providerRepository.findAllUniqueServiceTypes());
+    }
+    @Transactional(readOnly = true)
+    public ProviderForGetBookingRequestDTO findOneByIdForBooking(UUID id){
+        MDC.put("providerId", id.toString());
+        Provider provider = providerRepository.findByIdAndIsBlocked(id, Boolean.FALSE)
+                .orElseThrow(()->new ProviderNotFoundException("Provider not found"));
+        return providerMapper.entityToGetBookingRequestDTO(provider);
     }
 
 }

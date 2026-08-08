@@ -1,0 +1,112 @@
+<div class="provider-detail-container">
+  <div class="navigation-bar">
+    <button mat-button (click)="goBack()" class="back-btn">
+      <mat-icon>arrow_back</mat-icon> Back to Catalog
+    </button>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading-wrapper">
+      <mat-spinner diameter="48"></mat-spinner>
+    </div>
+  } @else if (errorMessage()) {
+    <div class="error-banner">
+      <mat-icon>error_outline</mat-icon>
+      <p>{{ errorMessage() }}</p>
+      <button mat-raised-button color="warn" (click)="goBack()">Return to Catalog</button>
+    </div>
+  } @else if (provider()) {
+    <div class="detail-content">
+      <mat-card class="header-card">
+        <div class="profile-header-wrapper">
+          <div class="avatar-large">
+            @if (provider()?.avatarURL) {
+              <img [src]="provider()?.avatarURL" [alt]="provider()?.name" />
+            } @else {
+              <div class="avatar-placeholder">
+                <mat-icon>person</mat-icon>
+              </div>
+            }
+          </div>
+
+          <div class="profile-meta">
+            <h1>{{ provider()?.name }}</h1>
+            <div class="badge-wrapper">
+              <span class="service-type-badge">{{ provider()?.serviceType }}</span>
+            </div>
+            <div class="timezone-info">
+              <mat-icon>schedule</mat-icon>
+              <span>{{ provider()?.timezone }}</span>
+            </div>
+          </div>
+        </div>
+      </mat-card>
+
+      <section class="section-container">
+        <div class="section-title">
+          <mat-icon class="section-icon">content_cut</mat-icon>
+          <h2>Services & Pricing</h2>
+        </div>
+        <p class="section-subtitle">Select a service to continue with date & time selection</p>
+
+        <div class="services-grid">
+          @for (service of provider()?.serviceProviders; track service.id) {
+            <mat-card class="service-card">
+              <div class="service-header">
+                <h3 class="service-name">{{ service.serviceName }}</h3>
+                <div class="service-price-time">
+                  <span class="duration"><mat-icon>timer</mat-icon> {{ service.duration }} min</span>
+                  <span class="price">{{ service.price | currency:'USD':'symbol':'1.0-2' }}</span>
+                </div>
+              </div>
+
+              <p class="service-description">{{ service.description }}</p>
+
+              <div class="service-actions">
+                <button mat-raised-button class="book-service-btn" (click)="bookService(service)">
+                  Book This Service <mat-icon>arrow_forward</mat-icon>
+                </button>
+              </div>
+            </mat-card>
+          } @empty {
+            <div class="empty-services">
+              <p>This master has not listed any services yet.</p>
+            </div>
+          }
+        </div>
+      </section>
+
+      <section class="section-container">
+        <div class="section-title">
+          <mat-icon class="section-icon">calendar_today</mat-icon>
+          <h2>Working Hours</h2>
+        </div>
+        <p class="section-subtitle">Master's weekly schedule ({{ provider()?.timezone }})</p>
+
+        <mat-card class="working-hours-card">
+          <div class="working-hours-grid">
+            @for (wh of provider()?.workingHours; track wh.id) {
+              <div class="wh-item" [class.day-off]="!wh.isActive">
+                <div class="day-name">{{ getDayName(wh.dayOfWeek) }}</div>
+                <div class="time-slot">
+                  @if (wh.isActive) {
+                    <span>{{ formatTime(wh.startTime) }} - {{ formatTime(wh.endTime) }}</span>
+                    @if (wh.breakStartTime && wh.breakEndTime) {
+                      <span class="break-time">(Break: {{ formatTime(wh.breakStartTime) }} - {{ formatTime(wh.breakEndTime) }})</span>
+                    }
+                  } @else {
+                    <span class="off-label">Day Off</span>
+                  }
+                </div>
+              </div>
+            } @empty {
+              <div class="empty-wh">
+                <p>Working hours schedule not configured.</p>
+              </div>
+            }
+          </div>
+        </mat-card>
+      </section>
+    </div>
+  }
+</div>

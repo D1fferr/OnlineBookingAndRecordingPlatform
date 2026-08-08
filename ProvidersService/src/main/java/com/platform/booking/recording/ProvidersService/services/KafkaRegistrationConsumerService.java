@@ -1,6 +1,7 @@
 package com.platform.booking.recording.ProvidersService.services;
 
 import com.platform.booking.recording.ProvidersService.dtos.ProviderCreateDTO;
+import com.platform.booking.recording.ProvidersService.dtos.ProviderGetIsBlockedDTO;
 import com.platform.booking.recording.ProvidersService.dtos.ProviderUpdateEmailDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -23,5 +24,10 @@ public class KafkaRegistrationConsumerService {
             containerFactory = "providerEmailKafkaListenerContainerFactory")
     public void getProvider(ProviderUpdateEmailDTO dto){
         providerService.updateEmail(dto);
+    }
+    @KafkaListener(topics = "user-is-blocked-topic",
+            containerFactory = "providerEmailKafkaListenerContainerFactory")
+    public void getProvider(ProviderGetIsBlockedDTO dto){
+        providerService.updateIsBlocked(dto);
     }
 }

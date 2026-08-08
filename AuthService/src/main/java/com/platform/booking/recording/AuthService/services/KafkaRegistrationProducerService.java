@@ -1,5 +1,6 @@
 package com.platform.booking.recording.AuthService.services;
 
+import com.platform.booking.recording.AuthService.dtos.ProviderIsBlockedDTO;
 import com.platform.booking.recording.AuthService.dtos.ProviderUpdateEmailDTO;
 import com.platform.booking.recording.AuthService.dtos.RegistrationUserDTO;
 import com.platform.booking.recording.AuthService.dtos.UserForKafkaDTO;
@@ -22,6 +23,7 @@ import java.util.UUID;
 public class KafkaRegistrationProducerService {
     private final KafkaTemplate<String, UserForKafkaDTO> userRegistrationKafkaTemplate;
     private final KafkaTemplate<String, ProviderUpdateEmailDTO> userEmailKafkaTemplate;
+    private final KafkaTemplate<String, ProviderIsBlockedDTO> userIsBlockedKafkaTemplate;
     private final Mapper mapper;
     private static final String TRACE_ID_KEY = "traceId";
 
@@ -50,6 +52,21 @@ public class KafkaRegistrationProducerService {
                 .build();
         try {
             userEmailKafkaTemplate.send(message).get();
+        }catch (Exception e){
+            throw new KafkaException(e.getMessage());
+        }
+
+    }
+    public void sendIsBlocked(UUID id, Boolean isBlocked){
+        ProviderIsBlockedDTO dto = new ProviderIsBlockedDTO(id, isBlocked);
+        String traceId = MDC.get(TRACE_ID_KEY);
+        Message<ProviderIsBlockedDTO> message = MessageBuilder
+                .withPayload(dto)
+                .setHeader(KafkaHeaders.TOPIC, "user-is-blocked-topic")
+                .setHeader(TRACE_ID_KEY, traceId)
+                .build();
+        try {
+            userIsBlockedKafkaTemplate.send(message).get();
         }catch (Exception e){
             throw new KafkaException(e.getMessage());
         }

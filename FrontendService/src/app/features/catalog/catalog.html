@@ -1,0 +1,128 @@
+<div class="catalog-container">
+  <section class="catalog-header">
+    <h1>Find the Best Specialist & Book Online</h1>
+    <p>Explore top-rated masters and services, compare prices, and schedule your visit instantly.</p>
+
+    <div class="search-box">
+      <mat-form-field appearance="outline" class="search-input">
+        <mat-label>Search by service name, description, or master name...</mat-label>
+        <input
+          matInput
+          [(ngModel)]="searchQuery"
+          (keyup.enter)="onSearch()"
+          placeholder="e.g. Haircut, Barber, John"
+        />
+        <button mat-icon-button matSuffix (click)="onSearch()" aria-label="Search">
+          <mat-icon>search</mat-icon>
+        </button>
+      </mat-form-field>
+      <button mat-raised-button class="search-btn" (click)="onSearch()">Search</button>
+    </div>
+
+    <div class="categories-section">
+      <div class="categories-label">Categories:</div>
+      <div class="chips-wrapper">
+        <button
+          mat-stroked-button
+          class="category-chip"
+          [class.active]="selectedCategory() === null"
+          (click)="selectCategory(null)">
+          All
+        </button>
+
+        @for (cat of visibleCategories; track cat) {
+          <button
+            mat-stroked-button
+            class="category-chip"
+            [class.active]="selectedCategory() === cat"
+            (click)="selectCategory(cat)">
+            {{ cat }}
+          </button>
+        }
+
+        @if (categories().length > 5) {
+          <button mat-button class="toggle-btn" (click)="toggleCategories()">
+            {{ showAllCategories() ? 'Show Less' : '+ Show All (' + (categories().length - 5) + ')' }}
+          </button>
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="catalog-content">
+    @if (isLoading()) {
+      <div class="loading-wrapper">
+        <mat-spinner diameter="48"></mat-spinner>
+      </div>
+    } @else if (providers().length === 0) {
+      <div class="empty-state">
+        <mat-icon class="empty-icon">search_off</mat-icon>
+        <h3>No masters found</h3>
+        <p>Try adjusting your search query or selecting a different category.</p>
+      </div>
+    } @else {
+      <div class="providers-grid">
+        @for (provider of providers(); track provider.id) {
+          <mat-card class="provider-card">
+            <div class="card-header">
+              <div class="avatar-container">
+                @if (provider.avatarURL) {
+                  <img [src]="provider.avatarURL" [alt]="provider.name" class="avatar-img" />
+                } @else {
+                  <div class="avatar-placeholder">
+                    <mat-icon>person</mat-icon>
+                  </div>
+                }
+              </div>
+
+              <div class="provider-info">
+                <h2 class="provider-name">{{ provider.name }}</h2>
+                <div class="service-type-badge">{{ provider.serviceType }}</div>
+                <div class="timezone-info">
+                  <mat-icon class="tz-icon">schedule</mat-icon>
+                  <span>{{ provider.timezone }}</span>
+                </div>
+              </div>
+            </div>
+
+            <mat-divider></mat-divider>
+
+            <div class="card-body">
+              <div class="services-title">Featured Services:</div>
+
+              @if (provider.serviceProviders && provider.serviceProviders.length > 0) {
+                <ul class="services-list">
+                  @for (service of provider.serviceProviders; track service.serviceName) {
+                    <li class="service-item">
+                      <span class="service-name">• {{ service.serviceName }}</span>
+                      <span class="service-meta">{{ service.duration }} min ({{ service.price | currency:'USD':'symbol':'1.0-2' }})</span>
+                    </li>
+                  }
+                </ul>
+              } @else {
+                <p class="no-services">No services listed yet.</p>
+              }
+            </div>
+
+            <div class="card-actions">
+              <a mat-raised-button class="book-btn" [routerLink]="['/provider', provider.id]">
+                View Profile & Book <mat-icon>arrow_forward</mat-icon>
+              </a>
+            </div>
+          </mat-card>
+        }
+      </div>
+
+      <div class="paginator-wrapper">
+        <mat-paginator
+          [length]="totalElements()"
+          [pageSize]="pageSize()"
+          [pageIndex]="currentPage()"
+          [pageSizeOptions]="[6, 12, 24]"
+          (page)="onPageChange($event)"
+          aria-label="Select page of providers">
+        </mat-paginator>
+      </div>
+    }
+  </section>
+</div>

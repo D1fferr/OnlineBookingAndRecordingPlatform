@@ -10,14 +10,17 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 @Repository
 public interface ProviderRepository extends JpaRepository<Provider, UUID> {
 
     @EntityGraph(attributePaths = {"serviceProviders"})
     @Query("""
-    SELECT DISTINCT p FROM Provider p 
+    SELECT p FROM Provider p 
     LEFT JOIN p.serviceProviders s 
+    LEFT JOIN p.appointments a 
     WHERE p.isBlocked = false
     AND (:category IS NULL OR :category = '' OR LOWER(p.serviceType) = LOWER(:category))
     AND (
@@ -27,6 +30,8 @@ public interface ProviderRepository extends JpaRepository<Provider, UUID> {
         LOWER(s.serviceName) LIKE LOWER(:searchTerm) OR 
         LOWER(s.description) LIKE LOWER(:searchTerm)
     )
+    GROUP BY p.id
+    ORDER BY COUNT(a) DESC, p.createdAt DESC
 """)
     Page<Provider> findProviders(
             @Param("searchTerm") String searchTerm,
@@ -34,5 +39,16 @@ public interface ProviderRepository extends JpaRepository<Provider, UUID> {
             Pageable pageable
     );
 
-    Page<Provider> findProvidersByServiceType(String serviceType, Pageable pageable);
+    @Query("""
+    SELECT DISTINCT p.serviceType
+    FROM Provider p
+    WHERE p.isBlocked = false
+    AND p.serviceType IS NOT NULL
+    AND p.serviceType != ''
+    ORDER BY p.serviceType ASC
+""")
+    List<String> findAllUniqueServiceTypes();
+
+    @EntityGraph(attributePaths = {"serviceProviders", "workingHours"})
+    Optional<Provider> findByIdAndIsBlocked(UUID id, Boolean isBlocked);
 }

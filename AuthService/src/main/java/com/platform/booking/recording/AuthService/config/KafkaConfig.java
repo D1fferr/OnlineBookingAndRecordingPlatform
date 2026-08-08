@@ -1,5 +1,6 @@
 package com.platform.booking.recording.AuthService.config;
 
+import com.platform.booking.recording.AuthService.dtos.ProviderIsBlockedDTO;
 import com.platform.booking.recording.AuthService.dtos.ProviderUpdateEmailDTO;
 import com.platform.booking.recording.AuthService.dtos.UserForKafkaDTO;
 import com.platform.booking.recording.AuthService.models.ResetPassword;
@@ -60,6 +61,20 @@ public class KafkaConfig {
     @Bean
     public KafkaTemplate<String, ProviderUpdateEmailDTO> userEmailKafkaTemplate(){
         return new KafkaTemplate<>(userEmailProducerFactory());
+    }
+
+    @Bean
+    public ProducerFactory<String, ProviderIsBlockedDTO> userIsBlockedProducerFactory(){
+        Map<String, Object> configKafkaProducer = new HashMap<>();
+        configKafkaProducer.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaEndpoint);
+        configKafkaProducer.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        configKafkaProducer.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JacksonJsonSerializer.class);
+        configKafkaProducer.put(JacksonJsonSerializer.TYPE_MAPPINGS, "ProviderIsBlockedDTO:com.platform.booking.recording.AuthService.dtos.ProviderIsBlockedDTO");
+        return new DefaultKafkaProducerFactory<>(configKafkaProducer);
+    }
+    @Bean
+    public KafkaTemplate<String, ProviderIsBlockedDTO> userIsBlockedKafkaTemplate() {
+        return new KafkaTemplate<>(userIsBlockedProducerFactory());
     }
 
 
