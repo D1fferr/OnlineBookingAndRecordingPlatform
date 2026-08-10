@@ -30,4 +30,6 @@ public class AppointmentCreateDTO {
     private String clientEmail;
     @NotEmpty
     private String clientComment;
+    @NotNull
+    private UUID serviceId;
 }

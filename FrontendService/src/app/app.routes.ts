@@ -52,6 +52,14 @@ export const routes: Routes = [
     loadComponent: () => import('./features/provider-detail/provider-detail').then(m => m.ProviderDetailComponent)
   },
   {
+    path: 'booking/:serviceId',
+    loadComponent: () => import('./features/booking/booking').then(m => m.BookingComponent)
+  },
+  {
+    path: 'provider/:id',
+    loadComponent: () => import('./features/provider-detail/provider-detail').then(m => m.ProviderDetailComponent)
+  },
+  {
     path: '**',
     redirectTo: ''
   }

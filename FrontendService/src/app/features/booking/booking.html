@@ -1,0 +1,221 @@
+<div class="booking-container">
+  @if (!isStateValid()) {
+    <div class="state-expired-card">
+      <mat-icon class="warning-icon">info</mat-icon>
+      <h2>Session Expired or Invalid Link</h2>
+      <p>Please select a service from our catalog to proceed with booking.</p>
+      <button mat-raised-button class="primary-btn" (click)="goToCatalog()">
+        Return to Catalog
+      </button>
+    </div>
+  }
+
+  @else if (createdAppointment()) {
+    <div class="success-card">
+      <mat-icon class="success-icon">check_circle</mat-icon>
+      <h1>Booking Confirmed!</h1>
+      <p class="success-subtitle">Your appointment has been successfully scheduled.</p>
+
+      <div class="summary-box">
+        <h3>Appointment Summary</h3>
+        <div class="summary-row">
+          <span class="label">Service:</span>
+          <span class="value">{{ createdAppointment()?.service }}</span>
+        </div>
+        <div class="summary-row">
+          <span class="label">Master:</span>
+          <span class="value">{{ createdAppointment()?.providerName }}</span>
+        </div>
+        <div class="summary-row">
+          <span class="label">Time:</span>
+          <span class="value highlight">
+            {{ createdAppointment()?.startTime | date:'fullDate' }}
+            ({{ formatTime(createdAppointment()!.startTime) }} - {{ formatTime(createdAppointment()!.endTime) }})
+          </span>
+        </div>
+        <div class="summary-row">
+          <span class="label">Price:</span>
+          <span class="value">{{ createdAppointment()?.price | currency:'USD':'symbol':'1.0-2' }}</span>
+        </div>
+        <div class="summary-row">
+          <span class="label">Client:</span>
+          <span class="value">{{ createdAppointment()?.clientName }} ({{ createdAppointment()?.clientEmail }})</span>
+        </div>
+      </div>
+
+      <p class="email-notice">
+        <mat-icon>mail_outline</mat-icon>
+        A confirmation email with a cancellation link has been sent to <strong>{{ createdAppointment()?.clientEmail }}</strong>.
+      </p>
+
+      <button mat-raised-button class="primary-btn" (click)="goToCatalog()">
+        Back to Catalog
+      </button>
+    </div>
+  }
+
+  @else {
+    <div class="navigation-bar">
+      <button mat-button (click)="goBack()" class="back-btn">
+        <mat-icon>arrow_back</mat-icon> Back to Master Profile
+      </button>
+    </div>
+
+    <mat-card class="summary-header-card">
+      <div class="header-info">
+        <div class="service-title-price">
+          <h2>{{ service()?.serviceName }}</h2>
+          <span class="price-tag">{{ service()?.price | currency:'USD':'symbol':'1.0-2' }}</span>
+        </div>
+        <div class="header-sub-details">
+          <span><mat-icon>person</mat-icon> Master: <strong>{{ provider()?.name }}</strong> ({{ provider()?.serviceType }})</span>
+          <span><mat-icon>timer</mat-icon> Duration: {{ service()?.duration }} min</span>
+          <span><mat-icon>schedule</mat-icon> Timezone: {{ provider()?.timezone }}</span>
+        </div>
+      </div>
+    </mat-card>
+
+    @if (errorMessage()) {
+      <div class="error-banner">
+        <mat-icon>error_outline</mat-icon>
+        <span>{{ errorMessage() }}</span>
+      </div>
+    }
+
+    <mat-card class="step-card">
+      <div class="step-title">
+        <span class="step-number">1</span>
+        <h2>Select Date & Time Slot</h2>
+      </div>
+
+      @if (isLoadingSlots()) {
+        <div class="loading-wrapper">
+          <mat-spinner diameter="40"></mat-spinner>
+          <p>Calculating available time slots...</p>
+        </div>
+      } @else {
+        <div class="days-tab-bar">
+          @for (day of availableDays(); track day.date) {
+            <button
+              mat-stroked-button
+              class="day-chip"
+              [class.active]="selectedDay()?.date === day.date"
+              (click)="selectDay(day)">
+              <span class="day-date">{{ formatDateHeader(day.date) }}</span>
+              <span class="slots-count" [class.off]="!day.freeSlots || day.freeSlots.length === 0">
+                {{ day.freeSlots && day.freeSlots.length > 0 ? day.freeSlots.length + ' slots' : 'Off' }}
+              </span>
+            </button>
+          }
+        </div>
+
+        <div class="slots-section">
+          @if (selectedDay() && selectedDay()!.freeSlots && selectedDay()!.freeSlots.length > 0) {
+            <div class="slots-grid">
+              @for (slot of selectedDay()!.freeSlots; track slot.startTime) {
+                <button
+                  mat-button
+                  class="slot-btn"
+                  [class.selected]="selectedSlot()?.startTime === slot.startTime"
+                  (click)="selectSlot(slot)">
+                  <mat-icon class="slot-icon">schedule</mat-icon>
+                  <span>{{ formatTime(slot.startTime) }} - {{ formatTime(slot.endTime) }}</span>
+                </button>
+              }
+            </div>
+          } @else {
+            <div class="no-slots-msg">
+              <mat-icon>event_busy</mat-icon>
+              <p>No available slots for this day.</p>
+            </div>
+          }
+        </div>
+      }
+    </mat-card>
+
+    <mat-card class="step-card" [class.disabled-step]="!selectedSlot()">
+      <div class="step-title">
+        <span class="step-number">2</span>
+        <h2>Your Contact Information</h2>
+      </div>
+
+      <form (ngSubmit)="onSubmitBooking()" #bookingForm="ngForm" class="client-form">
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Full Name *</mat-label>
+            <input
+              matInput
+              [(ngModel)]="clientName"
+              name="clientName"
+              required
+              placeholder="e.g. Alex Smith"
+              [disabled]="!selectedSlot()"
+            />
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Email Address *</mat-label>
+            <input
+              matInput
+              type="email"
+              [(ngModel)]="clientEmail"
+              name="clientEmail"
+              required
+              email
+              placeholder="e.g. alex.smith@example.com"
+              [disabled]="!selectedSlot()"
+            />
+            <mat-hint>Confirmation link and cancellation code will be sent here.</mat-hint>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Comment / Note for Master (Optional)</mat-label>
+            <textarea
+              matInput
+              rows="3"
+              [(ngModel)]="clientComment"
+              name="clientComment"
+              placeholder="Any specific preferences or requests..."
+              [disabled]="!selectedSlot()">
+            </textarea>
+          </mat-form-field>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <!-- Final Summary Box -->
+        <div class="booking-final-summary">
+          <div class="summary-details">
+            <div>Selected Time:
+              <strong>
+                @if (selectedSlot()) {
+                  {{ formatDateHeader(selectedDay()!.date) }} at {{ formatTime(selectedSlot()!.startTime) }} - {{ formatTime(selectedSlot()!.endTime) }}
+                } @else {
+                  Please select a slot above
+                }
+              </strong>
+            </div>
+            <div>Total Amount: <strong>{{ service()?.price | currency:'USD':'symbol':'1.0-2' }}</strong></div>
+          </div>
+
+          <button
+            mat-raised-button
+            class="confirm-btn"
+            type="submit"
+            [disabled]="!selectedSlot() || !bookingForm.valid || isSubmitting()">
+            @if (isSubmitting()) {
+              <mat-spinner diameter="20"></mat-spinner>
+              Processing...
+            } @else {
+              Confirm Booking <mat-icon>check</mat-icon>
+            }
+          </button>
+        </div>
+      </form>
+    </mat-card>
+  }
+</div>

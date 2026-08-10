@@ -1,11 +1,9 @@
 package com.platform.booking.recording.ProvidersService.util;
 
-import com.platform.booking.recording.ProvidersService.dtos.AppointmentCancelledForKafkaDTO;
-import com.platform.booking.recording.ProvidersService.dtos.AppointmentCreateDTO;
-import com.platform.booking.recording.ProvidersService.dtos.AppointmentForKafkaDTO;
-import com.platform.booking.recording.ProvidersService.dtos.AppointmentGetDTO;
+import com.platform.booking.recording.ProvidersService.dtos.*;
 import com.platform.booking.recording.ProvidersService.models.Appointment;
 import com.platform.booking.recording.ProvidersService.models.Provider;
+import com.platform.booking.recording.ProvidersService.models.ServiceProvider;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -57,6 +55,18 @@ public class AppointmentMapper {
         dto.setClientName(appointment.getClientName());
         dto.setClientEmail(appointment.getClientEmail());
         dto.setClientComment(appointment.getClientComment());
+        return dto;
+    }
+    public AppointmentGetForCreateDTO entityToGetForCreateDTO(Appointment appointment, Provider provider, ServiceProvider serviceProvider){
+        AppointmentGetForCreateDTO dto = new AppointmentGetForCreateDTO();
+        dto.setProviderName(provider.getName());
+        dto.setService(serviceProvider.getServiceName());
+        dto.setPrice(serviceProvider.getPrice());
+        dto.setClientName(appointment.getClientName());
+        dto.setClientEmail(appointment.getClientEmail());
+        dto.setClientComment(appointment.getClientComment());
+        dto.setStartTime(appointment.getStartTime());
+        dto.setEndTime(appointment.getEndTime());
         return dto;
     }
 

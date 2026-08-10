@@ -1,15 +1,19 @@
 package com.platform.booking.recording.ProvidersService.repositories;
 
+import com.platform.booking.recording.ProvidersService.dtos.ProviderAndServiceProjection;
 import com.platform.booking.recording.ProvidersService.models.Appointment;
 import com.platform.booking.recording.ProvidersService.models.Provider;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -18,16 +22,16 @@ public interface ProviderRepository extends JpaRepository<Provider, UUID> {
 
     @EntityGraph(attributePaths = {"serviceProviders"})
     @Query("""
-    SELECT p FROM Provider p 
-    LEFT JOIN p.serviceProviders s 
-    LEFT JOIN p.appointments a 
+    SELECT p FROM Provider p
+    LEFT JOIN p.serviceProviders s
+    LEFT JOIN p.appointments a
     WHERE p.isBlocked = false
     AND (:category IS NULL OR :category = '' OR LOWER(p.serviceType) = LOWER(:category))
     AND (
-        :searchTerm IS NULL OR :searchTerm = '' OR 
-        LOWER(p.name) LIKE LOWER(:searchTerm) OR 
-        LOWER(p.serviceType) LIKE LOWER(:searchTerm) OR 
-        LOWER(s.serviceName) LIKE LOWER(:searchTerm) OR 
+        :searchTerm IS NULL OR :searchTerm = '' OR
+        LOWER(p.name) LIKE LOWER(:searchTerm) OR
+        LOWER(p.serviceType) LIKE LOWER(:searchTerm) OR
+        LOWER(s.serviceName) LIKE LOWER(:searchTerm) OR
         LOWER(s.description) LIKE LOWER(:searchTerm)
     )
     GROUP BY p.id
@@ -51,4 +55,26 @@ public interface ProviderRepository extends JpaRepository<Provider, UUID> {
 
     @EntityGraph(attributePaths = {"serviceProviders", "workingHours"})
     Optional<Provider> findByIdAndIsBlocked(UUID id, Boolean isBlocked);
+    @Query("""
+        SELECT a FROM Appointment a
+        WHERE a.provider.id = :providerId
+        AND a.createdAt >= :startDate
+        AND a.createdAt <= :endDate
+        AND a.status != 'CANCELLED'
+    """)
+    List<Appointment> findBookedAppointmentsForPeriod(
+            @Param("providerId") UUID providerId,
+            @Param("startDate") OffsetDateTime startDate,
+            @Param("endDate") OffsetDateTime endDate
+    );
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("""
+        SELECT ProviderAndServiceProjection(p, s) FROM Provider p
+        LEFT JOIN p.serviceProviders s ON s.id = :serviceId
+        WHERE p.id = :providerId
+        AND p.isBlocked = false
+        AND s.id = :serviceId
+        """)
+    Optional<ProviderAndServiceProjection> findByIdWithLock(@Param("providerId") UUID providerId,
+                                                            @Param("serviceId") UUID serviceId);
 }

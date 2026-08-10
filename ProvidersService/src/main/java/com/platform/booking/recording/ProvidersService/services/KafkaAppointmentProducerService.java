@@ -30,8 +30,8 @@ public class KafkaAppointmentProducerService {
     private final AppointmentService appointmentService;
     private static final String TRACE_ID_KEY = "traceId";
 
-    public void sendToCreate(Appointment appointment, String providerEmail, String timezone){
-        AppointmentForKafkaDTO dto = appointmentMapper.entityToForKafkaDTO(appointment, providerEmail, timezone);
+    public void sendToCreate(Appointment appointment){
+        AppointmentForKafkaDTO dto = appointmentMapper.entityToForKafkaDTO(appointment, appointment.getProvider().getEmail(), appointment.getProvider().getTimezone());
         String traceId = MDC.get(TRACE_ID_KEY);
         Message<AppointmentForKafkaDTO> message = MessageBuilder
                 .withPayload(dto)

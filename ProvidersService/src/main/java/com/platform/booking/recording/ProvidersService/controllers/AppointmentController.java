@@ -1,16 +1,11 @@
 package com.platform.booking.recording.ProvidersService.controllers;
 
-import com.platform.booking.recording.ProvidersService.dtos.AppointmentCancelledReasonDTO;
-import com.platform.booking.recording.ProvidersService.dtos.AppointmentCreateDTO;
-import com.platform.booking.recording.ProvidersService.dtos.AppointmentGetDTO;
-import com.platform.booking.recording.ProvidersService.dtos.AppointmentPageDTO;
+import com.platform.booking.recording.ProvidersService.dtos.*;
 import com.platform.booking.recording.ProvidersService.models.Appointment;
 import com.platform.booking.recording.ProvidersService.services.AppointmentService;
 import com.platform.booking.recording.ProvidersService.services.KafkaAppointmentProducerService;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.MDC;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -18,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -30,10 +24,10 @@ public class AppointmentController {
     private final KafkaAppointmentProducerService kafkaAppointmentProducerService;
 
     @PostMapping("/auth/create")
-    public ResponseEntity<Void> createAppointment(@RequestBody @Valid AppointmentCreateDTO dto){
-        Appointment appointment = appointmentService.save(dto);
-        kafkaAppointmentProducerService.sendToCreate(appointment, appointment.getProvider().getEmail(), appointment.getProvider().getTimezone());
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+    public ResponseEntity<AppointmentGetForCreateDTO> createAppointment(@RequestBody @Valid AppointmentCreateDTO dto){
+        AppointmentGetAndSendToKafkaDTO appointmentDTO = appointmentService.save(dto);
+        kafkaAppointmentProducerService.sendToCreate(appointmentDTO.getAppointment());
+        return ResponseEntity.ok(appointmentDTO.getDto());
     }
     @PostMapping("/auth/change-status-to-confirmed/{id}")
     public ResponseEntity<Void> changeStatusToConfirmed(@PathVariable(name = "id") UUID id){
@@ -73,6 +67,10 @@ public class AppointmentController {
     @GetMapping("/auth/get-appointment/{id}")
     public ResponseEntity<AppointmentGetDTO> getAppointment(@PathVariable(name = "id") UUID id){
         return ResponseEntity.ok(appointmentService.findById(id));
+    }
+    @PostMapping("/public/get-free-slots/{id}")
+    public ResponseEntity<AvailableSlotsResponseDTO> getFreeSlots(@PathVariable(name = "id") UUID serviceId){
+        return ResponseEntity.ok(appointmentService.findFreeSlots(serviceId));
     }
 
 
