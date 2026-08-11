@@ -61,13 +61,13 @@ public class ProviderService {
         log.atInfo().log("The email was updated");
     }
     @Transactional
-    public void updateIsBlocked(ProviderGetIsBlockedDTO dto){
+    public void updateIsBlocked(ProviderIsBlockedDTO dto){
         MDC.put("providerId", dto.getId().toString());
         Provider provider = providerRepository.findById(dto.getId())
                 .orElseThrow(()->new ProviderNotFoundException("Provider not found"));
         provider.setIsBlocked(dto.getIsBlocked());
         providerRepository.save(provider);
-        log.atInfo().log("The isBlocked was updated");
+        log.atInfo().log("The isBlocked field was updated");
     }
 
     @Transactional

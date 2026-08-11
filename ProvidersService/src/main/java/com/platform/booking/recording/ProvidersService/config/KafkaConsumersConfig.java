@@ -1,6 +1,7 @@
 package com.platform.booking.recording.ProvidersService.config;
 
 import com.platform.booking.recording.ProvidersService.dtos.ProviderCreateDTO;
+import com.platform.booking.recording.ProvidersService.dtos.ProviderIsBlockedDTO;
 import com.platform.booking.recording.ProvidersService.dtos.ProviderUpdateEmailDTO;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -67,6 +68,28 @@ public class KafkaConsumersConfig {
     public ConcurrentKafkaListenerContainerFactory<String, ProviderUpdateEmailDTO> providerEmailKafkaListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, ProviderUpdateEmailDTO> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(providerEmailConsumerFactory());
+        return factory;
+    }
+    @Bean
+    public ConsumerFactory<String, ProviderIsBlockedDTO> providerIsBlockedConsumerFactory() {
+        Map<String, Object> configKafkaConsumer = new HashMap<>();
+        configKafkaConsumer.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaEndpoint);
+        configKafkaConsumer.put(ConsumerConfig.GROUP_ID_CONFIG, "provider-service");
+        configKafkaConsumer.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JacksonJsonSerializer.class);
+        JacksonJsonDeserializer<ProviderIsBlockedDTO> jacksonDeserializer =
+                new JacksonJsonDeserializer<>(ProviderIsBlockedDTO.class);
+        jacksonDeserializer.addTrustedPackages("*");
+        jacksonDeserializer.setUseTypeHeaders(false);
+        return new DefaultKafkaConsumerFactory<>(
+                configKafkaConsumer,
+                new StringDeserializer(),
+                new ErrorHandlingDeserializer<>(jacksonDeserializer)
+        );
+    }
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, ProviderIsBlockedDTO> providerIsBlockedKafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, ProviderIsBlockedDTO> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(providerIsBlockedConsumerFactory());
         return factory;
     }
 

@@ -1,0 +1,46 @@
+<div class="dialog-header" [class.unblock-header]="data.action === 'unblock'">
+  <mat-icon>{{ data.action === 'block' ? 'block' : 'lock_open' }}</mat-icon>
+  <h2 mat-dialog-title>
+    {{ data.action === 'block' ? 'Block User Account' : 'Unblock User Account' }}
+  </h2>
+</div>
+
+<mat-dialog-content class="dialog-content">
+  <p class="warning-text">
+    Are you sure you want to {{ data.action }} user <strong>{{ data.user.email }}</strong>?
+  </p>
+
+  <div class="user-id-badge">
+    <span class="label">User ID:</span>
+    <code>{{ data.user.id }}</code>
+  </div>
+
+  @if (data.action === 'block') {
+    <mat-form-field appearance="outline" class="full-width margin-top">
+      <mat-label>Reason for blocking *</mat-label>
+      <textarea
+        matInput
+        rows="3"
+        [(ngModel)]="reason"
+        required
+        placeholder="Enter specific reason (e.g. Terms violation, Spam)...">
+      </textarea>
+      <mat-hint>This reason will be stored and visible to administrators.</mat-hint>
+    </mat-form-field>
+  } @else {
+    <p class="info-text">
+      The user will regain full access to their account features.
+    </p>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="dialog-actions">
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button
+    mat-raised-button
+    [color]="data.action === 'block' ? 'warn' : 'primary'"
+    [disabled]="data.action === 'block' && !reason.trim()"
+    (click)="onConfirm()">
+    {{ data.action === 'block' ? 'Confirm Block' : 'Confirm Unblock' }}
+  </button>
+</mat-dialog-actions>

@@ -57,8 +57,7 @@ public class KafkaRegistrationProducerService {
         }
 
     }
-    public void sendIsBlocked(UUID id, Boolean isBlocked){
-        ProviderIsBlockedDTO dto = new ProviderIsBlockedDTO(id, isBlocked);
+    public void sendIsBlocked(ProviderIsBlockedDTO dto){
         String traceId = MDC.get(TRACE_ID_KEY);
         Message<ProviderIsBlockedDTO> message = MessageBuilder
                 .withPayload(dto)

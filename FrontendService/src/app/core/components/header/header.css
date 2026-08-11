@@ -38,6 +38,20 @@
   border-radius: 4px;
 }
 
+.admin-link {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 4px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+.admin-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
 .logout-btn {
   margin-left: 8px;
 }

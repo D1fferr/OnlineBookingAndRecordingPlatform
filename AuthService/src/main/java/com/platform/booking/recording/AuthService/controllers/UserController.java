@@ -102,9 +102,17 @@ public class UserController {
     }
     @PostMapping("/auth/block-user")
     public ResponseEntity<Void> blockUser(@RequestBody @Valid BlockUserDTO dto){
-        userService.blockUser(dto);
+        ProviderIsBlockedDTO isBlockedDTO = userService.blockUser(dto);
         refreshTokenService.deleteByUserId(dto.getUserId());
+        kafkaRegistrationProducerService.sendIsBlocked(isBlockedDTO);
         return ResponseEntity.noContent()
+                .build();
+    }
+    @PostMapping("/auth/unblock-user/{id}")
+    public ResponseEntity<Void> unblockUser(@PathVariable (name = "id") UUID userId){
+        ProviderIsBlockedDTO isBlockedDTO = userService.unblockUser(userId);
+        kafkaRegistrationProducerService.sendIsBlocked(isBlockedDTO);
+        return ResponseEntity.status(HttpStatus.OK)
                 .build();
     }
     @PostMapping("/auth/logout-user/{id}")

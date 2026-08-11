@@ -1,0 +1,155 @@
+<div class="admin-users-container">
+  <div class="page-header">
+    <div>
+      <h1>User Management</h1>
+      <p class="subtitle">Manage platform accounts, monitor statuses, and handle security blocks.</p>
+    </div>
+  </div>
+
+  <!-- Filter & Search Bar -->
+  <mat-card class="filter-card">
+    <div class="filter-wrapper">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Search by ID or Email</mat-label>
+        <input
+          matInput
+          [(ngModel)]="searchQuery"
+          (keyup.enter)="onSearch()"
+          placeholder="Enter exact ID or Email..."
+        />
+        <button mat-icon-button matSuffix (click)="onSearch()">
+          <mat-icon>search</mat-icon>
+        </button>
+      </mat-form-field>
+
+      <div class="sort-controls">
+        <mat-form-field appearance="outline" class="sort-field">
+          <mat-label>Sort By</mat-label>
+          <mat-select [(ngModel)]="sortBy" (selectionChange)="onSearch()">
+            <mat-option value="createdAt">Creation Date</mat-option>
+            <mat-option value="email">Email</mat-option>
+            <mat-option value="role">Role</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="sort-dir-field">
+          <mat-label>Order</mat-label>
+          <mat-select [(ngModel)]="sortDir" (selectionChange)="onSearch()">
+            <mat-option value="desc">Descending</mat-option>
+            <mat-option value="asc">Ascending</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </div>
+  </mat-card>
+
+  <!-- Users Data Table -->
+  <mat-card class="table-card">
+    @if (isLoading()) {
+      <div class="loading-spinner">
+        <mat-spinner diameter="40"></mat-spinner>
+        <p>Loading users...</p>
+      </div>
+    } @else {
+      <table mat-table [dataSource]="users()" class="users-table">
+
+        <!-- ID Column -->
+        <ng-container matColumnDef="id">
+          <th mat-header-cell *matHeaderCellDef> User ID </th>
+          <td mat-cell *matCellDef="let user">
+            <code class="id-code">{{ user.id }}</code>
+          </td>
+        </ng-container>
+
+        <!-- User/Email Column -->
+        <ng-container matColumnDef="user">
+          <th mat-header-cell *matHeaderCellDef> User / Email </th>
+          <td mat-cell *matCellDef="let user">
+            <div class="user-info-cell">
+              <img
+                [src]="user.avatarURL || 'assets/default-avatar.png'"
+                alt="avatar"
+                class="avatar-img"
+                (error)="$any($event.target).src = 'https://ui-avatars.com/api/?name=' + user.email"
+              />
+              <span class="user-email">{{ user.email }}</span>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Role Column -->
+        <ng-container matColumnDef="role">
+          <th mat-header-cell *matHeaderCellDef> Role </th>
+          <td mat-cell *matCellDef="let user">
+            <span class="role-badge" [class]="user.role.toLowerCase()">
+              {{ user.role }}
+            </span>
+          </td>
+        </ng-container>
+
+        <!-- Status Column -->
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef> Status </th>
+          <td mat-cell *matCellDef="let user">
+            <span class="status-badge" [class.blocked]="user.isBlocked" [class.active]="!user.isBlocked">
+              <mat-icon>{{ user.isBlocked ? 'cancel' : 'check_circle' }}</mat-icon>
+              {{ user.isBlocked ? 'Blocked' : 'Active' }}
+            </span>
+          </td>
+        </ng-container>
+
+        <!-- Block Reason Column -->
+        <ng-container matColumnDef="blockReason">
+          <th mat-header-cell *matHeaderCellDef> Block Reason </th>
+          <td mat-cell *matCellDef="let user">
+            <span class="reason-text">
+              {{ user.isBlocked && user.blockReason ? user.blockReason : '-' }}
+            </span>
+          </td>
+        </ng-container>
+
+        <!-- Actions Column -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef> Actions </th>
+          <td mat-cell *matCellDef="let user">
+            @if (user.role === 'ADMIN') {
+              <span class="disabled-action">-</span>
+            } @else if (user.isBlocked) {
+              <button
+                mat-stroked-button
+                class="unblock-btn"
+                (click)="openUnblockModal(user)">
+                <mat-icon>lock_open</mat-icon> Unblock
+              </button>
+            } @else {
+              <button
+                mat-stroked-button
+                class="block-btn"
+                (click)="openBlockModal(user)">
+                <mat-icon>block</mat-icon> Block
+              </button>
+            }
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+
+      @if (users().length === 0) {
+        <div class="empty-state">
+          <mat-icon>person_off</mat-icon>
+          <p>No users found matching the search criteria.</p>
+        </div>
+      }
+
+      <mat-paginator
+        [length]="totalElements()"
+        [pageSize]="pageSize()"
+        [pageSizeOptions]="[5, 8, 15, 25]"
+        (page)="onPageChange($event)"
+        showFirstLastButtons>
+      </mat-paginator>
+    }
+  </mat-card>
+</div>

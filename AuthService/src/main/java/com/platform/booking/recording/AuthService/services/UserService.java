@@ -7,6 +7,7 @@ import com.platform.booking.recording.AuthService.repositories.jpa.UserRepositor
 import com.platform.booking.recording.AuthService.util.Mapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -119,7 +120,7 @@ public class UserService {
                 .log("The user deleted");
     }
     @Transactional
-    public void blockUser(BlockUserDTO dto){
+    public ProviderIsBlockedDTO blockUser(BlockUserDTO dto){
         User user = userRepository.findById(dto.getUserId())
                 .orElseThrow(()->new UserNotFoundException("User not found"));
         user.setIsBlocked(Boolean.TRUE);
@@ -129,6 +130,8 @@ public class UserService {
                 .addKeyValue("reason", user.getBlockReason())
                 .log("The user blocked");
         userRepository.save(user);
+        return new ProviderIsBlockedDTO(user.getId(), user.getIsBlocked());
+
     }
     @Transactional(readOnly = true)
     public PageUserDTO findAllUsers(Pageable pageable){
@@ -154,6 +157,16 @@ public class UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(()->new UserNotFoundException("User not found"));
         return mapper.userToGetDTO(user);
+    }
 
+    @Transactional(readOnly = true)
+    public ProviderIsBlockedDTO unblockUser(UUID id){
+        MDC.put("userId", id.toString());
+        User user = userRepository.findById(id)
+                .orElseThrow(()->new UserNotFoundException("User not found"));
+        user.setIsBlocked(Boolean.FALSE);
+        log.atInfo().log("The user unblocked");
+        userRepository.save(user);
+        return new ProviderIsBlockedDTO(user.getId(), user.getIsBlocked());
     }
 }

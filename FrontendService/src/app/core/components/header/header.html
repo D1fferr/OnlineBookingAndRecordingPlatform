@@ -9,6 +9,12 @@
       <a mat-button routerLink="/services" routerLinkActive="active-link">Services</a>
       <a mat-button routerLink="/working-hours" routerLinkActive="active-link">Working Hours</a>
       <a mat-button routerLink="/profile" routerLinkActive="active-link">Profile</a>
+
+      @if (authService.isAdmin()) {
+        <a mat-button routerLink="/admin/users" routerLinkActive="active-link" class="admin-link">
+          <mat-icon class="admin-icon">admin_panel_settings</mat-icon> Users
+        </a>
+      }
     </nav>
 
     <button mat-icon-button (click)="onLogout()" title="Logout" class="logout-btn">

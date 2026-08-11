@@ -1,0 +1,71 @@
+.dialog-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 24px 12px 24px;
+  color: #c62828;
+}
+
+.dialog-header.unblock-header {
+  color: #2e7d32;
+}
+
+.dialog-header mat-icon {
+  font-size: 28px;
+  width: 28px;
+  height: 28px;
+}
+
+.dialog-header h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.dialog-content {
+  padding: 0 24px 16px 24px !important;
+}
+
+.warning-text {
+  font-size: 15px;
+  color: #333333;
+  margin-bottom: 12px;
+}
+
+.user-id-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #f5f5f5;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.user-id-badge .label {
+  color: #757575;
+}
+
+.user-id-badge code {
+  font-family: monospace;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.margin-top {
+  margin-top: 16px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.info-text {
+  font-size: 14px;
+  color: #666666;
+  margin-top: 12px;
+}
+
+.dialog-actions {
+  padding: 12px 24px 20px 24px !important;
+}

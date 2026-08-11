@@ -60,6 +60,11 @@ export const routes: Routes = [
     loadComponent: () => import('./features/provider-detail/provider-detail').then(m => m.ProviderDetailComponent)
   },
   {
+    path: 'admin/users',
+    loadComponent: () => import('./features/admin/users/users').then(m => m.UsersComponent),
+    canActivate: [adminGuard]
+  },
+  {
     path: '**',
     redirectTo: ''
   }
