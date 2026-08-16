@@ -21,12 +21,12 @@ public class KafkaRegistrationConsumerService {
     }
     @KafkaListener(topics = "user-email-topic",
             containerFactory = "providerEmailKafkaListenerContainerFactory")
-    public void getProvider(ProviderUpdateEmailDTO dto){
+    public void getProvider(@Payload ProviderUpdateEmailDTO dto){
         providerService.updateEmail(dto);
     }
     @KafkaListener(topics = "user-is-blocked-topic",
-            containerFactory = "providerEmailKafkaListenerContainerFactory")
-    public void getProvider(ProviderIsBlockedDTO dto){
+            containerFactory = "providerIsBlockedKafkaListenerContainerFactory")
+    public void getProvider(@Payload ProviderIsBlockedDTO dto){
         providerService.updateIsBlocked(dto);
     }
 }

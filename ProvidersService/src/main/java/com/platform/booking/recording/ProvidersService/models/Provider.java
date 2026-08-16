@@ -7,9 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @NoArgsConstructor
 @Getter
@@ -36,9 +34,10 @@ public class Provider {
     @Column(name = "is_blocked")
     private Boolean isBlocked;
     @OneToMany(mappedBy = "provider", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<WorkingHours> workingHours = new ArrayList<>();
+    @OrderBy("dayOfWeek ASC")
+    private Set<WorkingHours> workingHours = new LinkedHashSet<>();
     @OneToMany(mappedBy = "provider", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Appointment> appointments = new ArrayList<>();
     @OneToMany(mappedBy = "provider", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ServiceProvider> serviceProviders = new ArrayList<>();
+    private Set<ServiceProvider> serviceProviders = new LinkedHashSet<>();
 }

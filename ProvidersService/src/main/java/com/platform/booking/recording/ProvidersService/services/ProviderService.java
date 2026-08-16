@@ -16,8 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.OffsetDateTime;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -104,15 +104,25 @@ public class ProviderService {
         }else {
             searchPattern = "%" + search.replaceAll("\\s+", "%") + "%";
         }
-        Page<Provider> providerPage = providerRepository.findProviders(searchPattern, category, pageable);
         var dto = new ProviderPageForGetClientRequestDTO();
-        dto.setDtos(providerPage
-                .getContent()
-                .stream()
+        Page<UUID> idPage = providerRepository.findProviderIds(searchPattern, category, pageable);
+        if (idPage.isEmpty()) {
+            dto.setDtos(List.of());
+            dto.setTotalElements(0L);
+            dto.setTotalPages(0);
+            return dto;
+        }
+        List<Provider> providers = providerRepository.findAllByIdsIn(idPage.getContent());
+        Map<UUID, Provider> providerMap = providers.stream()
+                .collect(Collectors.toMap(Provider::getId, p -> p));
+        List<ProviderForGetClientRequestDTO> sortedProviders = idPage.getContent().stream()
+                .map(providerMap::get)
+                .filter(Objects::nonNull)
                 .map(providerMapper::entityToGetForClientRequestDTO)
-                .toList());
-        dto.setTotalPages(providerPage.getTotalPages());
-        dto.setTotalElements(providerPage.getTotalElements());
+                .toList();
+        dto.setDtos(sortedProviders);
+        dto.setTotalPages(idPage.getTotalPages());
+        dto.setTotalElements(idPage.getTotalElements());
         return dto;
     }
     @Transactional(readOnly = true)

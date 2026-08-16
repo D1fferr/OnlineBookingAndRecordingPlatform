@@ -14,7 +14,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { CatalogService } from '../../core/services/catalog';
 import { ProviderForGetClientRequestDTO } from '../../core/models/catalog';
-import {MatDivider} from '@angular/material/types/divider';
+import {MatDivider} from '@angular/material/divider';
 
 @Component({
   selector: 'app-catalog',

@@ -15,6 +15,7 @@ import { ProfileService } from '../../../core/services/profile';
 import { AuthService } from '../../../core/services/auth';
 import { UserForGetRequestDTO, ProviderForGetRequestDTO, ChangeCredentialsDTO, ProviderChangeDataDTO } from '../../../core/models/profile';
 import { DeleteAccountDialogComponent } from './delete-account-dialog/delete-account-dialog';
+import {RegistrationUserDTO} from '../../../core/models/auth';
 
 @Component({
   selector: 'app-profile',
@@ -43,6 +44,9 @@ export class ProfileComponent {
 
   userId = signal<string | null>(this.authService.getProviderId());
   userData = signal<UserForGetRequestDTO | null>(null);
+
+  registerData = signal<RegistrationUserDTO | null>(null);
+
   providerData = signal<ProviderForGetRequestDTO | null>(null);
 
   selectedFile: File | null = null;

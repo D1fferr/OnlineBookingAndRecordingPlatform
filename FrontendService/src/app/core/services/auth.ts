@@ -29,7 +29,7 @@ export class AuthService {
   isAuthenticated = signal<boolean>(!this.isTokenExpired());
 
   login(request: LoginDTO): Observable<AuthResponseDTO> {
-    return this.http.post<AuthResponseDTO>(`${this.API_URL}/public/login`, request).pipe(
+    return this.http.post<AuthResponseDTO>(`${this.API_URL}/user/public/login`, request).pipe(
       tap(response => {
         if (response?.accessToken) {
           this.saveToken(response.accessToken);
@@ -42,13 +42,13 @@ export class AuthService {
     const formData = new FormData();
 
     const jsonBlob = new Blob([JSON.stringify(dto)], { type: 'application/json' });
-    formData.append('userData', jsonBlob);
+    formData.append('registerData', jsonBlob);
 
     if (file) {
       formData.append('imageData', file);
     }
 
-    return this.http.post<AuthResponseDTO>(`${this.API_URL}/public/register`, formData).pipe(
+    return this.http.post<AuthResponseDTO>(`${this.API_URL}/user/public/register`, formData).pipe(
       tap(response => {
         if (response?.accessToken) {
           this.saveToken(response.accessToken);
@@ -66,7 +66,7 @@ export class AuthService {
   }
 
   logout(): Observable<void> {
-    return this.http.post<void>(`${this.API_URL}/auth/logout`, {}).pipe(
+    return this.http.post<void>(`${this.API_URL}/user/auth/logout`, {}).pipe(
       finalize(() => this.clearLocalSession()),
       catchError(() => of(void 0))
     );

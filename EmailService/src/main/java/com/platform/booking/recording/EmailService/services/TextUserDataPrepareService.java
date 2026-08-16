@@ -10,9 +10,9 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class TextUserDataPrepareService {
     private final ExternalConfig config;
-    private final String HOST = config.getServices().getGateway();
 
     public String prepareTextForRegistration(ProviderCreateDTO dto){
+        String HOST = config.getServices().getGateway();
         return "Hello dear " + dto.getName() + """
                 We are glad to welcome you to the Online Booking and Recording Platform team! Now you have a convenient tool for managing your schedule, recording clients, and developing your own business.
                 To get started and attract your first clients:

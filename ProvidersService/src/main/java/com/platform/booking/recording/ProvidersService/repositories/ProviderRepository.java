@@ -20,28 +20,45 @@ import java.util.UUID;
 @Repository
 public interface ProviderRepository extends JpaRepository<Provider, UUID> {
 
-    @EntityGraph(attributePaths = {"serviceProviders"})
-    @Query("""
-    SELECT p FROM Provider p
-    LEFT JOIN p.serviceProviders s
-    LEFT JOIN p.appointments a
-    WHERE p.isBlocked = false
-    AND (:category IS NULL OR :category = '' OR LOWER(p.serviceType) = LOWER(:category))
-    AND (
-        :searchTerm IS NULL OR :searchTerm = '' OR
-        LOWER(p.name) LIKE LOWER(:searchTerm) OR
-        LOWER(p.serviceType) LIKE LOWER(:searchTerm) OR
-        LOWER(s.serviceName) LIKE LOWER(:searchTerm) OR
-        LOWER(s.description) LIKE LOWER(:searchTerm)
+    @Query(
+            value = """
+            SELECT p.id FROM Provider p
+            LEFT JOIN p.serviceProviders s
+            LEFT JOIN p.appointments a
+            WHERE p.isBlocked = false
+            AND (:category IS NULL OR :category = '' OR LOWER(p.serviceType) = LOWER(:category))
+            AND (
+                :searchTerm IS NULL OR :searchTerm = '' OR
+                LOWER(p.name) LIKE LOWER(:searchTerm) OR
+                LOWER(p.serviceType) LIKE LOWER(:searchTerm) OR
+                LOWER(s.serviceName) LIKE LOWER(:searchTerm) OR
+                LOWER(s.description) LIKE LOWER(:searchTerm)
+            )
+            GROUP BY p.id, p.createdAt
+            ORDER BY COUNT(a) DESC, p.createdAt DESC
+        """,
+            countQuery = """
+            SELECT COUNT(DISTINCT p.id) FROM Provider p
+            LEFT JOIN p.serviceProviders s
+            WHERE p.isBlocked = false
+            AND (:category IS NULL OR :category = '' OR LOWER(p.serviceType) = LOWER(:category))
+            AND (
+                :searchTerm IS NULL OR :searchTerm = '' OR
+                LOWER(p.name) LIKE LOWER(:searchTerm) OR
+                LOWER(p.serviceType) LIKE LOWER(:searchTerm) OR
+                LOWER(s.serviceName) LIKE LOWER(:searchTerm) OR
+                LOWER(s.description) LIKE LOWER(:searchTerm)
+            )
+        """
     )
-    GROUP BY p.id
-    ORDER BY COUNT(a) DESC, p.createdAt DESC
-""")
-    Page<Provider> findProviders(
+    Page<UUID> findProviderIds(
             @Param("searchTerm") String searchTerm,
             @Param("category") String category,
             Pageable pageable
     );
+    @EntityGraph(attributePaths = {"serviceProviders"})
+    @Query("SELECT DISTINCT p FROM Provider p WHERE p.id IN :ids")
+    List<Provider> findAllByIdsIn(@Param("ids") List<UUID> ids);
 
     @Query("""
     SELECT DISTINCT p.serviceType
@@ -54,7 +71,8 @@ public interface ProviderRepository extends JpaRepository<Provider, UUID> {
     List<String> findAllUniqueServiceTypes();
 
     @EntityGraph(attributePaths = {"serviceProviders", "workingHours"})
-    Optional<Provider> findByIdAndIsBlocked(UUID id, Boolean isBlocked);
+    @Query("SELECT DISTINCT p FROM Provider p WHERE p.id = :id AND p.isBlocked = :isBlocked")
+    Optional<Provider> findByIdAndIsBlocked(@Param("id") UUID id, @Param("isBlocked") Boolean isBlocked);
     @Query("""
         SELECT a FROM Appointment a
         WHERE a.provider.id = :providerId
@@ -69,12 +87,13 @@ public interface ProviderRepository extends JpaRepository<Provider, UUID> {
     );
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("""
-        SELECT ProviderAndServiceProjection(p, s) FROM Provider p
-        LEFT JOIN p.serviceProviders s ON s.id = :serviceId
-        WHERE p.id = :providerId
-        AND p.isBlocked = false
-        AND s.id = :serviceId
-        """)
-    Optional<ProviderAndServiceProjection> findByIdWithLock(@Param("providerId") UUID providerId,
-                                                            @Param("serviceId") UUID serviceId);
+    SELECT new com.platform.booking.recording.ProvidersService.dtos.ProviderAndServiceProjection(p, s)
+    FROM Provider p
+    LEFT JOIN p.serviceProviders s ON s.id = :serviceId
+    WHERE p.id = :providerId AND p.isBlocked = false AND s.id = :serviceId
+""")
+    Optional<ProviderAndServiceProjection> findByIdWithLock(
+            @Param("providerId") UUID providerId,
+            @Param("serviceId") UUID serviceId
+    );
 }

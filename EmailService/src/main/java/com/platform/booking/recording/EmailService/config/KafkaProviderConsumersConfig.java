@@ -20,10 +20,10 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class KafkaProviderConsumersConfig {
     private final ExternalConfig config;
-    private final String kafkaEndpoint = config.getKafka().getEndpoint();
 
     @Bean
     public ConsumerFactory<String, ProviderCreateDTO> providerRegistrationConsumerFactory() {
+        String kafkaEndpoint = config.getKafka().getEndpoint();
         Map<String, Object> configKafkaConsumer = new HashMap<>();
         configKafkaConsumer.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaEndpoint);
         configKafkaConsumer.put(ConsumerConfig.GROUP_ID_CONFIG, "email-service");
@@ -45,6 +45,7 @@ public class KafkaProviderConsumersConfig {
     }
     @Bean
     public ConsumerFactory<String, ResetPasswordDTO> providerResetPasswordConsumerFactory() {
+        String kafkaEndpoint = config.getKafka().getEndpoint();
         Map<String, Object> configKafkaConsumer = new HashMap<>();
         configKafkaConsumer.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaEndpoint);
         configKafkaConsumer.put(ConsumerConfig.GROUP_ID_CONFIG, "email-service");

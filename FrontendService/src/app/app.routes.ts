@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/core/guards/auth';
+import { adminGuard } from './core/core/guards/admin-guard';
 
 export const routes: Routes = [
   {
@@ -21,27 +22,27 @@ export const routes: Routes = [
   {
     path: 'dashboard',
     loadComponent: () => import('./features/master/dashboard/dashboard').then(m => m.DashboardComponent),
-    // canActivate: [authGuard]
+    canActivate: [authGuard]
   },
   {
     path: 'appointments',
     loadComponent: () => import('./features/master/appointments/appointments').then(m => m.AppointmentsComponent),
-    // canActivate: [authGuard]
+    canActivate: [authGuard]
   },
   {
     path: 'services',
     loadComponent: () => import('./features/master/services/services/services').then(m => m.ServicesComponent),
-    // canActivate: [authGuard]
+    canActivate: [authGuard]
   },
   {
     path: 'working-hours',
     loadComponent: () => import('./features/master/working-hours/working-hours').then(m => m.WorkingHoursComponent),
-    // canActivate: [authGuard]
+    canActivate: [authGuard]
   },
   {
     path: 'profile',
     loadComponent: () => import('./features/master/profile/profile').then(m => m.ProfileComponent),
-    // canActivate: [authGuard]
+    canActivate: [authGuard]
   },
   {
     path: 'catalog',

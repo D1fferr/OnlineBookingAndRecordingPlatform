@@ -78,6 +78,9 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
         return chain.filter(exchange.mutate().request(modifiedRequest).build());    }
 
     private boolean isPublicRoute(String path) {
+        if (!path.startsWith("/api")) {
+            return true;
+        }
         return securityProperties.getPublicRoutes().stream()
                 .anyMatch(pattern -> pathMatcher.match(pattern, path));
     }

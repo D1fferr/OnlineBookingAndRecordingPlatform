@@ -12,7 +12,7 @@ import org.springframework.util.backoff.FixedBackOff;
 @Configuration
 public class GlobalKafkaCustomizerConfig {
     @Bean
-    public DefaultErrorHandler errorHandler(KafkaTemplate<String, Object> template) {
+    public DefaultErrorHandler errorHandler() {
         var backOff = new FixedBackOff(2000L, 2);
         return new DefaultErrorHandler(backOff);
     }

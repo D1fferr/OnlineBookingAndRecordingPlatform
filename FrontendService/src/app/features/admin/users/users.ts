@@ -47,7 +47,6 @@ export class UsersComponent implements OnInit {
   totalElements = signal<number>(0);
   isLoading = signal<boolean>(false);
 
-  // Фільтри та пагінація
   searchQuery = signal<string>('');
   currentPage = signal<number>(0);
   pageSize = signal<number>(8);

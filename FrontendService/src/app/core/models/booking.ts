@@ -1,6 +1,6 @@
 export interface FreeSlotDTO {
-  startTime: string; // ISO OffsetDateTime string
-  endTime: string;   // ISO OffsetDateTime string
+  startTime: string;
+  endTime: string;
 }
 
 export interface DaySlotsDTO {

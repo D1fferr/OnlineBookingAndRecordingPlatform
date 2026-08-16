@@ -11,7 +11,10 @@ import com.platform.booking.recording.ProvidersService.services.ProviderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -58,12 +61,14 @@ public class ProviderMapper {
         dto.setAvatarURL(provider.getAvatarURL());
         dto.setServiceProviders(provider.getServiceProviders()
                 .stream()
+                .sorted(Comparator.comparing(ServiceProvider::getPrice).reversed())
                 .map(serviceMapper::entityToGetDTO)
-                .toList());
+                .collect(Collectors.toCollection(LinkedHashSet::new)));
         dto.setWorkingHours(provider.getWorkingHours()
                 .stream()
+                .sorted(Comparator.comparing(WorkingHours::getDayOfWeek))
                 .map(workingHoursMapper::entityToListGetDTO)
-                .toList());
+                .collect(Collectors.toCollection(LinkedHashSet::new)));
         return dto;
 
     }

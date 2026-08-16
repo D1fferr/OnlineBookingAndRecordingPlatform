@@ -1,6 +1,6 @@
 package com.platform.booking.recording.AuthService.models;
 
-import jakarta.persistence.Id;
+import org.springframework.data.annotation.Id;
 import lombok.*;
 import org.apache.kafka.common.serialization.IntegerDeserializer;
 import org.springframework.data.redis.core.RedisHash;

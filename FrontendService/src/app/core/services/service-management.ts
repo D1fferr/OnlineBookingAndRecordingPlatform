@@ -24,18 +24,18 @@ export class ServiceManagementService {
       .set('sortBy', sortBy)
       .set('sortDir', sortDir);
 
-    return this.http.get<ServicePageDTO>(`${this.apiUrl}/get-services/${providerId}`, { params });
+    return this.http.get<ServicePageDTO>(`${this.apiUrl}/auth/get-services/${providerId}`, { params });
   }
 
   createService(dto: ServiceCreateDTO): Observable<ServiceGetDTO> {
-    return this.http.post<ServiceGetDTO>(this.apiUrl, dto);
+    return this.http.post<ServiceGetDTO>(`${this.apiUrl}/auth/create/`, dto);
   }
 
   updateService(id: string, dto: ServiceUpdateDTO): Observable<ServiceGetDTO> {
-    return this.http.put<ServiceGetDTO>(`${this.apiUrl}/${id}`, dto);
+    return this.http.put<ServiceGetDTO>(`${this.apiUrl}/auth/update/${id}`, dto);
   }
 
   deleteService(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    return this.http.delete<void>(`${this.apiUrl}/auth/delete/${id}`);
   }
 }

@@ -21,24 +21,29 @@ import java.util.UUID;
 public class ServiceController {
     private final ServiceService serviceService;
 
-    @PostMapping("/create")
+    @PostMapping("/auth/create")
     public ResponseEntity<Void> createService(@RequestBody @Valid ServiceCreateDTO dto){
         serviceService.save(dto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
-    @PatchMapping("/update/{id}")
+    @PatchMapping("/auth/update/{id}")
     public ResponseEntity<Void> updateService(@PathVariable(name = "id") UUID id,
                                               @RequestBody @Valid ServiceUpdateDTO dto){
         serviceService.update(id, dto);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
-    @GetMapping("/get-services/{id}")
-    public ResponseEntity<ServicePageDTO> getWorkingHours(@PathVariable(name = "id") UUID id,
+    @GetMapping("/auth/get-services/{id}")
+    public ResponseEntity<ServicePageDTO> getServices(@PathVariable(name = "id") UUID id,
                                                           @RequestParam(value = "page", defaultValue = "0") Integer page,
                                                           @RequestParam(value = "servicePerPage", defaultValue = "8", required = false) Integer servicePerPage,
                                                           @RequestParam(value = "sortBy", defaultValue = "createdAt") String sortBy,
                                                           @RequestParam(value = "sortDir", defaultValue = "desc") String sortDir){
         Pageable pageable = PageRequest.of(page, servicePerPage, Sort.Direction.fromString(sortDir), sortBy);
         return ResponseEntity.ok(serviceService.findServices(id, pageable));
+    }
+    @DeleteMapping("/auth/delete/{id}")
+    public ResponseEntity<Void> deleteService(@PathVariable (name = "id") UUID id){
+        serviceService.delete(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

@@ -18,11 +18,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -145,36 +145,50 @@ public class AppointmentService {
         List<Appointment> appointments = providerRepository.findBookedAppointmentsForPeriod(serviceProvider.getProvider().getId(),
                 OffsetDateTime.now(), OffsetDateTime.now().plusDays(7));
         Integer duration = serviceProvider.getDuration();
-        List<WorkingHours> workingHours = serviceProvider.getProvider().getWorkingHours();
+        Set<WorkingHours> workingHours = serviceProvider.getProvider().getWorkingHours();
         AvailableSlotsResponseDTO availableSlotsResponseDTO = new AvailableSlotsResponseDTO();
         List<DaySlotsDTO> daySlotsDTOList = new ArrayList<>();
-        for (WorkingHours w : workingHours) {
-            if (Boolean.FALSE.equals(w.getIsActive()))
+        LocalDate today = LocalDate.now();
+
+        Map<Integer, WorkingHours> workingHoursMap = workingHours
+                .stream()
+                .collect(Collectors.toMap(WorkingHours::getDayOfWeek, w -> w));
+
+        for (int i = 0; i < 7; i++) {
+            LocalDate currentDate = today.plusDays(i);
+            int currentDayOfWeek = currentDate.getDayOfWeek().getValue();
+            WorkingHours w = workingHoursMap.get(currentDayOfWeek);
+            if (w == null || Boolean.FALSE.equals(w.getIsActive())) {
                 continue;
+            }
 
             DaySlotsDTO daySlotsDTO = new DaySlotsDTO();
             List<FreeSlotDTO> freeSlots = new ArrayList<>();
-            daySlotsDTO.setDayOfWeek(w.getDayOfWeek());
+            daySlotsDTO.setDayOfWeek(currentDayOfWeek);
+            daySlotsDTO.setDate(currentDate);
 
-            OffsetDateTime slotStart = OffsetDateTime.from(w.getStartTime());
-            OffsetDateTime dayEnd = OffsetDateTime.from(w.getEndTime());
+            LocalTime slotStart = w.getStartTime();
+            LocalTime dayEnd = w.getEndTime();
 
-            while (slotStart.plusMinutes(duration).isBefore(dayEnd) || slotStart.plusMinutes(duration).isEqual(dayEnd)) {
-                OffsetDateTime slotEnd = slotStart.plusMinutes(duration);
+            while (slotStart.plusMinutes(duration).isBefore(dayEnd) || slotStart.plusMinutes(duration).equals(dayEnd)) {
+                LocalTime slotEnd = slotStart.plusMinutes(duration);
                 boolean isLunchBreak = false;
+
                 if (w.getBreakStartTime() != null && w.getBreakEndTime() != null) {
-                    OffsetDateTime breakStart = OffsetDateTime.from(w.getBreakStartTime());
-                    OffsetDateTime breakEnd = OffsetDateTime.from(w.getBreakEndTime());
+                    LocalTime breakStart = w.getBreakStartTime();
+                    LocalTime breakEnd = w.getBreakEndTime();
                     if (slotStart.isBefore(breakEnd) && slotEnd.isAfter(breakStart)) {
                         isLunchBreak = true;
                     }
                 }
-                OffsetDateTime finalSlotStart = slotStart;
+
+                LocalTime finalSlotStart = slotStart;
+
                 boolean isAlreadyBooked = appointments.stream()
-                        .filter(a -> a.getStartTime().getDayOfWeek().getValue() == w.getDayOfWeek())
+                        .filter(a -> a.getStartTime().getDayOfWeek().getValue() == currentDayOfWeek)
                         .anyMatch(a -> {
-                            OffsetDateTime bookedStart = a.getStartTime();
-                            OffsetDateTime bookedEnd = a.getEndTime();
+                            LocalTime bookedStart = a.getStartTime().toLocalTime();
+                            LocalTime bookedEnd = a.getEndTime().toLocalTime();
                             return finalSlotStart.isBefore(bookedEnd) && slotEnd.isAfter(bookedStart);
                         });
 

@@ -24,7 +24,7 @@ public class ExternalConfig {
         private String password;
         private String from;
         private String host;
-        private String port;
+        private Integer port;
     }
     @Data
     public static class Services{

@@ -12,10 +12,10 @@ export class WorkingHoursService {
   private apiUrl = `${environment.apiUrl}`;
 
   getWorkingHours(providerId: string): Observable<ListWorkingHoursGetDTO> {
-    return this.http.get<ListWorkingHoursGetDTO>(`${this.apiUrl}/public/get-working-hours/${providerId}`);
+    return this.http.get<ListWorkingHoursGetDTO>(`${this.apiUrl}/working-hours/public/get-working-hours/${providerId}`);
   }
 
   setWorkingHours(dto: ListWorkingHoursCreateDTO): Observable<void> {
-    return this.http.post<void>(`${this.apiUrl}/auth/set-working-hours`, dto);
+    return this.http.post<void>(`${this.apiUrl}/working-hours/auth/set-working-hours`, dto);
   }
 }

@@ -23,10 +23,10 @@ import java.util.Map;
 @EnableKafka
 public class KafkaConsumersConfig {
     private final ExternalConfig config;
-    private final String kafkaEndpoint = config.getKafka().getEndpoint();
 
     @Bean
     public ConsumerFactory<String, ProviderCreateDTO> providerRegistrationConsumerFactory() {
+        String kafkaEndpoint = config.getKafka().getEndpoint();
         Map<String, Object> configKafkaConsumer = new HashMap<>();
         configKafkaConsumer.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaEndpoint);
         configKafkaConsumer.put(ConsumerConfig.GROUP_ID_CONFIG, "provider-service");
@@ -50,6 +50,7 @@ public class KafkaConsumersConfig {
 
     @Bean
     public ConsumerFactory<String, ProviderUpdateEmailDTO> providerEmailConsumerFactory() {
+        String kafkaEndpoint = config.getKafka().getEndpoint();
         Map<String, Object> configKafkaConsumer = new HashMap<>();
         configKafkaConsumer.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaEndpoint);
         configKafkaConsumer.put(ConsumerConfig.GROUP_ID_CONFIG, "provider-service");
@@ -72,6 +73,7 @@ public class KafkaConsumersConfig {
     }
     @Bean
     public ConsumerFactory<String, ProviderIsBlockedDTO> providerIsBlockedConsumerFactory() {
+        String kafkaEndpoint = config.getKafka().getEndpoint();
         Map<String, Object> configKafkaConsumer = new HashMap<>();
         configKafkaConsumer.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaEndpoint);
         configKafkaConsumer.put(ConsumerConfig.GROUP_ID_CONFIG, "provider-service");

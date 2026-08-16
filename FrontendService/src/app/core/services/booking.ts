@@ -20,6 +20,6 @@ export class BookingService {
   }
 
   createAppointment(dto: AppointmentCreateDTO): Observable<AppointmentGetForCreateDTO> {
-    return this.http.post<AppointmentGetForCreateDTO>(`${this.apiUrl}/auth/create`, dto);
+    return this.http.post<AppointmentGetForCreateDTO>(`${this.apiUrl}/public/create`, dto);
   }
 }

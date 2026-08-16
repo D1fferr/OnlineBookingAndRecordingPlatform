@@ -21,9 +21,9 @@ public class EmailAppointmentSenderService {
     private final TextAppointmentPrepareService textAppointmentPrepareService;
     private final ExternalConfig config;
     private final MetricsCounter metricsCounter;
-    private final String FROM = config.getMail().getFrom();
     @Retryable(maxAttempts = 3, backoff = @Backoff(delay = 1000, multiplier = 2))
     public void sendCreateMessageToClient(AppointmentCreateDTO dto){
+        String FROM = config.getMail().getFrom();
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom(FROM);
         message.setTo(dto.getClientEmail());
@@ -38,6 +38,7 @@ public class EmailAppointmentSenderService {
     }
     @Retryable(maxAttempts = 3, backoff = @Backoff(delay = 1000, multiplier = 2))
     public void sendCreateMessageToProvider(AppointmentCreateDTO dto){
+        String FROM = config.getMail().getFrom();
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom(FROM);
         message.setTo(dto.getProviderEmail());
@@ -52,6 +53,7 @@ public class EmailAppointmentSenderService {
     }
     @Retryable(maxAttempts = 3, backoff = @Backoff(delay = 1000, multiplier = 2))
     public void sendConfirmedMessage(AppointmentCreateDTO dto){
+        String FROM = config.getMail().getFrom();
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom(FROM);
         message.setTo(dto.getClientEmail());
@@ -66,6 +68,7 @@ public class EmailAppointmentSenderService {
     }
     @Retryable(maxAttempts = 3, backoff = @Backoff(delay = 1000, multiplier = 2))
     public void sendCancelledMessage(AppointmentCancelledDTO dto){
+        String FROM = config.getMail().getFrom();
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom(FROM);
         message.setTo(dto.getClientEmail());
@@ -80,6 +83,7 @@ public class EmailAppointmentSenderService {
     }
     @Retryable(maxAttempts = 3, backoff = @Backoff(delay = 1000, multiplier = 2))
     public void sendDeletedMessageToProvider(AppointmentCreateDTO dto){
+        String FROM = config.getMail().getFrom();
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom(FROM);
         message.setTo(dto.getProviderEmail());

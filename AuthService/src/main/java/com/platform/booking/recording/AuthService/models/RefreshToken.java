@@ -1,6 +1,6 @@
 package com.platform.booking.recording.AuthService.models;
 
-import jakarta.persistence.Id;
+import org.springframework.data.annotation.Id;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

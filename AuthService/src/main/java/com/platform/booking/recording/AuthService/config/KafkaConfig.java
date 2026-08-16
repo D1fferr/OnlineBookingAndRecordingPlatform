@@ -21,10 +21,10 @@ import java.util.Map;
 public class KafkaConfig {
 
     private final ExternalConfig config;
-    private final String kafkaEndpoint = config.getKafka().getEndpoint();
 
     @Bean
     public ProducerFactory<String, UserForKafkaDTO> userRegistrationProducerFactory(){
+        String kafkaEndpoint = config.getKafka().getEndpoint();
         Map<String, Object> configKafkaProducer = new HashMap<>();
         configKafkaProducer.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaEndpoint);
         configKafkaProducer.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
@@ -38,6 +38,7 @@ public class KafkaConfig {
     }
     @Bean
     public ProducerFactory<String, ResetPassword> userResetPasswordProducerFactory(){
+        String kafkaEndpoint = config.getKafka().getEndpoint();
         Map<String, Object> configKafkaProducer = new HashMap<>();
         configKafkaProducer.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaEndpoint);
         configKafkaProducer.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
@@ -46,11 +47,12 @@ public class KafkaConfig {
         return new DefaultKafkaProducerFactory<>(configKafkaProducer);
     }
     @Bean
-    public KafkaTemplate<String, UserForKafkaDTO> userResetPasswordKafkaTemplate(){
-        return new KafkaTemplate<>(userRegistrationProducerFactory());
+    public KafkaTemplate<String, ResetPassword> userResetPasswordKafkaTemplate(){
+        return new KafkaTemplate<>(userResetPasswordProducerFactory());
     }
     @Bean
     public ProducerFactory<String, ProviderUpdateEmailDTO> userEmailProducerFactory(){
+        String kafkaEndpoint = config.getKafka().getEndpoint();
         Map<String, Object> configKafkaProducer = new HashMap<>();
         configKafkaProducer.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaEndpoint);
         configKafkaProducer.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
@@ -65,6 +67,7 @@ public class KafkaConfig {
 
     @Bean
     public ProducerFactory<String, ProviderIsBlockedDTO> userIsBlockedProducerFactory(){
+        String kafkaEndpoint = config.getKafka().getEndpoint();
         Map<String, Object> configKafkaProducer = new HashMap<>();
         configKafkaProducer.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaEndpoint);
         configKafkaProducer.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);

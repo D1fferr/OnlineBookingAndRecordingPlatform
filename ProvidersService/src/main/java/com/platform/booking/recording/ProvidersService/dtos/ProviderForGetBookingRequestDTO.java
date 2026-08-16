@@ -8,6 +8,7 @@ import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @NoArgsConstructor
@@ -19,6 +20,6 @@ public class ProviderForGetBookingRequestDTO {
     private String serviceType;
     private String timezone;
     private String avatarURL;
-    private List<WorkingHoursGetDTO> workingHours;
-    private List<ServiceGetDTO> serviceProviders;
+    private Set<WorkingHoursGetDTO> workingHours;
+    private Set<ServiceGetDTO> serviceProviders;
 }

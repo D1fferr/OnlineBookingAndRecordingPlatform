@@ -3,6 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { AppointmentPageDTO, AppointmentsStatus, AppointmentCancelledReasonDTO } from '../models/appointment';
+import { AuthService } from './auth';
 
 @Injectable({
   providedIn: 'root'
@@ -10,6 +11,7 @@ import { AppointmentPageDTO, AppointmentsStatus, AppointmentCancelledReasonDTO }
 export class AppointmentService {
   private http = inject(HttpClient);
   private apiUrl = `${environment.apiUrl}/appointments`;
+  private authService = inject(AuthService);
 
   getAppointments(
     page: number,
@@ -18,6 +20,7 @@ export class AppointmentService {
     status?: string,
     date?: Date | null
   ): Observable<AppointmentPageDTO> {
+    const providerId = this.authService.getProviderId();
     let params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString());
@@ -35,14 +38,14 @@ export class AppointmentService {
       params = params.set('date', formattedDate);
     }
 
-    return this.http.get<AppointmentPageDTO>(this.apiUrl, { params });
+    return this.http.get<AppointmentPageDTO>(`${this.apiUrl}/auth/get-appointments-by-provider/${providerId}`, { params });
   }
 
   updateAppointmentStatus(id: string, status: AppointmentsStatus): Observable<void> {
-    return this.http.patch<void>(`${this.apiUrl}/${id}/status`, { status });
+    return this.http.patch<void>(`${this.apiUrl}/auth/change-status-to-confirmed/${id}`, { status });
   }
 
-  cancelAppointment(id: string, providerId: string, dto: AppointmentCancelledReasonDTO): Observable<void> {
-    return this.http.post<void>(`${this.apiUrl}/${id}/cancel/provider/${providerId}`, dto);
+  cancelAppointment(providerId: string, dto: AppointmentCancelledReasonDTO): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/auth/change-status-to-cancelled/${providerId}`, dto);
   }
 }

@@ -21,10 +21,10 @@ public class EmailUserDataSenderService {
     private final TextUserDataPrepareService textUserDataPrepareService;
     private final MetricsCounter metricsCounter;
     private final ExternalConfig config;
-    private final String FROM = config.getMail().getFrom();
 
     @Retryable(maxAttempts = 3, backoff = @Backoff(delay = 1000, multiplier = 2))
     public void sendRegistrationProvider(ProviderCreateDTO dto){
+        String FROM = config.getMail().getFrom();
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom(FROM);
         message.setTo(dto.getEmail());
@@ -38,6 +38,7 @@ public class EmailUserDataSenderService {
     }
     @Retryable(maxAttempts = 3, backoff = @Backoff(delay = 1000, multiplier = 2))
     public void sendResetPasswordCode(ResetPasswordDTO dto){
+        String FROM = config.getMail().getFrom();
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom(FROM);
         message.setTo(dto.getEmail());

@@ -7,6 +7,7 @@ import lombok.Setter;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalTime;
+import java.util.Objects;
 import java.util.UUID;
 
 @NoArgsConstructor
@@ -14,6 +15,7 @@ import java.util.UUID;
 @Setter
 @Entity
 @Table(name = "working_hours")
+
 public class WorkingHours {
     @Id
     @Column(name = "id")
@@ -36,4 +38,16 @@ public class WorkingHours {
     private Integer slotStep;
     @Column(name = "is_active")
     private Boolean isActive;
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        WorkingHours that = (WorkingHours) o;
+        return Objects.equals(id, that.id) && Objects.equals(dayOfWeek, that.dayOfWeek);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, dayOfWeek);
+    }
 }

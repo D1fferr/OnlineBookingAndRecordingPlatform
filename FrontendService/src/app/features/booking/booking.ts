@@ -51,9 +51,9 @@ export class BookingComponent implements OnInit {
   selectedDay = signal<DaySlotsDTO | null>(null);
   selectedSlot = signal<FreeSlotDTO | null>(null);
 
-  clientName = signal<string>('');
-  clientEmail = signal<string>('');
-  clientComment = signal<string>('');
+  clientName = '';
+  clientEmail = '';
+  clientComment = '';
 
   isLoadingSlots = signal<boolean>(false);
   isSubmitting = signal<boolean>(false);
@@ -105,12 +105,27 @@ export class BookingComponent implements OnInit {
 
   selectSlot(slot: FreeSlotDTO): void {
     this.selectedSlot.set(slot);
+
+    console.log('--- DEBUG SELECTED SLOT & DAY ---');
+    console.log('Day date:', this.selectedDay()?.date, 'Type:', typeof this.selectedDay()?.date);
+    console.log('Slot startTime:', slot.startTime, 'Type:', typeof slot.startTime);
+    console.log('Slot endTime:', slot.endTime, 'Type:', typeof slot.endTime);
   }
 
-  formatTime(isoString: string): string {
-    if (!isoString) return '';
-    const date = new Date(isoString);
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+  formatTime(value: string): string {
+    if (!value) return '';
+    if (value.includes('T')) {
+      const date = new Date(value);
+      return isNaN(date.getTime())
+        ? value
+        : date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+    }
+    const parts = value.split(':');
+    if (parts.length >= 2) {
+      return `${parts[0]}:${parts[1]}`;
+    }
+
+    return value;
   }
 
   formatDateHeader(dateStr: string): string {
@@ -120,18 +135,56 @@ export class BookingComponent implements OnInit {
   }
 
   onSubmitBooking(): void {
-    if (!this.selectedSlot() || !this.clientName().trim() || !this.clientEmail().trim()) {
+    if (!this.selectedSlot() || !this.selectedDay() || !this.clientName?.trim() || !this.clientEmail?.trim()) {
+      return;
+    }
+
+    const rawDate = this.selectedDay()!.date as any;
+    let dateStr = '';
+
+    if (Array.isArray(rawDate)) {
+      const [year, month, day] = rawDate;
+      const mm = String(month).padStart(2, '0');
+      const dd = String(day).padStart(2, '0');
+      dateStr = `${year}-${mm}-${dd}`;
+    } else if (typeof rawDate === 'string') {
+      dateStr = rawDate.split('T')[0];
+    }
+
+    const normalizeTime = (rawTime: any): string => {
+      if (Array.isArray(rawTime)) {
+        const [h, m, s = 0] = rawTime;
+        return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+      }
+      if (typeof rawTime === 'string') {
+        return rawTime.split(':').length === 2 ? `${rawTime}:00` : rawTime;
+      }
+      return '00:00:00';
+    };
+
+    const startTimeStr = normalizeTime(this.selectedSlot()!.startTime);
+    const endTimeStr = normalizeTime(this.selectedSlot()!.endTime);
+
+    const startIso = `${dateStr}T${startTimeStr}`;
+    const endIso = `${dateStr}T${endTimeStr}`;
+
+    const startDate = new Date(startIso);
+    const endDate = new Date(endIso);
+
+    if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+      console.error('Failed to parse dates:', { dateStr, startTimeStr, endTimeStr, startIso });
+      this.errorMessage.set('Invalid date or time slot selected.');
       return;
     }
 
     const payload: AppointmentCreateDTO = {
       providerId: this.provider()!.id,
       serviceId: this.service()!.id,
-      startTime: this.selectedSlot()!.startTime,
-      endTime: this.selectedSlot()!.endTime,
-      clientName: this.clientName().trim(),
-      clientEmail: this.clientEmail().trim(),
-      clientComment: this.clientComment().trim()
+      startTime: startDate.toISOString(),
+      endTime: endDate.toISOString(),
+      clientName: this.clientName.trim(),
+      clientEmail: this.clientEmail.trim(),
+      clientComment: this.clientComment?.trim() || ''
     };
 
     this.isSubmitting.set(true);

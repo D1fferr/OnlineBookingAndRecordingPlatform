@@ -187,7 +187,6 @@
 
         <mat-divider></mat-divider>
 
-        <!-- Final Summary Box -->
         <div class="booking-final-summary">
           <div class="summary-details">
             <div>Selected Time:
@@ -206,7 +205,7 @@
             mat-raised-button
             class="confirm-btn"
             type="submit"
-            [disabled]="!selectedSlot() || !bookingForm.valid || isSubmitting()">
+            [disabled]="!selectedSlot() || isSubmitting()">
             @if (isSubmitting()) {
               <mat-spinner diameter="20"></mat-spinner>
               Processing...

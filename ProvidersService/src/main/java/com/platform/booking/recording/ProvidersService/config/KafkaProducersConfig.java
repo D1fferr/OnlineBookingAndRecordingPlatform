@@ -21,14 +21,14 @@ import java.util.Map;
 @EnableKafka
 public class KafkaProducersConfig {
     private final ExternalConfig config;
-    private final String kafkaEndpoint = config.getKafka().getEndpoint();
     @Bean
     public ProducerFactory<String, AppointmentForKafkaDTO> appointmentCreateProducerFactory(){
+        String kafkaEndpoint = config.getKafka().getEndpoint();
         Map<String, Object> configKafkaProducer = new HashMap<>();
         configKafkaProducer.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaEndpoint);
         configKafkaProducer.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         configKafkaProducer.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JacksonJsonSerializer.class);
-        configKafkaProducer.put(JacksonJsonSerializer.TYPE_MAPPINGS, "AppointmentForKafkaDTO:package com.platform.booking.recording.ProvidersService.dtos.AppointmentForKafkaDTO");
+        configKafkaProducer.put(JacksonJsonSerializer.TYPE_MAPPINGS, "AppointmentForKafkaDTO:com.platform.booking.recording.ProvidersService.dtos.AppointmentForKafkaDTO");
         return new DefaultKafkaProducerFactory<>(configKafkaProducer);
     }
     @Bean
@@ -37,11 +37,12 @@ public class KafkaProducersConfig {
     }
     @Bean
     public ProducerFactory<String, AppointmentCancelledForKafkaDTO> appointmentCancelledProducerFactory(){
+        String kafkaEndpoint = config.getKafka().getEndpoint();
         Map<String, Object> configKafkaProducer = new HashMap<>();
         configKafkaProducer.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaEndpoint);
         configKafkaProducer.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         configKafkaProducer.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JacksonJsonSerializer.class);
-        configKafkaProducer.put(JacksonJsonSerializer.TYPE_MAPPINGS, "AppointmentCancelledForKafkaDTO:package com.platform.booking.recording.ProvidersService.dtos.AppointmentCancelledForKafkaDTO");
+        configKafkaProducer.put(JacksonJsonSerializer.TYPE_MAPPINGS, "AppointmentCancelledForKafkaDTO:com.platform.booking.recording.ProvidersService.dtos.AppointmentCancelledForKafkaDTO");
         return new DefaultKafkaProducerFactory<>(configKafkaProducer);
     }
     @Bean

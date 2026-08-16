@@ -120,7 +120,7 @@ public class UserController {
         refreshTokenService.deleteByUserId(id);
         return ResponseEntity.noContent().build();
     }
-    @GetMapping("/auth/get-all-users")
+        @GetMapping("/auth/get-all-users")
     public ResponseEntity<PageUserDTO> getAllUsers(@RequestParam(value = "page", defaultValue = "0") Integer page,
                                                    @RequestParam(value = "usersPerPage", defaultValue = "8", required = false) Integer usersPerPage,
                                                    @RequestParam(value = "sortBy", defaultValue = "createdAt") String sortBy,

@@ -15,10 +15,10 @@ import java.time.format.FormatStyle;
 @RequiredArgsConstructor
 public class TextAppointmentPrepareService {
     private final ExternalConfig config;
-    private final String HOST = config.getServices().getGateway();
     private final DateTimeFormatter FORMATTER = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT);
 
     public String prepareCreateMessageToClient(AppointmentCreateDTO dto){
+        String HOST = config.getServices().getGateway();
         String cancel = HOST + "/cancel-appointment/" + dto.getSecureToken();
         ZoneId providerZone = ZoneId.of(dto.getTimezone());
         OffsetDateTime startTime = dto.getStartTime().atZoneSameInstant(providerZone).toOffsetDateTime();

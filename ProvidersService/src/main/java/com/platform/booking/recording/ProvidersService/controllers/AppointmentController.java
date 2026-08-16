@@ -23,7 +23,7 @@ public class AppointmentController {
     private final AppointmentService appointmentService;
     private final KafkaAppointmentProducerService kafkaAppointmentProducerService;
 
-    @PostMapping("/auth/create")
+    @PostMapping("/public/create")
     public ResponseEntity<AppointmentGetForCreateDTO> createAppointment(@RequestBody @Valid AppointmentCreateDTO dto){
         AppointmentGetAndSendToKafkaDTO appointmentDTO = appointmentService.save(dto);
         kafkaAppointmentProducerService.sendToCreate(appointmentDTO.getAppointment());

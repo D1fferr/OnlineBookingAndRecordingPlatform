@@ -74,6 +74,10 @@ public class ServiceService {
         servicePageDTO.setProviderId(id);
         return servicePageDTO;
     }
+    @Transactional
+    public void delete(UUID id){
+        serviceRepository.deleteById(id);
+    }
 
 
 }

@@ -1,6 +1,7 @@
 package com.platform.booking.recording.EmailService.config;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -10,6 +11,7 @@ import java.util.Properties;
 
 @Configuration
 @RequiredArgsConstructor
+@EnableConfigurationProperties
 public class EmailSenderConfig {
 
     private final ExternalConfig config;
@@ -19,7 +21,7 @@ public class EmailSenderConfig {
         String login = config.getMail().getLogin();
         String password = config.getMail().getPassword();
         String host = config.getMail().getHost();
-        Integer port = Integer.getInteger(config.getMail().getPort());
+        Integer port = config.getMail().getPort();
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
         mailSender.setHost(host);
         mailSender.setPort(port);

@@ -64,9 +64,11 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
+              "port": 8081,
               "buildTarget": "FrontendService:build:production"
             },
             "development": {
+              "port": 8081,
               "buildTarget": "FrontendService:build:development"
             }
           },

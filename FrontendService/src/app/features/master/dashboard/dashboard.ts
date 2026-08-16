@@ -104,7 +104,7 @@ export class DashboardComponent {
 
     dialogRef.afterClosed().subscribe((result: AppointmentCancelledReasonDTO | null) => {
       if (result) {
-        this.appointmentService.cancelAppointment(appointment.id, currentProviderId, result).subscribe({
+        this.appointmentService.cancelAppointment(currentProviderId, result).subscribe({
           next: () => this.loadDashboardData(),
           error: (err) => console.error('Failed to cancel appointment', err)
         });
