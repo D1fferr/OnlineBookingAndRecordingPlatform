@@ -1,0 +1,35 @@
+<div class="cancel-container">
+  <div class="card">
+
+    @if (!isCancelled() && !errorMessage()) {
+      <h2>Cancel Appointment</h2>
+      <p>Are you sure you want to cancel your appointment?</p>
+
+      <div class="actions">
+        <button
+          class="btn-danger"
+          [disabled]="isSubmitting() || !token()"
+          (click)="onConfirmCancel()">
+          @if (isSubmitting()) { Cancelling... } @else { Confirm Cancellation }
+        </button>
+      </div>
+    }
+
+    @if (isCancelled()) {
+      <div class="status-success">
+        <div class="icon-wrapper">✓</div>
+        <h2>Appointment Cancelled</h2>
+        <p>Your appointment has been successfully cancelled.</p>
+      </div>
+    }
+
+    @if (errorMessage()) {
+      <div class="status-error">
+        <div class="icon-wrapper">✕</div>
+        <h2>Cancellation Failed</h2>
+        <p>{{ errorMessage() }}</p>
+      </div>
+    }
+
+  </div>
+</div>

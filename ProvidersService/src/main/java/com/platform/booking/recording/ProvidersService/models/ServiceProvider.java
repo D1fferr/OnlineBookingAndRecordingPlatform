@@ -2,6 +2,7 @@ package com.platform.booking.recording.ProvidersService.models;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -25,13 +26,13 @@ public class ServiceProvider {
     @NotEmpty
     private String serviceName;
     @Column(name = "duration")
-    @NotEmpty
+    @NotNull
     private Integer duration;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "provider_id")
     private Provider provider;
     @Column(name = "price")
-    @NotEmpty
+    @NotNull
     private Double price;
     @Column(name = "description")
     @NotEmpty

@@ -16,6 +16,8 @@ import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.nio.charset.StandardCharsets;
 
@@ -31,7 +33,7 @@ public class KafkaAppointmentProducerService {
     private static final String TRACE_ID_KEY = "traceId";
 
     public void sendToCreate(Appointment appointment){
-        AppointmentForKafkaDTO dto = appointmentMapper.entityToForKafkaDTO(appointment, appointment.getProvider().getEmail(), appointment.getProvider().getTimezone());
+        AppointmentForKafkaDTO dto = appointmentMapper.entityToForKafkaDTO(appointment);
         String traceId = MDC.get(TRACE_ID_KEY);
         Message<AppointmentForKafkaDTO> message = MessageBuilder
                 .withPayload(dto)
@@ -40,13 +42,13 @@ public class KafkaAppointmentProducerService {
                 .build();
         try {
             appointmentCreateKafkaTemplate.send(message).get();
-            appointmentService.setIsRemindedSentToTrue(appointment.getId());
+            appointmentService.setIsRemindedSentToTrue(appointment.getSecureToken());
         }catch (Exception e){
             throw new KafkaException(e.getMessage());
         }
     }
-    public void sendToConfirmed(Appointment appointment, String providerEmail, String timezone){
-        AppointmentForKafkaDTO dto = appointmentMapper.entityToForKafkaDTO(appointment, providerEmail, timezone);
+    public void sendToConfirmed(Appointment appointment){
+        AppointmentForKafkaDTO dto = appointmentMapper.entityToForKafkaDTO(appointment);
         String traceId = MDC.get(TRACE_ID_KEY);
         Message<AppointmentForKafkaDTO> message = MessageBuilder
                 .withPayload(dto)
@@ -55,7 +57,7 @@ public class KafkaAppointmentProducerService {
                 .build();
         try {
             appointmentCreateKafkaTemplate.send(message).get();
-            appointmentService.setIsRemindedSentToTrue(appointment.getId());
+            appointmentService.setIsRemindedSentToTrue(appointment.getSecureToken());
         }catch (Exception e){
             throw new KafkaException(e.getMessage());
         }
@@ -70,13 +72,13 @@ public class KafkaAppointmentProducerService {
                 .build();
         try {
             appointmentCancelledKafkaTemplate.send(message).get();
-            appointmentService.setIsRemindedSentToTrue(appointment.getId());
+            appointmentService.setIsRemindedSentToTrue(appointment.getSecureToken());
         }catch (Exception e){
             throw new KafkaException(e.getMessage());
         }
     }
-    public void sendToDeleted(Appointment appointment, String providerEmail, String timezone){
-        AppointmentForKafkaDTO dto = appointmentMapper.entityToForKafkaDTO(appointment, providerEmail, timezone);
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void sendToDeleted(AppointmentForKafkaDTO dto){
         String traceId = MDC.get(TRACE_ID_KEY);
         Message<AppointmentForKafkaDTO> message = MessageBuilder
                 .withPayload(dto)
@@ -85,7 +87,6 @@ public class KafkaAppointmentProducerService {
                 .build();
         try {
             appointmentCreateKafkaTemplate.send(message).get();
-            appointmentService.setIsRemindedSentToTrue(appointment.getId());
         }catch (Exception e){
             throw new KafkaException(e.getMessage());
         }

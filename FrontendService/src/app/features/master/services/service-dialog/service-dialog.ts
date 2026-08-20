@@ -4,7 +4,7 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
-
+import { AuthService } from '../../../../core/services/auth';
 import { ServiceGetDTO } from '../../../../core/models/service';
 
 export interface ServiceDialogData {
@@ -28,9 +28,10 @@ export class ServiceDialogComponent {
   private fb = inject(FormBuilder);
   private dialogRef = inject(MatDialogRef<ServiceDialogComponent>);
   public data: ServiceDialogData = inject(MAT_DIALOG_DATA);
+  private authService = inject(AuthService);
 
   isEditMode = !!this.data?.service;
-
+  providerId = this.authService.getProviderId();
   form: FormGroup = this.fb.group({
     serviceName: [this.data?.service?.serviceName || '', [Validators.required]],
     duration: [this.data?.service?.duration || 30, [Validators.required, Validators.min(5)]],
@@ -40,7 +41,11 @@ export class ServiceDialogComponent {
 
   onSave(): void {
     if (this.form.valid) {
-      this.dialogRef.close(this.form.value);
+      const resultDto = {
+        ...this.form.value,
+        providerId: this.providerId
+      };
+      this.dialogRef.close(resultDto);
     }
   }
 

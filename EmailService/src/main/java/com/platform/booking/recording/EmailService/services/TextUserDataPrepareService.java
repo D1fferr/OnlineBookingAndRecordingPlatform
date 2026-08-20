@@ -19,7 +19,7 @@ public class TextUserDataPrepareService {
                     Fill out your profile: add photos of your work so that clients can see your style.
                     Set up your schedule: specify the days and hours when you are convenient to accept appointments.
                     Add services: list your procedures and indicate current prices."""
-                + "\n Go to profile settings" + HOST + "/profile/" + dto.getId() + "\n If you have any questions about the settings, our support service is always there." + """ 
+                + "\n Go to profile settings " + HOST + "/profile" + "\n If you have any questions about the settings, our support service is always there." + """ 
                         Sincerely,
                         The Online Booking and Recording Platform team""";
 

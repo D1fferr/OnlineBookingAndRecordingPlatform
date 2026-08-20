@@ -32,7 +32,7 @@ public class AppointmentController {
     @PostMapping("/auth/change-status-to-confirmed/{id}")
     public ResponseEntity<Void> changeStatusToConfirmed(@PathVariable(name = "id") UUID id){
         Appointment appointment = appointmentService.changeStatusToConformed(id);
-        kafkaAppointmentProducerService.sendToConfirmed(appointment, appointment.getProvider().getEmail(), appointment.getProvider().getTimezone());
+        kafkaAppointmentProducerService.sendToConfirmed(appointment);
         return ResponseEntity.ok().build();
     }
     @PostMapping("/auth/change-status-to-cancelled/{id}")
@@ -43,10 +43,9 @@ public class AppointmentController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("public/delete-appointment-by-user/{secure-token}")
+    @PostMapping("public/cancel-appointment/{secure-token}")
     public ResponseEntity<Void> deleteAppointment(@PathVariable(name = "secure-token") UUID token){
-        Appointment appointment = appointmentService.deleteByToken(token);
-        kafkaAppointmentProducerService.sendToDeleted(appointment, appointment.getProvider().getEmail(), appointment.getProvider().getTimezone());
+        AppointmentForKafkaDTO appointment = appointmentService.deleteByToken(token);
         return ResponseEntity.ok().build();
     }
     @GetMapping("/auth/get-appointments-by-provider/{id}")

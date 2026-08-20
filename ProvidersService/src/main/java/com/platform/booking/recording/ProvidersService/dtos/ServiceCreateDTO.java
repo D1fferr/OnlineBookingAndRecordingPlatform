@@ -16,9 +16,9 @@ public class ServiceCreateDTO {
     private UUID providerId;
     @NotEmpty
     private String serviceName;
-    @NotEmpty
+    @NotNull
     private Integer duration;
-    @NotEmpty
+    @NotNull
     private Double price;
     @NotEmpty
     private String description;

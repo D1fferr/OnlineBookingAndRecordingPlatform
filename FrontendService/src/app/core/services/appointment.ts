@@ -42,10 +42,10 @@ export class AppointmentService {
   }
 
   updateAppointmentStatus(id: string, status: AppointmentsStatus): Observable<void> {
-    return this.http.patch<void>(`${this.apiUrl}/auth/change-status-to-confirmed/${id}`, { status });
+    return this.http.post<void>(`${this.apiUrl}/auth/change-status-to-confirmed/${id}`, { status });
   }
 
-  cancelAppointment(providerId: string, dto: AppointmentCancelledReasonDTO): Observable<void> {
-    return this.http.post<void>(`${this.apiUrl}/auth/change-status-to-cancelled/${providerId}`, dto);
+  cancelAppointment(appointmentId: string, dto: AppointmentCancelledReasonDTO): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/auth/change-status-to-cancelled/${appointmentId}`, dto);
   }
 }

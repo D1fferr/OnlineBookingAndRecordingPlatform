@@ -1,0 +1,127 @@
+.cancel-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+  padding: 1.5rem;
+  background-color: #f8fafc;
+
+  .card {
+    background: #ffffff;
+    width: 100%;
+    max-width: 480px;
+    padding: 2.5rem 2rem;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+    text-align: center;
+    border: 1px solid #e2e8f0;
+    transition: all 0.3s ease;
+
+    h2 {
+      margin: 0 0 0.75rem 0;
+      color: #0f172a;
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+    }
+
+    p {
+      color: #64748b;
+      font-size: 0.975rem;
+      line-height: 1.5;
+      margin: 0 0 1.75rem 0;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: center;
+      gap: 0.75rem;
+
+      .btn-danger {
+        width: 100%;
+        padding: 0.75rem 1.5rem;
+        background-color: #ef4444;
+        color: #ffffff;
+        border: none;
+        border-radius: 10px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.2s ease, transform 0.1s ease;
+
+        &:hover:not(:disabled) {
+          background-color: #dc2626;
+        }
+
+        &:active:not(:disabled) {
+          transform: scale(0.98);
+        }
+
+        &:disabled {
+          background-color: #fca5a5;
+          cursor: not-allowed;
+          opacity: 0.8;
+        }
+      }
+    }
+
+    .status-success,
+    .status-error {
+      animation: fadeIn 0.3s ease-in-out;
+
+      .icon-wrapper {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.25rem auto;
+        font-size: 1.75rem;
+      }
+
+      h2 {
+        margin-bottom: 0.5rem;
+      }
+
+      p {
+        margin-bottom: 0;
+      }
+    }
+
+    .status-success {
+      .icon-wrapper {
+        background-color: #f0fdf4;
+        color: #16a34a;
+        border: 1px solid #bbf7d0;
+      }
+
+      h2 {
+        color: #15803d;
+      }
+    }
+
+    .status-error {
+      .icon-wrapper {
+        background-color: #fef2f2;
+        color: #dc2626;
+        border: 1px solid #fecaca;
+      }
+
+      h2 {
+        color: #b91c1c;
+      }
+    }
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

@@ -19,7 +19,7 @@ public class TextAppointmentPrepareService {
 
     public String prepareCreateMessageToClient(AppointmentCreateDTO dto){
         String HOST = config.getServices().getGateway();
-        String cancel = HOST + "/cancel-appointment/" + dto.getSecureToken();
+        String cancel = HOST + "/cancel-booking?token=" + dto.getSecureToken();
         ZoneId providerZone = ZoneId.of(dto.getTimezone());
         OffsetDateTime startTime = dto.getStartTime().atZoneSameInstant(providerZone).toOffsetDateTime();
         OffsetDateTime endTime = dto.getEndTime().atZoneSameInstant(providerZone).toOffsetDateTime();
@@ -61,7 +61,7 @@ public class TextAppointmentPrepareService {
                 "\n Appointment starts at " + startTime.format(FORMATTER) +
                 "\n Appointment ends at " + endTime.format(FORMATTER) +
                 "\n Comment: " + dto.getClientComment() +
-                "\n Comment for provider: " + dto.getReason();
+                "\n Reason: " + dto.getReason();
     }
     public String prepareCancelledMessageToProvider(AppointmentCreateDTO dto){
         ZoneId providerZone = ZoneId.of(dto.getTimezone());

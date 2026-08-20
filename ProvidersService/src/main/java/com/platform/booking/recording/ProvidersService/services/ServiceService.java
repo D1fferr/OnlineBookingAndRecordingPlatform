@@ -5,6 +5,7 @@ import com.platform.booking.recording.ProvidersService.dtos.ServicePageDTO;
 import com.platform.booking.recording.ProvidersService.dtos.ServiceUpdateDTO;
 import com.platform.booking.recording.ProvidersService.exceptions.ProviderNotFoundException;
 import com.platform.booking.recording.ProvidersService.exceptions.ServiceProviderNotFoundException;
+import com.platform.booking.recording.ProvidersService.models.Provider;
 import com.platform.booking.recording.ProvidersService.models.ServiceProvider;
 import com.platform.booking.recording.ProvidersService.repositories.ProviderRepository;
 import com.platform.booking.recording.ProvidersService.repositories.ServiceRepository;
@@ -17,9 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.management.ServiceNotFoundException;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
 import java.util.UUID;
 
 @Service
@@ -32,29 +31,31 @@ public class ServiceService {
 
     @Transactional
     public void save(ServiceCreateDTO dto){
-        ServiceProvider service = serviceMapper.createDTOToEntity(dto);
-        service.setCreatedAt(OffsetDateTime.now());
-        service.setUpdatedAt(OffsetDateTime.now());
-        serviceRepository.save(service);
-        MDC.put("serviceId", service.getId().toString());
-        MDC.put("providerId", service.getProvider().getId().toString());
-        log.atInfo().log("Service created");
+        MDC.put("providerId", dto.getProviderId().toString());
+        Provider provider  = providerRepository.findById(dto.getProviderId())
+                    .orElseThrow(()->new ProviderNotFoundException("Provider not found"));
+            ServiceProvider service = serviceMapper.createDTOToEntity(dto, provider);
+            service.setCreatedAt(OffsetDateTime.now());
+            service.setUpdatedAt(OffsetDateTime.now());
+            serviceRepository.save(service);
+            MDC.put("serviceId", service.getId().toString());
+            log.atInfo().log("Service created");
     }
     @Transactional
     public void update(UUID id, ServiceUpdateDTO dto){
         MDC.put("serviceId", id.toString());
         ServiceProvider serviceProvider = serviceRepository.findById(id)
                 .orElseThrow(()-> new ServiceProviderNotFoundException("Service bon found"));
-              if (dto.getServiceName()!=null)
+        if (dto.getServiceName()!=null)
             serviceProvider.setServiceName(dto.getServiceName());
         if (dto.getDuration()!=null)
             serviceProvider.setDuration(dto.getDuration());
         if (dto.getPrice()!=null)
             serviceProvider.setPrice(dto.getPrice());
-       if (dto.getDescription()!=null)
+        if (dto.getDescription()!=null)
            serviceProvider.setDescription(dto.getDescription());
-       serviceProvider.setUpdatedAt(OffsetDateTime.now());
-       serviceRepository.save(serviceProvider);
+        serviceProvider.setUpdatedAt(OffsetDateTime.now());
+        serviceRepository.save(serviceProvider);
         log.atInfo().log("Service updated");
     }
     @Transactional(readOnly = true)

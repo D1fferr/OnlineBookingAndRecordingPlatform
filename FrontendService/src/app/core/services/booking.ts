@@ -22,4 +22,7 @@ export class BookingService {
   createAppointment(dto: AppointmentCreateDTO): Observable<AppointmentGetForCreateDTO> {
     return this.http.post<AppointmentGetForCreateDTO>(`${this.apiUrl}/public/create`, dto);
   }
+  cancelAppointment(token: string): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/public/cancel-appointment/${token}`, {});
+  }
 }

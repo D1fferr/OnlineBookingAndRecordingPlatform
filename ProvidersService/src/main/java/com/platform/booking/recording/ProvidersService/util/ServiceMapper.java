@@ -3,18 +3,20 @@ package com.platform.booking.recording.ProvidersService.util;
 import com.platform.booking.recording.ProvidersService.dtos.ServiceCreateDTO;
 import com.platform.booking.recording.ProvidersService.dtos.ServiceGetDTO;
 import com.platform.booking.recording.ProvidersService.dtos.ServiceProviderForGetClientRequestDTO;
+import com.platform.booking.recording.ProvidersService.models.Provider;
 import com.platform.booking.recording.ProvidersService.models.ServiceProvider;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ServiceMapper {
 
-    public ServiceProvider createDTOToEntity(ServiceCreateDTO dto){
+    public ServiceProvider createDTOToEntity(ServiceCreateDTO dto, Provider provider){
         ServiceProvider serviceProvider = new ServiceProvider();
         serviceProvider.setServiceName(dto.getServiceName());
         serviceProvider.setDuration(dto.getDuration());
         serviceProvider.setPrice(dto.getPrice());
         serviceProvider.setDescription(dto.getDescription());
+        serviceProvider.setProvider(provider);
         return serviceProvider;
     }
     public ServiceGetDTO entityToGetDTO(ServiceProvider serviceProvider){

@@ -13,9 +13,8 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 
-import { AppointmentGetDTO, AppointmentsStatus, AppointmentCancelledReasonDTO } from '../../../core/models/appointment';
+import { AppointmentGetDTO, AppointmentCancelledReasonDTO } from '../../../core/models/appointment';
 import { AppointmentService } from '../../../core/services/appointment';
-import { AuthService } from '../../../core/services/auth';
 import { CancelDialogComponent } from './cancel-dialog/cancel-dialog';
 
 @Component({
@@ -40,7 +39,6 @@ import { CancelDialogComponent } from './cancel-dialog/cancel-dialog';
 })
 export class AppointmentsComponent {
   private appointmentService = inject(AppointmentService);
-  private authService = inject(AuthService);
   private dialog = inject(MatDialog);
 
   displayedColumns: string[] = ['dateTime', 'client', 'duration', 'comment', 'status', 'actions'];
@@ -52,8 +50,6 @@ export class AppointmentsComponent {
   pageSize = signal<number>(10);
   pageIndex = signal<number>(0);
   totalElements = signal<number>(0);
-
-  providerId = signal<string | null>(this.authService.getProviderId());
 
   appointments = signal<AppointmentGetDTO[]>([]);
 
@@ -92,15 +88,13 @@ export class AppointmentsComponent {
   }
 
   openCancelDialog(appointment: AppointmentGetDTO): void {
-    const currentProviderId = this.providerId() || appointment.providerId;
-
     const dialogRef = this.dialog.open(CancelDialogComponent, {
       width: '420px'
     });
 
     dialogRef.afterClosed().subscribe((result: AppointmentCancelledReasonDTO | null) => {
       if (result) {
-        this.appointmentService.cancelAppointment(currentProviderId, result).subscribe({
+        this.appointmentService.cancelAppointment(appointment.id, result).subscribe({
           next: () => this.loadAppointments(),
           error: (err) => console.error('Failed to cancel appointment', err)
         });

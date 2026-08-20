@@ -66,6 +66,10 @@ export const routes: Routes = [
     canActivate: [adminGuard]
   },
   {
+    path: 'cancel-booking',
+    loadComponent: () => import('./features/cancel-booking/cancel-booking').then(m => m.CancelBooking)
+  },
+  {
     path: '**',
     redirectTo: ''
   }

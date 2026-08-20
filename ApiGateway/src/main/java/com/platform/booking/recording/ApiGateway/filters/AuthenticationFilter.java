@@ -75,10 +75,16 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
                     .log("Forbidden access attempt to path: {} with insufficient roles", path);
             return buildErrorResponse(exchange, HttpStatus.FORBIDDEN, "Insufficient permissions for this resource", "INSUFFICIENT_PERMISSIONS");
         }
+        log.atInfo()
+                .addKeyValue("path", path)
+                .log("The route is authenticated for the API.");
         return chain.filter(exchange.mutate().request(modifiedRequest).build());    }
 
     private boolean isPublicRoute(String path) {
         if (!path.startsWith("/api")) {
+            log.atInfo()
+                    .addKeyValue("path", path)
+                    .log("The route is external.");
             return true;
         }
         return securityProperties.getPublicRoutes().stream()

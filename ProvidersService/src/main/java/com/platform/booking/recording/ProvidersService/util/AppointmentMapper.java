@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class AppointmentMapper {
 
-    public AppointmentForKafkaDTO entityToForKafkaDTO(Appointment appointment, String providerEmail, String timezone){
+    public AppointmentForKafkaDTO entityToForKafkaDTO(Appointment appointment){
         AppointmentForKafkaDTO dto = new AppointmentForKafkaDTO();
         dto.setSecureToken(appointment.getSecureToken());
         dto.setEndTime(appointment.getEndTime());
@@ -17,8 +17,8 @@ public class AppointmentMapper {
         dto.setClientName(appointment.getClientName());
         dto.setClientEmail(appointment.getClientEmail());
         dto.setClientComment(appointment.getClientComment());
-        dto.setProviderEmail(providerEmail);
-        dto.setTimezone(timezone);
+        dto.setProviderEmail(appointment.getProvider().getEmail());
+        dto.setTimezone(appointment.getProvider().getTimezone());
         return dto;
     }
     public AppointmentCancelledForKafkaDTO entityToCancelledForKafkaDTO(Appointment appointment, String providerEmail, String timezone, String reason){

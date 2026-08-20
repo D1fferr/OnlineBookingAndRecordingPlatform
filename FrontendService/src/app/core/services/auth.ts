@@ -37,15 +37,26 @@ export class AuthService {
       })
     );
   }
-
+  refreshToken(): Observable<AuthResponseDTO> {
+    return this.http.post<AuthResponseDTO>(
+      `${this.API_URL}/user/public/refresh`,
+      {},
+      { withCredentials: true }
+    ).pipe(
+      tap(response => {
+        if (response?.accessToken) {
+          this.saveToken(response.accessToken);
+        }
+      })
+    );
+  }
   register(dto: RegistrationUserDTO, file: File | null): Observable<AuthResponseDTO> {
     const formData = new FormData();
-
     const jsonBlob = new Blob([JSON.stringify(dto)], { type: 'application/json' });
-    formData.append('registerData', jsonBlob);
+    formData.append('userData', jsonBlob);
 
     if (file) {
-      formData.append('imageData', file);
+      formData.append('imageData', file, file.name);
     }
 
     return this.http.post<AuthResponseDTO>(`${this.API_URL}/user/public/register`, formData).pipe(
@@ -86,10 +97,6 @@ export class AuthService {
 
   setToken(token: string): void {
     this.saveToken(token);
-  }
-
-  getToken(): string | null {
-    return this.getTokenFromStorage();
   }
 
   getTokenFromStorage(): string | null {

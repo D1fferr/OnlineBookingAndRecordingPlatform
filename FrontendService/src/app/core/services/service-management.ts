@@ -28,11 +28,11 @@ export class ServiceManagementService {
   }
 
   createService(dto: ServiceCreateDTO): Observable<ServiceGetDTO> {
-    return this.http.post<ServiceGetDTO>(`${this.apiUrl}/auth/create/`, dto);
+    return this.http.post<ServiceGetDTO>(`${this.apiUrl}/auth/create`, dto);
   }
 
   updateService(id: string, dto: ServiceUpdateDTO): Observable<ServiceGetDTO> {
-    return this.http.put<ServiceGetDTO>(`${this.apiUrl}/auth/update/${id}`, dto);
+    return this.http.patch<ServiceGetDTO>(`${this.apiUrl}/auth/update/${id}`, dto);
   }
 
   deleteService(id: string): Observable<void> {

@@ -31,6 +31,7 @@ public class ProviderService {
     public void save(ProviderCreateDTO dto){
         Provider provider = providerMapper.createDTOToProvider(dto);
         provider.setCreatedAt(OffsetDateTime.now());
+        provider.setIsBlocked(Boolean.FALSE);
         providerRepository.save(provider);
         log.atInfo()
                 .addKeyValue("providerId", provider.getId())

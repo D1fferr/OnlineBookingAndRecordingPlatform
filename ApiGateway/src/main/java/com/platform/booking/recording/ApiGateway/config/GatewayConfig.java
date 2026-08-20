@@ -28,6 +28,14 @@ public class GatewayConfig {
                         .path("/api/working-hours/**")
                         .filters(f->f.stripPrefix(1))
                         .uri(config.getProviders()))
+                .route("provider-service", r->r
+                        .path("/api/services/**")
+                        .filters(f->f.stripPrefix(1))
+                        .uri(config.getProviders()))
+                .route("provider-service", r->r
+                        .path("api/public/cancel-appointment/**")
+                        .filters(f->f.stripPrefix(1))
+                        .uri(config.getProviders()))
                 //auth service
                 .route("auth-service", r->r
                         .path("/api/user/**")

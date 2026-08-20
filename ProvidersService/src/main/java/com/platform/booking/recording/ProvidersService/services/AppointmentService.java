@@ -13,6 +13,7 @@ import com.platform.booking.recording.ProvidersService.util.AppointmentMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -33,6 +34,7 @@ public class AppointmentService {
     private final AppointmentMapper appointmentMapper;
     private final ProviderRepository providerRepository;
     private final ServiceRepository serviceRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public AppointmentGetAndSendToKafkaDTO save(AppointmentCreateDTO dto) {
@@ -62,9 +64,9 @@ public class AppointmentService {
     }
 
     @Transactional
-    public void setIsRemindedSentToTrue(UUID id) {
-        MDC.put("appointmentId", id.toString());
-        Appointment appointment = appointmentRepository.findById(id)
+    public void setIsRemindedSentToTrue(UUID secureToken) {
+        MDC.put("appointmentSecureToken", secureToken.toString());
+        Appointment appointment = appointmentRepository.findBySecureTokenWithProvider(secureToken)
                 .orElseThrow(() -> new AppointmentNotFoundException("Appointment not found"));
         appointment.setIsReminderSent(Boolean.TRUE);
         appointmentRepository.save(appointment);
@@ -94,13 +96,15 @@ public class AppointmentService {
     }
 
     @Transactional
-    public Appointment deleteByToken(UUID token) {
+    public AppointmentForKafkaDTO deleteByToken(UUID token) {
         MDC.put("secureToken", token.toString());
         Appointment appointment = appointmentRepository.findBySecureTokenWithProvider(token)
                 .orElseThrow(() -> new AppointmentNotFoundException("Appointment not found"));
+        AppointmentForKafkaDTO dto = appointmentMapper.entityToForKafkaDTO(appointment);
+        eventPublisher.publishEvent(dto);
         appointmentRepository.delete(appointment);
         log.atInfo().log("The appointment was deleted");
-        return appointment;
+        return dto;
     }
 
     @Transactional(readOnly = true)
@@ -153,7 +157,7 @@ public class AppointmentService {
         Map<Integer, WorkingHours> workingHoursMap = workingHours
                 .stream()
                 .collect(Collectors.toMap(WorkingHours::getDayOfWeek, w -> w));
-
+        LocalTime nowTime = LocalTime.now().plusMinutes(15);
         for (int i = 0; i < 7; i++) {
             LocalDate currentDate = today.plusDays(i);
             int currentDayOfWeek = currentDate.getDayOfWeek().getValue();
@@ -173,7 +177,7 @@ public class AppointmentService {
             while (slotStart.plusMinutes(duration).isBefore(dayEnd) || slotStart.plusMinutes(duration).equals(dayEnd)) {
                 LocalTime slotEnd = slotStart.plusMinutes(duration);
                 boolean isLunchBreak = false;
-
+                boolean isPastTime = (i == 0) && slotStart.isBefore(nowTime);
                 if (w.getBreakStartTime() != null && w.getBreakEndTime() != null) {
                     LocalTime breakStart = w.getBreakStartTime();
                     LocalTime breakEnd = w.getBreakEndTime();
@@ -192,7 +196,7 @@ public class AppointmentService {
                             return finalSlotStart.isBefore(bookedEnd) && slotEnd.isAfter(bookedStart);
                         });
 
-                if (!isLunchBreak && !isAlreadyBooked) {
+                if (!isLunchBreak && !isAlreadyBooked && !isPastTime) {
                     FreeSlotDTO freeSlotDTO = new FreeSlotDTO();
                     freeSlotDTO.setStartTime(slotStart);
                     freeSlotDTO.setEndTime(slotEnd);
