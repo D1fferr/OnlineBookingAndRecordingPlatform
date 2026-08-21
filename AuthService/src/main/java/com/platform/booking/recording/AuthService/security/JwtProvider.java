@@ -17,7 +17,7 @@ public class JwtProvider {
     private String jwtSecretKey;
 
     public String generateToken(User user) {
-        Date expirationDate = Date.from(ZonedDateTime.now().plusMinutes(15).toInstant());
+        Date expirationDate = Date.from(ZonedDateTime.now().plusMinutes(1).toInstant());
         return JWT.create()
                 .withSubject(user.getId().toString())
                 .withClaim("user_id", user.getId().toString())

@@ -169,4 +169,21 @@ public class UserService {
         userRepository.save(user);
         return new ProviderIsBlockedDTO(user.getId(), user.getIsBlocked());
     }
+    @Transactional
+    public UserAvatarForKafkaDTO updateAvatar(UUID id, MultipartFile file){
+        MDC.put("providerId", id.toString());
+        User user = userRepository.findById(id)
+                .orElseThrow(()->  new UserNotFoundException("User not found"));
+        if (file!=null){
+            try {
+                String url = imageService.storeImage(file, user.getId());
+                user.setAvatarURL(url);
+            } catch (Exception e) {
+                throw new FailedSaveImageException(e.getMessage() + e.getCause());
+            }
+        }
+        userRepository.save(user);
+        log.atInfo().log("The avatar was updated");
+        return new UserAvatarForKafkaDTO(user.getId(), user.getAvatarURL());
+    }
 }

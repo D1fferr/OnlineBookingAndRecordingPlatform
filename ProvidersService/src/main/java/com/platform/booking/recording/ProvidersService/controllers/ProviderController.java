@@ -27,12 +27,7 @@ public class ProviderController {
         providerService.update(id, dto);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
-    @PostMapping("/auth/change-avatar/{id}")
-    public ResponseEntity<Void> changeAvatar(@PathVariable(name = "id") UUID id,
-                                             @RequestPart(name = "imageData") MultipartFile file){
-        providerService.updateAvatar(id, file);
-        return ResponseEntity.ok().build();
-    }
+
     @GetMapping("/auth/get-one/{id}")
     public ResponseEntity<ProviderForGetRequestDTO> getOneUser(@PathVariable(name = "id") UUID id){
         return ResponseEntity.ok(providerService.findOneById(id));

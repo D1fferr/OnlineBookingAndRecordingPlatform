@@ -3,6 +3,7 @@ package com.platform.booking.recording.ProvidersService.services;
 import com.platform.booking.recording.ProvidersService.dtos.ProviderCreateDTO;
 import com.platform.booking.recording.ProvidersService.dtos.ProviderIsBlockedDTO;
 import com.platform.booking.recording.ProvidersService.dtos.ProviderUpdateEmailDTO;
+import com.platform.booking.recording.ProvidersService.dtos.UserAvatarForKafkaDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -29,4 +30,10 @@ public class KafkaRegistrationConsumerService {
     public void getProvider(@Payload ProviderIsBlockedDTO dto){
         providerService.updateIsBlocked(dto);
     }
+    @KafkaListener(topics = "user-avatar-topic",
+            containerFactory = "providerAvatarKafkaListenerContainerFactory")
+    public void getProvider(@Payload UserAvatarForKafkaDTO dto){
+        providerService.updateAvatar(dto);
+    }
+
 }

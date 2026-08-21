@@ -48,6 +48,6 @@ export class ProfileService {
   changeAvatar(id: string, file: File): Observable<void> {
     const formData = new FormData();
     formData.append('imageData', file);
-    return this.http.post<void>(`${this.providerUrl}/auth/change-avatar/${id}`, formData);
+    return this.http.post<void>(`${this.userUrl}/auth/change-avatar/${id}`, formData);
   }
 }

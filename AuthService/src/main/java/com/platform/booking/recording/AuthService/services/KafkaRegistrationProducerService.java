@@ -1,15 +1,11 @@
 package com.platform.booking.recording.AuthService.services;
 
-import com.platform.booking.recording.AuthService.dtos.ProviderIsBlockedDTO;
-import com.platform.booking.recording.AuthService.dtos.ProviderUpdateEmailDTO;
-import com.platform.booking.recording.AuthService.dtos.RegistrationUserDTO;
-import com.platform.booking.recording.AuthService.dtos.UserForKafkaDTO;
+import com.platform.booking.recording.AuthService.dtos.*;
 import com.platform.booking.recording.AuthService.models.User;
 import com.platform.booking.recording.AuthService.util.Mapper;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.common.KafkaException;
 import org.slf4j.MDC;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.Message;
@@ -24,6 +20,7 @@ public class KafkaRegistrationProducerService {
     private final KafkaTemplate<String, UserForKafkaDTO> userRegistrationKafkaTemplate;
     private final KafkaTemplate<String, ProviderUpdateEmailDTO> userEmailKafkaTemplate;
     private final KafkaTemplate<String, ProviderIsBlockedDTO> userIsBlockedKafkaTemplate;
+    private final KafkaTemplate<String, ProviderIsBlockedDTO> userAvatarKafkaTemplate;
     private final Mapper mapper;
     private static final String TRACE_ID_KEY = "traceId";
 
@@ -66,6 +63,20 @@ public class KafkaRegistrationProducerService {
                 .build();
         try {
             userIsBlockedKafkaTemplate.send(message).get();
+        }catch (Exception e){
+            throw new KafkaException(e.getMessage());
+        }
+
+    }
+    public void sendAvatar(UserAvatarForKafkaDTO dto){
+        String traceId = MDC.get(TRACE_ID_KEY);
+        Message<UserAvatarForKafkaDTO> message = MessageBuilder
+                .withPayload(dto)
+                .setHeader(KafkaHeaders.TOPIC, "user-avatar-topic")
+                .setHeader(TRACE_ID_KEY, traceId)
+                .build();
+        try {
+            userAvatarKafkaTemplate.send(message).get();
         }catch (Exception e){
             throw new KafkaException(e.getMessage());
         }

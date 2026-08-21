@@ -140,6 +140,13 @@ public class UserController {
     public ResponseEntity<UserForGetRequestDTO> getOneUser(@PathVariable(name = "id") UUID id){
         return ResponseEntity.ok(userService.findOneById(id));
     }
+    @PostMapping("/auth/change-avatar/{id}")
+    public ResponseEntity<Void> changeAvatar(@PathVariable(name = "id") UUID id,
+                                             @RequestPart(name = "imageData") MultipartFile file){
+        UserAvatarForKafkaDTO dto = userService.updateAvatar(id, file);
+        kafkaRegistrationProducerService.sendAvatar(dto);
+        return ResponseEntity.ok().build();
+    }
 
 
 }

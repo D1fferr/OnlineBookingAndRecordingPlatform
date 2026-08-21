@@ -72,21 +72,13 @@ public class ProviderService {
     }
 
     @Transactional
-    public void updateAvatar(UUID id, MultipartFile file){
-        MDC.put("providerId", id.toString());
-        Provider provider = providerRepository.findById(id)
+    public void updateAvatar(UserAvatarForKafkaDTO dto){
+        MDC.put("providerId", dto.getId().toString());
+        Provider provider = providerRepository.findById(dto.getId())
                 .orElseThrow(()->  new ProviderNotFoundException("Provider not found"));
-        if (file!=null){
-            try {
-                String url = imageService.storeImage(file, provider.getId());
-                provider.setAvatarURL(url);
-            } catch (Exception e) {
-                throw new FailedSaveImageException(e.getMessage() + e.getCause());
-            }
-        }
+        provider.setAvatarURL(dto.getAvatarURL());
         providerRepository.save(provider);
         log.atInfo().log("The avatar was updated");
-
     }
 
     @Transactional(readOnly = true)

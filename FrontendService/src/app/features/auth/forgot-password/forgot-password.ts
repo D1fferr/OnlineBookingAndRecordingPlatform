@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 
@@ -33,6 +33,7 @@ export class ForgotPasswordComponent {
   private authService = inject(AuthService);
   private router = inject(Router);
   private snackBar = inject(MatSnackBar);
+  private cdr = inject(ChangeDetectorRef);
 
   step = signal<number>(1);
   isLoading = signal<boolean>(false);
@@ -56,15 +57,19 @@ export class ForgotPasswordComponent {
     const dto: SendCodeDTO = this.sendCodeForm.value;
 
     this.authService.sendResetCode(dto).subscribe({
-      next: () => {
+      next: (response) => {
+        console.log('Send code response:', response);
         this.isLoading.set(false);
         this.step.set(2);
+        this.cdr.detectChanges();
         this.snackBar.open('Verification code sent to your email!', 'Close', { duration: 4000 });
       },
       error: (err) => {
         this.isLoading.set(false);
         console.error('Failed to send reset code', err);
-        this.errorMessage.set('Failed to send code. Please check your email and try again.');
+        const msg = err.error?.message || 'Failed to send code. Please check your email and try again.';
+        this.errorMessage.set(msg);
+        this.cdr.detectChanges();
       }
     });
   }
@@ -72,11 +77,18 @@ export class ForgotPasswordComponent {
   onResetPassword(): void {
     if (this.resetPasswordForm.invalid) return;
 
+    const emailValue = this.sendCodeForm.get('email')?.value;
+    if (!emailValue) {
+      this.errorMessage.set('Email is missing. Please start over.');
+      this.step.set(1);
+      return;
+    }
+
     this.isLoading.set(true);
     this.errorMessage.set(null);
 
     const dto: ResetPasswordDTO = {
-      email: this.sendCodeForm.get('email')?.value,
+      email: emailValue,
       code: this.resetPasswordForm.get('code')?.value,
       newPassword: this.resetPasswordForm.get('newPassword')?.value
     };
@@ -90,13 +102,17 @@ export class ForgotPasswordComponent {
       error: (err) => {
         this.isLoading.set(false);
         console.error('Failed to reset password', err);
-        this.errorMessage.set('Invalid verification code or expired session. Please try again.');
+        const msg = err.error?.message || 'Invalid verification code or expired session. Please try again.';
+        this.errorMessage.set(msg);
+        this.cdr.detectChanges();
       }
     });
   }
 
   backToStepOne(): void {
     this.errorMessage.set(null);
+    this.resetPasswordForm.reset();
     this.step.set(1);
+    this.cdr.detectChanges();
   }
 }

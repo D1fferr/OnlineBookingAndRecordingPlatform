@@ -3,6 +3,7 @@ package com.platform.booking.recording.ProvidersService.config;
 import com.platform.booking.recording.ProvidersService.dtos.ProviderCreateDTO;
 import com.platform.booking.recording.ProvidersService.dtos.ProviderIsBlockedDTO;
 import com.platform.booking.recording.ProvidersService.dtos.ProviderUpdateEmailDTO;
+import com.platform.booking.recording.ProvidersService.dtos.UserAvatarForKafkaDTO;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -92,6 +93,29 @@ public class KafkaConsumersConfig {
     public ConcurrentKafkaListenerContainerFactory<String, ProviderIsBlockedDTO> providerIsBlockedKafkaListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, ProviderIsBlockedDTO> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(providerIsBlockedConsumerFactory());
+        return factory;
+    }
+    @Bean
+    public ConsumerFactory<String, UserAvatarForKafkaDTO> providerAvatarConsumerFactory() {
+        String kafkaEndpoint = config.getKafka().getEndpoint();
+        Map<String, Object> configKafkaConsumer = new HashMap<>();
+        configKafkaConsumer.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaEndpoint);
+        configKafkaConsumer.put(ConsumerConfig.GROUP_ID_CONFIG, "provider-service");
+        configKafkaConsumer.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JacksonJsonSerializer.class);
+        JacksonJsonDeserializer<UserAvatarForKafkaDTO> jacksonDeserializer =
+                new JacksonJsonDeserializer<>(UserAvatarForKafkaDTO.class);
+        jacksonDeserializer.addTrustedPackages("*");
+        jacksonDeserializer.setUseTypeHeaders(false);
+        return new DefaultKafkaConsumerFactory<>(
+                configKafkaConsumer,
+                new StringDeserializer(),
+                new ErrorHandlingDeserializer<>(jacksonDeserializer)
+        );
+    }
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, UserAvatarForKafkaDTO> providerAvatarKafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, UserAvatarForKafkaDTO> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(providerAvatarConsumerFactory());
         return factory;
     }
 

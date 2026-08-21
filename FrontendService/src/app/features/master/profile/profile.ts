@@ -1,4 +1,3 @@
-import { Component, inject, signal, effect } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
@@ -11,12 +10,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 
+import { environment } from '../../../../environments/environment';
 import { ProfileService } from '../../../core/services/profile';
 import { AuthService } from '../../../core/services/auth';
 import { UserForGetRequestDTO, ProviderForGetRequestDTO, ChangeCredentialsDTO, ProviderChangeDataDTO } from '../../../core/models/profile';
 import { DeleteAccountDialogComponent } from './delete-account-dialog/delete-account-dialog';
-import {RegistrationUserDTO} from '../../../core/models/auth';
-
+import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+import { Component, inject, signal, OnInit, ChangeDetectorRef } from '@angular/core';
 @Component({
   selector: 'app-profile',
   standalone: true,
@@ -34,24 +34,24 @@ import {RegistrationUserDTO} from '../../../core/models/auth';
   templateUrl: './profile.html',
   styleUrl: './profile.css'
 })
-export class ProfileComponent {
+export class ProfileComponent implements OnInit{
   private fb = inject(FormBuilder);
   private profileService = inject(ProfileService);
   private authService = inject(AuthService);
   private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
   private router = inject(Router);
+  private sanitizer = inject(DomSanitizer);
+  private cdr = inject(ChangeDetectorRef);
+
+  private readonly apiUrl = environment.apiUrl;
 
   userId = signal<string | null>(this.authService.getProviderId());
   userData = signal<UserForGetRequestDTO | null>(null);
-
-  registerData = signal<RegistrationUserDTO | null>(null);
-
   providerData = signal<ProviderForGetRequestDTO | null>(null);
 
   selectedFile: File | null = null;
-  avatarPreview = signal<string | null>(null);
-
+  avatarPreview = signal<SafeUrl | string | null>(null);
   timezones: string[] = [
     'Europe/Kyiv',
     'Europe/London',
@@ -72,10 +72,10 @@ export class ProfileComponent {
     currentPassword: ['', [Validators.required]]
   });
 
-  constructor() {
-    effect(() => {
-      this.loadFullProfileData();
-    });
+  constructor() {}
+
+  ngOnInit(): void {
+    this.loadFullProfileData();
   }
 
   loadFullProfileData(): void {
@@ -84,25 +84,50 @@ export class ProfileComponent {
 
     this.profileService.getFullProfile(id).subscribe({
       next: ([user, provider]) => {
-        this.userData.set(user);
-        this.providerData.set(provider);
-
-        this.personalForm.patchValue({
-          name: provider.name,
-          serviceType: provider.serviceType,
-          timezone: provider.timezone || 'Europe/Kyiv'
-        });
-
-        this.securityForm.patchValue({
-          email: user.email
-        });
 
         if (user.avatarURL) {
-          this.avatarPreview.set(user.avatarURL);
+          let relativePath = user.avatarURL;
+          if (this.apiUrl.endsWith('/api') && relativePath.startsWith('/api')) {
+            relativePath = relativePath.replace(/^\/api/, '');
+          }
+          const fullImageUrl = relativePath.startsWith('http')
+            ? relativePath
+            : `${this.apiUrl}${relativePath}`;
+
+          this.avatarPreview.set(this.sanitizer.bypassSecurityTrustUrl(fullImageUrl));
+        } else {
+          this.avatarPreview.set(null);
         }
+        this.cdr.detectChanges();
       },
       error: (err) => console.error('Failed to load profile data', err)
     });
+  }
+
+  uploadAvatar(): void {
+    const id = this.userId();
+    if (!id || !this.selectedFile) return;
+
+    this.profileService.changeAvatar(id, this.selectedFile).subscribe({
+      next: () => {
+        this.snackBar.open('Avatar updated successfully!', 'Close', { duration: 3000 });
+
+        this.selectedFile = null;
+
+        this.cdr.detectChanges();
+
+        this.loadFullProfileData();
+      },
+      error: (err) => {
+        console.error('Failed to upload avatar', err);
+        this.snackBar.open('Failed to upload avatar', 'Close', { duration: 3000 });
+      }
+    });
+  }
+
+  onImageError(): void {
+    this.avatarPreview.set(null);
+    this.cdr.detectChanges();
   }
 
   onFileSelected(event: Event): void {
@@ -115,21 +140,7 @@ export class ProfileComponent {
     }
   }
 
-  uploadAvatar(): void {
-    const id = this.userId();
-    if (!id || !this.selectedFile) return;
 
-    this.profileService.changeAvatar(id, this.selectedFile).subscribe({
-      next: () => {
-        this.snackBar.open('Avatar updated successfully!', 'Close', { duration: 3000 });
-        this.selectedFile = null;
-      },
-      error: (err) => {
-        console.error('Failed to upload avatar', err);
-        this.snackBar.open('Failed to upload avatar', 'Close', { duration: 3000 });
-      }
-    });
-  }
 
   savePersonalInfo(): void {
     const id = this.userId();

@@ -35,18 +35,18 @@ public class TokenProvider {
         return ResponseCookie.from("refreshToken", refreshToken)
                 .httpOnly(true)                             //xss protection
                 .secure(false)                              //http
-                .path("/api/v1/auth")
+                .path("/api/user/public/refresh")
                 .maxAge(7 * 24 * 60 * 60)
-                .sameSite("Strict")                         //csrf protection
+                .sameSite("Lax")                         //csrf protection
                 .build();
     }
     public ResponseCookie createClearShareCookie() {
         return ResponseCookie.from("refreshToken", "")
                 .httpOnly(true)
                 .secure(false)
-                .path("/api/v1/auth")
+                .path("/api/user/public/refresh")
                 .maxAge(0)
-                .sameSite("Strict")
+                .sameSite("Lax")
                 .build();
     }
 
