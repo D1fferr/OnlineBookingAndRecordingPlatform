@@ -159,14 +159,14 @@ public class UserService {
         return mapper.userToGetDTO(user);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public ProviderIsBlockedDTO unblockUser(UUID id){
         MDC.put("userId", id.toString());
         User user = userRepository.findById(id)
                 .orElseThrow(()->new UserNotFoundException("User not found"));
         user.setIsBlocked(Boolean.FALSE);
-        log.atInfo().log("The user unblocked");
         userRepository.save(user);
+        log.atInfo().log("The user unblocked");
         return new ProviderIsBlockedDTO(user.getId(), user.getIsBlocked());
     }
     @Transactional

@@ -1,4 +1,4 @@
-package com.platform.booking.recording.ProvidersService.dtos;
+package com.platform.booking.recording.ProvidersService.dtos.KafkaDTO;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,7 +10,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Getter
 @Setter
-public class AppointmentForKafkaDTO {
+public abstract class AppointmentForKafkaDTO {
     private UUID secureToken;
     private String clientName;
     private String clientEmail;
@@ -19,5 +19,4 @@ public class AppointmentForKafkaDTO {
     private OffsetDateTime endTime;
     private String providerEmail;
     private String timezone;
-
 }

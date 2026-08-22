@@ -1,14 +1,13 @@
 package com.platform.booking.recording.ProvidersService.controllers;
 
 import com.platform.booking.recording.ProvidersService.dtos.*;
-import com.platform.booking.recording.ProvidersService.models.Appointment;
+import com.platform.booking.recording.ProvidersService.dtos.KafkaDTO.AppointmentGetAndSendToKafkaDTO;
 import com.platform.booking.recording.ProvidersService.services.AppointmentService;
 import com.platform.booking.recording.ProvidersService.services.KafkaAppointmentProducerService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import org.springframework.web.bind.annotation.*;
@@ -25,27 +24,24 @@ public class AppointmentController {
 
     @PostMapping("/public/create")
     public ResponseEntity<AppointmentGetForCreateDTO> createAppointment(@RequestBody @Valid AppointmentCreateDTO dto){
-        AppointmentGetAndSendToKafkaDTO appointmentDTO = appointmentService.save(dto);
-        kafkaAppointmentProducerService.sendToCreate(appointmentDTO.getAppointment());
-        return ResponseEntity.ok(appointmentDTO.getDto());
+        AppointmentGetForCreateDTO appointmentDTO = appointmentService.save(dto);
+        return ResponseEntity.ok(appointmentDTO);
     }
     @PostMapping("/auth/change-status-to-confirmed/{id}")
     public ResponseEntity<Void> changeStatusToConfirmed(@PathVariable(name = "id") UUID id){
-        Appointment appointment = appointmentService.changeStatusToConformed(id);
-        kafkaAppointmentProducerService.sendToConfirmed(appointment);
+         appointmentService.changeStatusToConfirmed(id);
         return ResponseEntity.ok().build();
     }
     @PostMapping("/auth/change-status-to-cancelled/{id}")
     public ResponseEntity<Void> changeStatusToCancelled(@PathVariable(name = "id") UUID id,
                                                         @RequestBody @Valid AppointmentCancelledReasonDTO reason){
-        Appointment appointment = appointmentService.changeStatusToCancelled(id);
-        kafkaAppointmentProducerService.sendToCancelled(appointment, appointment.getProvider().getEmail(), appointment.getProvider().getTimezone(), reason.getReason());
+        appointmentService.changeStatusToCancelled(id, reason);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("public/cancel-appointment/{secure-token}")
     public ResponseEntity<Void> deleteAppointment(@PathVariable(name = "secure-token") UUID token){
-        AppointmentForKafkaDTO appointment = appointmentService.deleteByToken(token);
+        appointmentService.deleteByToken(token);
         return ResponseEntity.ok().build();
     }
     @GetMapping("/auth/get-appointments-by-provider/{id}")

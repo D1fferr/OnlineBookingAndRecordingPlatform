@@ -5,14 +5,18 @@
   </div>
 
   <div class="table-card">
-    <div class="filter-bar">
-      <mat-form-field appearance="outline" class="date-picker">
-        <mat-label>Select Date</mat-label>
-        <input matInput [matDatepicker]="picker" [ngModel]="selectedDate()" (ngModelChange)="selectedDate.set($event)" />
-        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-        <mat-datepicker #picker></mat-datepicker>
-      </mat-form-field>
-    </div>
+<!--    <div class="filter-bar">-->
+<!--      <mat-form-field appearance="outline" class="date-picker">-->
+<!--        <mat-label>Select Date</mat-label>-->
+<!--        <input-->
+<!--          matInput-->
+<!--          [matDatepicker]="picker"-->
+<!--          [value]="selectedDate()"-->
+<!--          (dateChange)="onDateChange($event.value)" />-->
+<!--        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>-->
+<!--        <mat-datepicker #picker></mat-datepicker>-->
+<!--      </mat-form-field>-->
+<!--    </div>-->
 
     <table mat-table [dataSource]="appointments()" class="schedule-table">
 

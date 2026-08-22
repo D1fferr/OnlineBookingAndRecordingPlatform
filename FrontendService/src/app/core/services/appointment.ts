@@ -15,30 +15,27 @@ export class AppointmentService {
 
   getAppointments(
     page: number,
-    size: number,
+    appPerPage: number,
     searchQuery?: string,
-    status?: string,
-    date?: Date | null
+    sortBy: string = 'createdAt',
+    sortDir: string = 'desc'
   ): Observable<AppointmentPageDTO> {
     const providerId = this.authService.getProviderId();
+
     let params = new HttpParams()
       .set('page', page.toString())
-      .set('size', size.toString());
+      .set('appPerPage', appPerPage.toString())
+      .set('sortBy', sortBy)
+      .set('sortDir', sortDir);
 
     if (searchQuery && searchQuery.trim()) {
       params = params.set('search', searchQuery.trim());
     }
 
-    if (status && status !== 'ALL') {
-      params = params.set('status', status);
-    }
-
-    if (date) {
-      const formattedDate = date.toISOString().split('T')[0];
-      params = params.set('date', formattedDate);
-    }
-
-    return this.http.get<AppointmentPageDTO>(`${this.apiUrl}/auth/get-appointments-by-provider/${providerId}`, { params });
+    return this.http.get<AppointmentPageDTO>(
+      `${this.apiUrl}/auth/get-appointments-by-provider/${providerId}`,
+      { params }
+    );
   }
 
   updateAppointmentStatus(id: string, status: AppointmentsStatus): Observable<void> {

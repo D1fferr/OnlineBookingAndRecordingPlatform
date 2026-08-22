@@ -1,4 +1,4 @@
-import { Component, inject, signal, effect } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -8,8 +8,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 
@@ -29,34 +27,30 @@ import { CancelDialogComponent } from './cancel-dialog/cancel-dialog';
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
     MatPaginatorModule,
     MatDialogModule
   ],
   templateUrl: './appointments.html',
   styleUrl: './appointments.css'
 })
-export class AppointmentsComponent {
+export class AppointmentsComponent implements OnInit {
   private appointmentService = inject(AppointmentService);
   private dialog = inject(MatDialog);
 
   displayedColumns: string[] = ['dateTime', 'client', 'duration', 'comment', 'status', 'actions'];
 
   searchQuery = signal<string>('');
-  selectedStatus = signal<string>('ALL');
-  selectedDate = signal<Date | null>(null);
+  sortBy = signal<string>('createdAt');
+  sortDir = signal<string>('desc');
 
-  pageSize = signal<number>(10);
+  pageSize = signal<number>(8);
   pageIndex = signal<number>(0);
   totalElements = signal<number>(0);
 
   appointments = signal<AppointmentGetDTO[]>([]);
 
-  constructor() {
-    effect(() => {
-      this.loadAppointments();
-    });
+  ngOnInit(): void {
+    this.loadAppointments();
   }
 
   loadAppointments(): void {
@@ -64,20 +58,39 @@ export class AppointmentsComponent {
       this.pageIndex(),
       this.pageSize(),
       this.searchQuery(),
-      this.selectedStatus(),
-      this.selectedDate()
+      this.sortBy(),
+      this.sortDir()
     ).subscribe({
       next: (response) => {
-        this.appointments.set(response.dtoList);
-        this.totalElements.set(response.totalElements);
+        this.appointments.set(response.dtoList || []);
+        this.totalElements.set(response.totalElements || 0);
       },
       error: (err) => console.error('Failed to load appointments', err)
     });
   }
 
+  onSearchChange(val: string): void {
+    this.searchQuery.set(val);
+    this.pageIndex.set(0);
+    this.loadAppointments();
+  }
+
+  onSortByChange(val: string): void {
+    this.sortBy.set(val);
+    this.pageIndex.set(0);
+    this.loadAppointments();
+  }
+
+  onSortDirChange(val: string): void {
+    this.sortDir.set(val);
+    this.pageIndex.set(0);
+    this.loadAppointments();
+  }
+
   onPageChange(event: PageEvent): void {
     this.pageIndex.set(event.pageIndex);
     this.pageSize.set(event.pageSize);
+    this.loadAppointments();
   }
 
   confirmAppointment(id: string): void {
@@ -100,10 +113,6 @@ export class AppointmentsComponent {
         });
       }
     });
-  }
-
-  clearDateFilter(): void {
-    this.selectedDate.set(null);
   }
 
   getDuration(startTimeStr: string, endTimeStr: string): string {

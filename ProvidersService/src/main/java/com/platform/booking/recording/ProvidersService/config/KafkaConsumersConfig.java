@@ -3,7 +3,7 @@ package com.platform.booking.recording.ProvidersService.config;
 import com.platform.booking.recording.ProvidersService.dtos.ProviderCreateDTO;
 import com.platform.booking.recording.ProvidersService.dtos.ProviderIsBlockedDTO;
 import com.platform.booking.recording.ProvidersService.dtos.ProviderUpdateEmailDTO;
-import com.platform.booking.recording.ProvidersService.dtos.UserAvatarForKafkaDTO;
+import com.platform.booking.recording.ProvidersService.dtos.KafkaDTO.UserAvatarForKafkaDTO;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;

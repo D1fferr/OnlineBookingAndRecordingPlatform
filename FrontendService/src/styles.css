@@ -5,3 +5,37 @@ html, body {
   font-family: Roboto, "Helvetica Neue", sans-serif;
   background-color: #f5f5f5;
 }
+.mat-mdc-input-element {
+  color: #000000 !important;
+}
+.mat-mdc-input-element::placeholder {
+  color: #393838 !important;
+  opacity: 1 !important;
+}
+.mat-mdc-form-field .mdc-floating-label {
+  color: #333333 !important;
+}
+.mat-mdc-select-value-text,
+.mat-mdc-select-placeholder {
+  color: #000000 !important;
+}
+.mat-datepicker-toggle .mat-mdc-button-touch-target {
+  color: #333333 !important;
+}
+.mat-mdc-dialog-container .mdc-dialog__surface {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}
+.mat-mdc-dialog-title {
+  color: #000000 !important;
+}
+.mat-mdc-dialog-content {
+  color: #222222 !important;
+}
+.mat-mdc-form-field .mdc-floating-label {
+  transform: translateY(-240%) scale(0.75) !important;
+}
+.mat-mdc-input-element::placeholder {
+  color: #757575 !important;
+  opacity: 1 !important;
+}

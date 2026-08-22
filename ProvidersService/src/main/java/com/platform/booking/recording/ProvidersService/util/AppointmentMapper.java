@@ -1,6 +1,7 @@
 package com.platform.booking.recording.ProvidersService.util;
 
 import com.platform.booking.recording.ProvidersService.dtos.*;
+import com.platform.booking.recording.ProvidersService.dtos.KafkaDTO.*;
 import com.platform.booking.recording.ProvidersService.models.Appointment;
 import com.platform.booking.recording.ProvidersService.models.Provider;
 import com.platform.booking.recording.ProvidersService.models.ServiceProvider;
@@ -9,8 +10,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class AppointmentMapper {
 
-    public AppointmentForKafkaDTO entityToForKafkaDTO(Appointment appointment){
-        AppointmentForKafkaDTO dto = new AppointmentForKafkaDTO();
+    public AppointmentForKafkaDTO entityToCreateForKafkaDTO(Appointment appointment){
+        AppointmentForKafkaDTO dto = new AppointmentCreateForKafkaDTO();
         dto.setSecureToken(appointment.getSecureToken());
         dto.setEndTime(appointment.getEndTime());
         dto.setStartTime(appointment.getStartTime());
@@ -21,7 +22,31 @@ public class AppointmentMapper {
         dto.setTimezone(appointment.getProvider().getTimezone());
         return dto;
     }
-    public AppointmentCancelledForKafkaDTO entityToCancelledForKafkaDTO(Appointment appointment, String providerEmail, String timezone, String reason){
+    public AppointmentForKafkaDTO entityConfirmedToForKafkaDTO(Appointment appointment){
+        AppointmentForKafkaDTO dto = new AppointmentConfirmedForKafkaDTO();
+        dto.setSecureToken(appointment.getSecureToken());
+        dto.setEndTime(appointment.getEndTime());
+        dto.setStartTime(appointment.getStartTime());
+        dto.setClientName(appointment.getClientName());
+        dto.setClientEmail(appointment.getClientEmail());
+        dto.setClientComment(appointment.getClientComment());
+        dto.setProviderEmail(appointment.getProvider().getEmail());
+        dto.setTimezone(appointment.getProvider().getTimezone());
+        return dto;
+    }
+    public AppointmentForKafkaDTO entityToDeletedForKafkaDTO(Appointment appointment){
+        AppointmentForKafkaDTO dto = new AppointmentDeletedForKafkaDTO();
+        dto.setSecureToken(appointment.getSecureToken());
+        dto.setEndTime(appointment.getEndTime());
+        dto.setStartTime(appointment.getStartTime());
+        dto.setClientName(appointment.getClientName());
+        dto.setClientEmail(appointment.getClientEmail());
+        dto.setClientComment(appointment.getClientComment());
+        dto.setProviderEmail(appointment.getProvider().getEmail());
+        dto.setTimezone(appointment.getProvider().getTimezone());
+        return dto;
+    }
+    public AppointmentCancelledForKafkaDTO entityToCancelledForKafkaDTO(Appointment appointment, String reason){
         AppointmentCancelledForKafkaDTO dto = new AppointmentCancelledForKafkaDTO();
         dto.setSecureToken(appointment.getSecureToken());
         dto.setEndTime(appointment.getEndTime());
@@ -29,8 +54,8 @@ public class AppointmentMapper {
         dto.setClientName(appointment.getClientName());
         dto.setClientEmail(appointment.getClientEmail());
         dto.setClientComment(appointment.getClientComment());
-        dto.setProviderEmail(providerEmail);
-        dto.setTimezone(timezone);
+        dto.setProviderEmail(appointment.getProvider().getEmail());
+        dto.setTimezone(appointment.getProvider().getTimezone());
         dto.setReason(reason);
         return dto;
     }
@@ -57,9 +82,9 @@ public class AppointmentMapper {
         dto.setClientComment(appointment.getClientComment());
         return dto;
     }
-    public AppointmentGetForCreateDTO entityToGetForCreateDTO(Appointment appointment, Provider provider, ServiceProvider serviceProvider){
+    public AppointmentGetForCreateDTO entityToGetForCreateDTO(Appointment appointment, ServiceProvider serviceProvider){
         AppointmentGetForCreateDTO dto = new AppointmentGetForCreateDTO();
-        dto.setProviderName(provider.getName());
+        dto.setProviderName(appointment.getProvider().getName());
         dto.setService(serviceProvider.getServiceName());
         dto.setPrice(serviceProvider.getPrice());
         dto.setClientName(appointment.getClientName());

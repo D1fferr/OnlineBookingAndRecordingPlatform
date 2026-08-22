@@ -1,7 +1,7 @@
 package com.platform.booking.recording.ProvidersService.config;
 
-import com.platform.booking.recording.ProvidersService.dtos.AppointmentCancelledForKafkaDTO;
-import com.platform.booking.recording.ProvidersService.dtos.AppointmentForKafkaDTO;
+import com.platform.booking.recording.ProvidersService.dtos.KafkaDTO.AppointmentCancelledForKafkaDTO;
+import com.platform.booking.recording.ProvidersService.dtos.KafkaDTO.AppointmentForKafkaDTO;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
@@ -28,7 +28,7 @@ public class KafkaProducersConfig {
         configKafkaProducer.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaEndpoint);
         configKafkaProducer.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         configKafkaProducer.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JacksonJsonSerializer.class);
-        configKafkaProducer.put(JacksonJsonSerializer.TYPE_MAPPINGS, "AppointmentForKafkaDTO:com.platform.booking.recording.ProvidersService.dtos.AppointmentForKafkaDTO");
+        configKafkaProducer.put(JacksonJsonSerializer.TYPE_MAPPINGS, "AppointmentForKafkaDTO:com.platform.booking.recording.ProvidersService.dtos.KafkaDTO.AppointmentForKafkaDTO");
         return new DefaultKafkaProducerFactory<>(configKafkaProducer);
     }
     @Bean
@@ -42,7 +42,7 @@ public class KafkaProducersConfig {
         configKafkaProducer.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaEndpoint);
         configKafkaProducer.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         configKafkaProducer.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JacksonJsonSerializer.class);
-        configKafkaProducer.put(JacksonJsonSerializer.TYPE_MAPPINGS, "AppointmentCancelledForKafkaDTO:com.platform.booking.recording.ProvidersService.dtos.AppointmentCancelledForKafkaDTO");
+        configKafkaProducer.put(JacksonJsonSerializer.TYPE_MAPPINGS, "AppointmentCancelledForKafkaDTO:com.platform.booking.recording.ProvidersService.dtos.KafkaDTO.AppointmentCancelledForKafkaDTO");
         return new DefaultKafkaProducerFactory<>(configKafkaProducer);
     }
     @Bean

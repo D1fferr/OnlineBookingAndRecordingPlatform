@@ -86,7 +86,7 @@
 
 .user-email {
   font-weight: 500;
-  color: #1a1a1a;
+  color: #ffffff;
 }
 
 /* Badges */
@@ -137,7 +137,7 @@
 
 .reason-text {
   font-size: 13px;
-  color: #666666;
+  color: #ffffff;
   max-width: 200px;
   display: inline-block;
   white-space: nowrap;

@@ -7,36 +7,34 @@
   <div class="table-card">
     <div class="filter-bar">
       <mat-form-field appearance="outline" class="filter-input">
-        <mat-label>Search by client name</mat-label>
-        <input matInput [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)" placeholder="Type name..." />
+        <mat-label>Search client name or details</mat-label>
+        <input
+          matInput
+          [value]="searchQuery()"
+          (keyup.enter)="onSearchChange($any($event.target).value)"
+          placeholder="Type and press Enter..." />
         @if (searchQuery()) {
-          <button matSuffix mat-icon-button aria-label="Clear" (click)="searchQuery.set('')">
+          <button matSuffix mat-icon-button aria-label="Clear" (click)="onSearchChange('')">
             <mat-icon>close</mat-icon>
           </button>
         }
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="filter-select">
-        <mat-label>Status</mat-label>
-        <mat-select [ngModel]="selectedStatus()" (ngModelChange)="selectedStatus.set($event)">
-          <mat-option value="ALL">All Statuses</mat-option>
-          <mat-option value="PENDING">PENDING</mat-option>
-          <mat-option value="CONFIRMED">CONFIRMED</mat-option>
-          <mat-option value="CANCELLED">CANCELLED</mat-option>
+        <mat-label>Sort By</mat-label>
+        <mat-select [value]="sortBy()" (selectionChange)="onSortByChange($event.value)">
+          <mat-option value="createdAt">Created Date</mat-option>
+          <mat-option value="startTime">Appointment Time</mat-option>
+          <mat-option value="status">Status</mat-option>
         </mat-select>
       </mat-form-field>
 
-      <!-- Фільтр за датою -->
-      <mat-form-field appearance="outline" class="filter-date">
-        <mat-label>Filter Date</mat-label>
-        <input matInput [matDatepicker]="picker" [ngModel]="selectedDate()" (ngModelChange)="selectedDate.set($event)" />
-        @if (selectedDate()) {
-          <button matSuffix mat-icon-button aria-label="Clear date" (click)="clearDateFilter(); $event.stopPropagation()">
-            <mat-icon>close</mat-icon>
-          </button>
-        }
-        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-        <mat-datepicker #picker></mat-datepicker>
+      <mat-form-field appearance="outline" class="filter-select">
+        <mat-label>Direction</mat-label>
+        <mat-select [value]="sortDir()" (selectionChange)="onSortDirChange($event.value)">
+          <mat-option value="desc">Newest First</mat-option>
+          <mat-option value="asc">Oldest First</mat-option>
+        </mat-select>
       </mat-form-field>
     </div>
 
@@ -109,7 +107,8 @@
     <mat-paginator
       [length]="totalElements()"
       [pageSize]="pageSize()"
-      [pageSizeOptions]="[5, 10, 25]"
+      [pageIndex]="pageIndex()"
+      [pageSizeOptions]="[8, 16, 24]"
       (page)="onPageChange($event)"
       aria-label="Select page of appointments">
     </mat-paginator>

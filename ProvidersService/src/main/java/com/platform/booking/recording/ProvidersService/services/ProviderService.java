@@ -1,7 +1,7 @@
 package com.platform.booking.recording.ProvidersService.services;
 
 import com.platform.booking.recording.ProvidersService.dtos.*;
-import com.platform.booking.recording.ProvidersService.exceptions.FailedSaveImageException;
+import com.platform.booking.recording.ProvidersService.dtos.KafkaDTO.UserAvatarForKafkaDTO;
 import com.platform.booking.recording.ProvidersService.exceptions.ProviderNotFoundException;
 import com.platform.booking.recording.ProvidersService.models.Provider;
 import com.platform.booking.recording.ProvidersService.repositories.ProviderRepository;
@@ -13,7 +13,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.time.OffsetDateTime;
 import java.util.*;

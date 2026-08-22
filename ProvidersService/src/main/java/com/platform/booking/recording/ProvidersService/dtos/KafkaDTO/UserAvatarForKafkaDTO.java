@@ -1,4 +1,4 @@
-package com.platform.booking.recording.ProvidersService.dtos;
+package com.platform.booking.recording.ProvidersService.dtos.KafkaDTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

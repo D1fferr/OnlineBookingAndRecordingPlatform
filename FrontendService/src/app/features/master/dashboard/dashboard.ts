@@ -1,4 +1,4 @@
-import { Component, inject, signal, effect } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { MatTableModule } from '@angular/material/table';
@@ -32,7 +32,7 @@ import { CancelDialogComponent } from '../appointments/cancel-dialog/cancel-dial
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css'
 })
-export class DashboardComponent {
+export class DashboardComponent implements OnInit {
   private appointmentService = inject(AppointmentService);
   private authService = inject(AuthService);
   private dialog = inject(MatDialog);
@@ -43,28 +43,33 @@ export class DashboardComponent {
   providerId = signal<string | null>(this.authService.getProviderId());
   appointments = signal<AppointmentGetDTO[]>([]);
 
-  constructor() {
-    effect(() => {
-      this.loadDashboardData();
-    });
+  ngOnInit(): void {
+    this.loadDashboardData();
   }
 
   loadDashboardData(): void {
     const page = 0;
-    const size = 50;
+    const appPerPage = 50;
 
     this.appointmentService.getAppointments(
       page,
-      size,
+      appPerPage,
       undefined,
-      undefined,
-      this.selectedDate()
+      'startTime',
+      'asc'
     ).subscribe({
       next: (response) => {
-        this.appointments.set(response.dtoList);
+        this.appointments.set(response.dtoList || []);
       },
       error: (err) => console.error('Failed to load dashboard appointments', err)
     });
+  }
+
+  onDateChange(newDate: Date | null): void {
+    if (newDate) {
+      this.selectedDate.set(newDate);
+      this.loadDashboardData();
+    }
   }
 
   formatTime(isoString: string): string {
@@ -96,15 +101,14 @@ export class DashboardComponent {
   }
 
   openCancelDialog(appointment: AppointmentGetDTO): void {
-    const currentProviderId = this.providerId() || appointment.providerId;
-
     const dialogRef = this.dialog.open(CancelDialogComponent, {
       width: '420px'
     });
 
     dialogRef.afterClosed().subscribe((result: AppointmentCancelledReasonDTO | null) => {
       if (result) {
-        this.appointmentService.cancelAppointment(currentProviderId, result).subscribe({
+        // Передаємо id самого запису (appointment.id), як вимагає сервіс
+        this.appointmentService.cancelAppointment(appointment.id, result).subscribe({
           next: () => this.loadDashboardData(),
           error: (err) => console.error('Failed to cancel appointment', err)
         });

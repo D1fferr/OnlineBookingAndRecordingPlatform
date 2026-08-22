@@ -1,6 +1,7 @@
 package com.platform.booking.recording.ProvidersService.services;
 
 import com.platform.booking.recording.ProvidersService.dtos.*;
+import com.platform.booking.recording.ProvidersService.dtos.KafkaDTO.AppointmentGetAndSendToKafkaDTO;
 import com.platform.booking.recording.ProvidersService.exceptions.AppointmentConflictException;
 import com.platform.booking.recording.ProvidersService.exceptions.AppointmentNotFoundException;
 import com.platform.booking.recording.ProvidersService.exceptions.ProviderNotFoundException;
@@ -37,7 +38,7 @@ public class AppointmentService {
     private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
-    public AppointmentGetAndSendToKafkaDTO save(AppointmentCreateDTO dto) {
+    public AppointmentGetForCreateDTO save(AppointmentCreateDTO dto) {
         MDC.put("providerId", dto.getProviderId().toString());
         MDC.put("startTime", dto.getStartTime().toString());
         MDC.put("endTime", dto.getEndTime().toString());
@@ -54,13 +55,12 @@ public class AppointmentService {
         appointment.setSecureToken(UUID.randomUUID());
         appointment.setStatus(AppointmentsStatus.PENDING);
         appointmentRepository.save(appointment);
-        AppointmentGetAndSendToKafkaDTO getAndSendToKafkaDTO = new AppointmentGetAndSendToKafkaDTO();
-        getAndSendToKafkaDTO.setDto(appointmentMapper.entityToGetForCreateDTO(appointment, projection.get().getProvider(), projection.get().getService()));
-        getAndSendToKafkaDTO.setAppointment(appointment);
+        AppointmentGetForCreateDTO createDTO = appointmentMapper.entityToGetForCreateDTO(appointment, projection.get().getService());
         log.atInfo()
                 .addKeyValue("appointmentId", appointment.getId())
                 .log("The appointment was created");
-        return getAndSendToKafkaDTO;
+        eventPublisher.publishEvent(appointmentMapper.entityToCreateForKafkaDTO(appointment));
+        return createDTO;
     }
 
     @Transactional
@@ -71,40 +71,36 @@ public class AppointmentService {
         appointment.setIsReminderSent(Boolean.TRUE);
         appointmentRepository.save(appointment);
         log.atInfo().log("The appointment is reminded sent was changed to true");
-
     }
 
     @Transactional
-    public Appointment changeStatusToConformed(UUID id) {
+    public void changeStatusToConfirmed(UUID id) {
         MDC.put("appointmentId", id.toString());
         Appointment appointment = appointmentRepository.findByIdWithProvider(id)
                 .orElseThrow(() -> new AppointmentNotFoundException("Appointment not found"));
         appointment.setStatus(AppointmentsStatus.CONFIRMED);
         log.atInfo().log("The appointment status was changed to confirmed");
-        return appointment;
+        eventPublisher.publishEvent(appointmentMapper.entityConfirmedToForKafkaDTO(appointment));
     }
 
     @Transactional
-    public Appointment changeStatusToCancelled(UUID id) {
+    public void changeStatusToCancelled(UUID id, AppointmentCancelledReasonDTO dto) {
         MDC.put("appointmentId", id.toString());
         Appointment appointment = appointmentRepository.findByIdWithProvider(id)
                 .orElseThrow(() -> new AppointmentNotFoundException("Appointment not found"));
         appointment.setStatus(AppointmentsStatus.CANCELLED);
         log.atInfo().log("The appointment status was changed to cancelled");
-
-        return appointment;
+        eventPublisher.publishEvent(appointmentMapper.entityToCancelledForKafkaDTO(appointment, dto.getReason()));
     }
 
     @Transactional
-    public AppointmentForKafkaDTO deleteByToken(UUID token) {
+    public void deleteByToken(UUID token) {
         MDC.put("secureToken", token.toString());
         Appointment appointment = appointmentRepository.findBySecureTokenWithProvider(token)
                 .orElseThrow(() -> new AppointmentNotFoundException("Appointment not found"));
-        AppointmentForKafkaDTO dto = appointmentMapper.entityToForKafkaDTO(appointment);
-        eventPublisher.publishEvent(dto);
         appointmentRepository.delete(appointment);
         log.atInfo().log("The appointment was deleted");
-        return dto;
+        eventPublisher.publishEvent(appointmentMapper.entityToDeletedForKafkaDTO(appointment));
     }
 
     @Transactional(readOnly = true)
