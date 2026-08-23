@@ -1,11 +1,16 @@
 package com.platform.booking.recording.AuthService.services;
 
+import com.platform.booking.recording.AuthService.dtos.ProviderIsBlockedDTO;
+import com.platform.booking.recording.AuthService.dtos.UserIdDTO;
 import com.platform.booking.recording.AuthService.exceptions.TokenNotFoundException;
 import com.platform.booking.recording.AuthService.models.RefreshToken;
 import com.platform.booking.recording.AuthService.repositories.redis.RefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -39,10 +44,12 @@ public class RefreshTokenService {
                 .addKeyValue("userId", refreshToken.getUserId())
                 .log("The refresh token deleted by entity");
     }
-    public void deleteByUserId(UUID id){
-        refreshTokenRepository.deleteByUserId(id);
+    @Order(1)
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void deleteByUserId(UserIdDTO dto){
+        refreshTokenRepository.deleteByUserId(dto.getId());
         log.atInfo()
-                .addKeyValue("userId", id)
+                .addKeyValue("userId", dto.getId())
                 .log("The refresh token deleted by user id");
     }
 }

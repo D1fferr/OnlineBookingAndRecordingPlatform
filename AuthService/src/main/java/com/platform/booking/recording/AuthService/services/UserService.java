@@ -8,6 +8,7 @@ import com.platform.booking.recording.AuthService.util.Mapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -26,6 +27,7 @@ public class UserService {
     private final Mapper mapper;
     private final PasswordEncoder passwordEncoder;
     private final ImageService imageService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional(noRollbackFor = FailedSaveImageException.class)
     public User save(RegistrationUserDTO dto, MultipartFile file){
@@ -37,6 +39,7 @@ public class UserService {
         user.setIsBlocked(Boolean.FALSE);
         user.setRole("ROLE_PROVIDER");
         userRepository.saveAndFlush(user);
+        eventPublisher.publishEvent(mapper.registrationUserToUserToKafkaDTO(dto, user));
         log.atInfo()
                 .addKeyValue("userId", user.getId())
                 .log("The user saved");
@@ -52,6 +55,7 @@ public class UserService {
         user.setIsBlocked(Boolean.FALSE);
         user.setRole("ROLE_ADMIN");
         userRepository.saveAndFlush(user);
+        eventPublisher.publishEvent(mapper.registrationUserToUserToKafkaDTO(dto, user));
         log.atInfo()
                 .addKeyValue("userId", user.getId())
                 .log("The user saved as admin");
@@ -101,8 +105,10 @@ public class UserService {
                 .orElseThrow(()->  new UserNotFoundException("User not found"));
         if (!passwordEncoder.matches(dto.getCurrentPassword(), user.getPassword()))
             throw new BadCredentialsException("Password are incorrect");
-        if (dto.getEmail()!=null)
+        if (dto.getEmail()!=null){
             user.setEmail(dto.getEmail());
+            eventPublisher.publishEvent(new ProviderUpdateEmailDTO(id, dto.getEmail()));
+        }
         if (dto.getPassword()!=null)
             user.setPassword(passwordEncoder.encode(dto.getPassword()));
         userRepository.save(user);
@@ -120,7 +126,7 @@ public class UserService {
                 .log("The user deleted");
     }
     @Transactional
-    public ProviderIsBlockedDTO blockUser(BlockUserDTO dto){
+    public void blockUser(BlockUserDTO dto){
         User user = userRepository.findById(dto.getUserId())
                 .orElseThrow(()->new UserNotFoundException("User not found"));
         user.setIsBlocked(Boolean.TRUE);
@@ -130,7 +136,8 @@ public class UserService {
                 .addKeyValue("reason", user.getBlockReason())
                 .log("The user blocked");
         userRepository.save(user);
-        return new ProviderIsBlockedDTO(user.getId(), user.getIsBlocked());
+        eventPublisher.publishEvent(new ProviderIsBlockedDTO(user.getId(), user.getIsBlocked()));
+        eventPublisher.publishEvent(new UserIdDTO(user.getId()));
 
     }
     @Transactional(readOnly = true)
@@ -160,17 +167,17 @@ public class UserService {
     }
 
     @Transactional
-    public ProviderIsBlockedDTO unblockUser(UUID id){
+    public void unblockUser(UUID id){
         MDC.put("userId", id.toString());
         User user = userRepository.findById(id)
                 .orElseThrow(()->new UserNotFoundException("User not found"));
         user.setIsBlocked(Boolean.FALSE);
         userRepository.save(user);
+        eventPublisher.publishEvent(new ProviderIsBlockedDTO(user.getId(), user.getIsBlocked()));
         log.atInfo().log("The user unblocked");
-        return new ProviderIsBlockedDTO(user.getId(), user.getIsBlocked());
     }
     @Transactional
-    public UserAvatarForKafkaDTO updateAvatar(UUID id, MultipartFile file){
+    public void updateAvatar(UUID id, MultipartFile file){
         MDC.put("providerId", id.toString());
         User user = userRepository.findById(id)
                 .orElseThrow(()->  new UserNotFoundException("User not found"));
@@ -183,7 +190,8 @@ public class UserService {
             }
         }
         userRepository.save(user);
+        eventPublisher.publishEvent(new UserAvatarForKafkaDTO(user.getId(), user.getAvatarURL()));
         log.atInfo().log("The avatar was updated");
-        return new UserAvatarForKafkaDTO(user.getId(), user.getAvatarURL());
+
     }
 }

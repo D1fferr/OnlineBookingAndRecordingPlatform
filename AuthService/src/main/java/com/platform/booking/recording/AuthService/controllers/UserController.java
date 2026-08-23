@@ -4,11 +4,11 @@ import com.platform.booking.recording.AuthService.dtos.*;
 import com.platform.booking.recording.AuthService.models.RefreshToken;
 import com.platform.booking.recording.AuthService.models.User;
 import com.platform.booking.recording.AuthService.security.TokenProvider;
-import com.platform.booking.recording.AuthService.services.KafkaRegistrationProducerService;
 import com.platform.booking.recording.AuthService.services.RefreshTokenService;
 import com.platform.booking.recording.AuthService.services.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -26,15 +26,14 @@ import java.util.UUID;
 @RequestMapping("/user")
 public class UserController {
     private final UserService userService;
-    private final KafkaRegistrationProducerService kafkaRegistrationProducerService;
     private final RefreshTokenService refreshTokenService;
     private final TokenProvider tokenProvider;
+    private final ApplicationEventPublisher eventPublisher;
 
     @PostMapping("/public/register")
     public ResponseEntity<AuthResponseDTO> register(@RequestPart(name = "userData")  @Valid RegistrationUserDTO dto,
                                                     @RequestPart(name = "imageData", required = false) MultipartFile file){
         User user = userService.save(dto, file);
-        kafkaRegistrationProducerService.send(dto, user);
         TokenResponse tokenResponse = tokenProvider.createTokens(user);
         ResponseCookie responseCookie = tokenProvider.createResponseCookie(tokenResponse.getRefreshToken());
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -46,7 +45,6 @@ public class UserController {
     public ResponseEntity<AuthResponseDTO> registerAsAdmin(@RequestPart(name = "userData")  @Valid RegistrationUserDTO dto,
                                                            @RequestPart(name = "imageData", required = false) MultipartFile file){
         User user = userService.saveAsAdmin(dto, file);
-        kafkaRegistrationProducerService.send(dto, user);
         TokenResponse tokenResponse = tokenProvider.createTokens(user);
         ResponseCookie responseCookie = tokenProvider.createResponseCookie(tokenResponse.getRefreshToken());
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -86,8 +84,6 @@ public class UserController {
     public ResponseEntity<AuthResponseDTO> changeCredentials(@PathVariable(name = "id") UUID id,
                                                              @RequestBody @Valid ChangeCredentialsDTO dto){
         User user = userService.updateUser(id, dto);
-        if (dto.getEmail()!=null)
-            kafkaRegistrationProducerService.sendEmail(user.getId(), user.getEmail());
         TokenResponse tokenResponse = tokenProvider.createTokens(user);
         ResponseCookie responseCookie = tokenProvider.createResponseCookie(tokenResponse.getRefreshToken());
         return ResponseEntity.status(HttpStatus.OK)
@@ -102,22 +98,19 @@ public class UserController {
     }
     @PostMapping("/auth/block-user")
     public ResponseEntity<Void> blockUser(@RequestBody @Valid BlockUserDTO dto){
-        ProviderIsBlockedDTO isBlockedDTO = userService.blockUser(dto);
-        refreshTokenService.deleteByUserId(dto.getUserId());
-        kafkaRegistrationProducerService.sendIsBlocked(isBlockedDTO);
+        userService.blockUser(dto);
         return ResponseEntity.noContent()
                 .build();
     }
     @PostMapping("/auth/unblock-user/{id}")
     public ResponseEntity<Void> unblockUser(@PathVariable (name = "id") UUID userId){
-        ProviderIsBlockedDTO isBlockedDTO = userService.unblockUser(userId);
-        kafkaRegistrationProducerService.sendIsBlocked(isBlockedDTO);
+        userService.unblockUser(userId);
         return ResponseEntity.status(HttpStatus.OK)
                 .build();
     }
     @PostMapping("/auth/logout-user/{id}")
     public ResponseEntity<Void> logoutUser(@PathVariable(name = "id") UUID id){
-        refreshTokenService.deleteByUserId(id);
+        eventPublisher.publishEvent(new UserIdDTO(id));
         return ResponseEntity.noContent().build();
     }
         @GetMapping("/auth/get-all-users")
@@ -143,8 +136,7 @@ public class UserController {
     @PostMapping("/auth/change-avatar/{id}")
     public ResponseEntity<Void> changeAvatar(@PathVariable(name = "id") UUID id,
                                              @RequestPart(name = "imageData") MultipartFile file){
-        UserAvatarForKafkaDTO dto = userService.updateAvatar(id, file);
-        kafkaRegistrationProducerService.sendAvatar(dto);
+        userService.updateAvatar(id, file);
         return ResponseEntity.ok().build();
     }
 

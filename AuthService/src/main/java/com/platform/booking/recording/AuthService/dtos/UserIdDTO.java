@@ -7,16 +7,10 @@ import lombok.Setter;
 
 import java.util.UUID;
 
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
-public class UserForKafkaDTO {
+public class UserIdDTO {
     private UUID id;
-    private String name;
-    private String email;
-    private String serviceType;
-    private String timezone;
-    private String avatarURL;
-
 }

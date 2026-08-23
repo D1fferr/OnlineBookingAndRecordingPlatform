@@ -1,18 +1,18 @@
 package com.platform.booking.recording.AuthService.services;
 
 import com.platform.booking.recording.AuthService.dtos.*;
-import com.platform.booking.recording.AuthService.models.User;
 import com.platform.booking.recording.AuthService.util.Mapper;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.common.KafkaException;
 import org.slf4j.MDC;
+import org.springframework.core.annotation.Order;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Component;
-
-import java.util.UUID;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 @RequiredArgsConstructor
 @Component
@@ -24,11 +24,11 @@ public class KafkaRegistrationProducerService {
     private final Mapper mapper;
     private static final String TRACE_ID_KEY = "traceId";
 
-    public void send(RegistrationUserDTO dto, User user){
-        UserForKafkaDTO userForKafkaDTO = mapper.registrationUserToUserToKafkaDTO(dto, user);
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void send(UserForKafkaDTO dto){
         String traceId = MDC.get(TRACE_ID_KEY);
         Message<UserForKafkaDTO> message = MessageBuilder
-                .withPayload(userForKafkaDTO)
+                .withPayload(dto)
                 .setHeader(KafkaHeaders.TOPIC, "user-topic")
                 .setHeader(TRACE_ID_KEY, traceId)
                 .build();
@@ -39,8 +39,8 @@ public class KafkaRegistrationProducerService {
         }
 
     }
-    public void sendEmail(UUID id, String email){
-        ProviderUpdateEmailDTO dto = new ProviderUpdateEmailDTO(id, email);
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void sendEmail(ProviderUpdateEmailDTO dto){
         String traceId = MDC.get(TRACE_ID_KEY);
         Message<ProviderUpdateEmailDTO> message = MessageBuilder
                 .withPayload(dto)
@@ -54,6 +54,8 @@ public class KafkaRegistrationProducerService {
         }
 
     }
+    @Order(2)
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void sendIsBlocked(ProviderIsBlockedDTO dto){
         String traceId = MDC.get(TRACE_ID_KEY);
         Message<ProviderIsBlockedDTO> message = MessageBuilder
@@ -68,6 +70,7 @@ public class KafkaRegistrationProducerService {
         }
 
     }
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void sendAvatar(UserAvatarForKafkaDTO dto){
         String traceId = MDC.get(TRACE_ID_KEY);
         Message<UserAvatarForKafkaDTO> message = MessageBuilder
