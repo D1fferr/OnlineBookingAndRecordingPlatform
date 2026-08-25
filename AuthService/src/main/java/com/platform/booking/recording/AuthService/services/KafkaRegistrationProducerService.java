@@ -21,7 +21,6 @@ public class KafkaRegistrationProducerService {
     private final KafkaTemplate<String, ProviderUpdateEmailDTO> userEmailKafkaTemplate;
     private final KafkaTemplate<String, ProviderIsBlockedDTO> userIsBlockedKafkaTemplate;
     private final KafkaTemplate<String, ProviderIsBlockedDTO> userAvatarKafkaTemplate;
-    private final Mapper mapper;
     private static final String TRACE_ID_KEY = "traceId";
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)

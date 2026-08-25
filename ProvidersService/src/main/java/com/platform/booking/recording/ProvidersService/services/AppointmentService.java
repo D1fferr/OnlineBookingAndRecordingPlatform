@@ -142,73 +142,116 @@ public class AppointmentService {
     public AvailableSlotsResponseDTO findFreeSlots(UUID id) {
         ServiceProvider serviceProvider = serviceRepository.findWithProviderAndWorkingHoursById(id)
                 .orElseThrow(() -> new ServiceProviderNotFoundException("Service not found"));
-        List<Appointment> appointments = providerRepository.findBookedAppointmentsForPeriod(serviceProvider.getProvider().getId(),
-                OffsetDateTime.now(), OffsetDateTime.now().plusDays(7));
-        Integer duration = serviceProvider.getDuration();
-        Set<WorkingHours> workingHours = serviceProvider.getProvider().getWorkingHours();
-        AvailableSlotsResponseDTO availableSlotsResponseDTO = new AvailableSlotsResponseDTO();
+
+        Provider provider = serviceProvider.getProvider();
+        List<Appointment> bookedAppointments = providerRepository.findBookedAppointmentsForPeriod(
+                provider.getId(), OffsetDateTime.now(), OffsetDateTime.now().plusDays(7));
+
+        Map<Integer, WorkingHours> workingHoursMap = provider.getWorkingHours().stream()
+                .collect(Collectors.toMap(WorkingHours::getDayOfWeek, w -> w));
+
+        List<DaySlotsDTO> daySlotsDTOList = generateSlotsForWeek(
+                serviceProvider.getDuration(), bookedAppointments, workingHoursMap);
+
+        AvailableSlotsResponseDTO response = new AvailableSlotsResponseDTO();
+        response.setAppointments(daySlotsDTOList);
+        response.setTimezone(provider.getTimezone());
+        return response;
+    }
+
+    private List<DaySlotsDTO> generateSlotsForWeek(
+            Integer duration,
+            List<Appointment> bookedAppointments,
+            Map<Integer, WorkingHours> workingHoursMap
+    ) {
         List<DaySlotsDTO> daySlotsDTOList = new ArrayList<>();
         LocalDate today = LocalDate.now();
-
-        Map<Integer, WorkingHours> workingHoursMap = workingHours
-                .stream()
-                .collect(Collectors.toMap(WorkingHours::getDayOfWeek, w -> w));
         LocalTime nowTime = LocalTime.now().plusMinutes(15);
+
         for (int i = 0; i < 7; i++) {
             LocalDate currentDate = today.plusDays(i);
             int currentDayOfWeek = currentDate.getDayOfWeek().getValue();
             WorkingHours w = workingHoursMap.get(currentDayOfWeek);
+
             if (w == null || Boolean.FALSE.equals(w.getIsActive())) {
                 continue;
             }
 
+            boolean isToday = (i == 0);
+            List<FreeSlotDTO> freeSlots = calculateDaySlots(
+                    currentDate, w, duration, bookedAppointments, isToday, nowTime);
+
             DaySlotsDTO daySlotsDTO = new DaySlotsDTO();
-            List<FreeSlotDTO> freeSlots = new ArrayList<>();
             daySlotsDTO.setDayOfWeek(currentDayOfWeek);
             daySlotsDTO.setDate(currentDate);
-
-            LocalTime slotStart = w.getStartTime();
-            LocalTime dayEnd = w.getEndTime();
-
-            while (slotStart.plusMinutes(duration).isBefore(dayEnd) || slotStart.plusMinutes(duration).equals(dayEnd)) {
-                LocalTime slotEnd = slotStart.plusMinutes(duration);
-                boolean isLunchBreak = false;
-                boolean isPastTime = (i == 0) && slotStart.isBefore(nowTime);
-                if (w.getBreakStartTime() != null && w.getBreakEndTime() != null) {
-                    LocalTime breakStart = w.getBreakStartTime();
-                    LocalTime breakEnd = w.getBreakEndTime();
-                    if (slotStart.isBefore(breakEnd) && slotEnd.isAfter(breakStart)) {
-                        isLunchBreak = true;
-                    }
-                }
-
-                LocalTime finalSlotStart = slotStart;
-
-                boolean isAlreadyBooked = appointments.stream()
-                        .filter(a -> a.getStartTime().getDayOfWeek().getValue() == currentDayOfWeek)
-                        .anyMatch(a -> {
-                            LocalTime bookedStart = a.getStartTime().toLocalTime();
-                            LocalTime bookedEnd = a.getEndTime().toLocalTime();
-                            return finalSlotStart.isBefore(bookedEnd) && slotEnd.isAfter(bookedStart);
-                        });
-
-                if (!isLunchBreak && !isAlreadyBooked && !isPastTime) {
-                    FreeSlotDTO freeSlotDTO = new FreeSlotDTO();
-                    freeSlotDTO.setStartTime(slotStart);
-                    freeSlotDTO.setEndTime(slotEnd);
-                    freeSlots.add(freeSlotDTO);
-                }
-
-                int step = (w.getSlotStep() != null && w.getSlotStep() > 0) ? w.getSlotStep() : duration;
-                slotStart = slotStart.plusMinutes(step);
-            }
-
             daySlotsDTO.setFreeSlots(freeSlots);
+
             daySlotsDTOList.add(daySlotsDTO);
         }
-        availableSlotsResponseDTO.setAppointments(daySlotsDTOList);
-        availableSlotsResponseDTO.setTimezone(serviceProvider.getProvider().getTimezone());
-        return availableSlotsResponseDTO;
+        return daySlotsDTOList;
+    }
+
+    private List<FreeSlotDTO> calculateDaySlots(
+            LocalDate date,
+            WorkingHours w,
+            Integer duration,
+            List<Appointment> bookedAppointments,
+            boolean isToday,
+            LocalTime nowTime
+    ) {
+        List<FreeSlotDTO> freeSlots = new ArrayList<>();
+        LocalTime slotStart = w.getStartTime();
+        LocalTime dayEnd = w.getEndTime();
+        int step = (w.getSlotStep() != null && w.getSlotStep() > 0) ? w.getSlotStep() : duration;
+
+        while (slotStart.plusMinutes(duration).isBefore(dayEnd) || slotStart.plusMinutes(duration).equals(dayEnd)) {
+            LocalTime slotEnd = slotStart.plusMinutes(duration);
+
+            if (isValidSlot(slotStart, slotEnd, w, date, bookedAppointments, isToday, nowTime)) {
+                FreeSlotDTO freeSlotDTO = new FreeSlotDTO();
+                freeSlotDTO.setStartTime(slotStart);
+                freeSlotDTO.setEndTime(slotEnd);
+                freeSlots.add(freeSlotDTO);
+            }
+
+            LocalTime nextSlotStart = slotStart.plusMinutes(step);
+
+            if (nextSlotStart.isBefore(slotStart)) {
+                break;
+            }
+
+            slotStart = nextSlotStart;
+        }
+        return freeSlots;
+    }
+
+    private boolean isValidSlot(
+            LocalTime slotStart,
+            LocalTime slotEnd,
+            WorkingHours w,
+            LocalDate date,
+            List<Appointment> appointments,
+            boolean isToday,
+            LocalTime nowTime
+    ) {
+        if (isToday && slotStart.isBefore(nowTime)) {
+            return false;
+        }
+
+        if (w.getBreakStartTime() != null && w.getBreakEndTime() != null) {
+            if (slotStart.isBefore(w.getBreakEndTime()) && slotEnd.isAfter(w.getBreakStartTime())) {
+                return false;
+            }
+        }
+
+        int dayOfWeek = date.getDayOfWeek().getValue();
+        return appointments.stream()
+                .filter(a -> a.getStartTime().getDayOfWeek().getValue() == dayOfWeek)
+                .noneMatch(a -> {
+                    LocalTime bookedStart = a.getStartTime().toLocalTime();
+                    LocalTime bookedEnd = a.getEndTime().toLocalTime();
+                    return slotStart.isBefore(bookedEnd) && slotEnd.isAfter(bookedStart);
+                });
     }
 
 }

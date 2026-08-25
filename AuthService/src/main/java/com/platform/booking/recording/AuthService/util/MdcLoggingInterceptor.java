@@ -12,7 +12,7 @@ import java.util.UUID;
 public class MdcLoggingInterceptor implements HandlerInterceptor {
     private static final String TRACE_HEADER = "X-Trace-Id";
     private static final String TRACE_ID_KEY = "traceId";
-        @Override
+    @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         String traceId = request.getHeader(TRACE_HEADER);
         if (traceId == null || traceId.isBlank()) {

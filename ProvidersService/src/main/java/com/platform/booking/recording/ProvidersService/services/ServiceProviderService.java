@@ -24,7 +24,7 @@ import java.util.UUID;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class ServiceService {
+public class ServiceProviderService {
     private final ServiceRepository serviceRepository;
     private final ServiceMapper serviceMapper;
     private final ProviderRepository providerRepository;
@@ -71,7 +71,7 @@ public class ServiceService {
                 .map(serviceMapper::entityToGetDTO)
                 .toList());
         servicePageDTO.setTotalPages(serviceProviderPage.getTotalPages());
-        servicePageDTO.setTotalElements(servicePageDTO.getTotalElements());
+        servicePageDTO.setTotalElements(serviceProviderPage.getTotalElements());
         servicePageDTO.setProviderId(id);
         return servicePageDTO;
     }

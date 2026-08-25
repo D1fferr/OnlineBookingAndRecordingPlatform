@@ -7,10 +7,6 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         show_sql: true
         order_updates: true
-  cloud:
-    aws:
-      region:
-        static: us-east-1
   profiles:
     active: local
 server:

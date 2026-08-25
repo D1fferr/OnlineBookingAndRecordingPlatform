@@ -24,7 +24,6 @@ import java.util.stream.Collectors;
 public class ProviderService {
     private final ProviderRepository providerRepository;
     private final ProviderMapper providerMapper;
-    private final ImageService imageService;
 
     @Transactional
     public void save(ProviderCreateDTO dto){
