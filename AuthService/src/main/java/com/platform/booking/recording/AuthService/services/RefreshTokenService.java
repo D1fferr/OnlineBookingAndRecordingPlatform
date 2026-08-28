@@ -47,7 +47,14 @@ public class RefreshTokenService {
     @Order(1)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void deleteByUserId(UserIdDTO dto){
-        refreshTokenRepository.deleteByUserId(dto.getId());
+        Optional<RefreshToken> refreshToken = refreshTokenRepository.findByUserId(dto.getId());
+        if (refreshToken.isEmpty()){
+            log.atInfo()
+                    .addKeyValue("userId", dto.getId())
+                    .log("The refresh token not found by user id");
+            return;
+        }
+        refreshTokenRepository.delete(refreshToken.get());
         log.atInfo()
                 .addKeyValue("userId", dto.getId())
                 .log("The refresh token deleted by user id");
