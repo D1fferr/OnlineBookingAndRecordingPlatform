@@ -1,4 +1,4 @@
-package com.platform.booking.recording.ProvidersService.repositories;
+package com.platform.booking.recording.AuthService.repositories;
 
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
