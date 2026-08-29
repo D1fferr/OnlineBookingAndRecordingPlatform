@@ -16,5 +16,4 @@ public class ProviderCreateDTO {
     private String serviceType;
     private String timezone;
     private String avatarURL;
-
 }
