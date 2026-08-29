@@ -33,7 +33,7 @@ public class GatewayConfig {
                         .filters(f->f.stripPrefix(1))
                         .uri(config.getProviders()))
                 .route("provider-service", r->r
-                        .path("api/public/cancel-appointment/**")
+                        .path("/api/public/cancel-appointment/**")
                         .filters(f->f.stripPrefix(1))
                         .uri(config.getProviders()))
                 //auth service
