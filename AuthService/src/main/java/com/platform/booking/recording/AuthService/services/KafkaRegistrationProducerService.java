@@ -1,7 +1,6 @@
 package com.platform.booking.recording.AuthService.services;
 
 import com.platform.booking.recording.AuthService.dtos.*;
-import com.platform.booking.recording.AuthService.util.Mapper;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.common.KafkaException;
 import org.slf4j.MDC;
