@@ -1,24 +1,7 @@
 spring:
   application:
-    name: ProvidersService
-  jpa:
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-        show_sql: true
-        order_updates: true
+    name: provider-service
   profiles:
     active: local
-server:
-  port: 8083
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health, prometheus, metrics
-  metrics:
-    tags:
-      application: ${spring.application.name}
-    distribution:
-      percentiles-histogram:
-        http.server.requests: true
+  config:
+    import: "configserver:http://localhost:8888"

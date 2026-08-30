@@ -1,18 +1,7 @@
 spring:
   application:
-    name: EmailService
+    name: email-service
   profiles:
     active: local
-server:
-  port: 8084
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health, prometheus, metrics
-  metrics:
-    tags:
-      application: ${spring.application.name}
-    distribution:
-      percentiles-histogram:
-        http.server.requests: true
+  config:
+    import: "configserver:http://localhost:8888"
