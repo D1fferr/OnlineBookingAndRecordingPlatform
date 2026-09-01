@@ -2,6 +2,7 @@ package com.platform.booking.recording.provider_service.models;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,13 +20,16 @@ public class Provider {
     @Column(name = "id")
     private UUID id;
     @Column(name = "name")
+    @NotEmpty(message = "This field cannot be empty")
     private String name;
     @Column(name = "email")
-    @Email
+    @Email(message = "Please provide a valid email address")
     private String email;
     @Column(name = "service_type")
+    @NotEmpty(message = "This field cannot be empty")
     private String serviceType;
     @Column(name = "timezone")
+    @NotEmpty(message = "This field cannot be empty")
     private String timezone;
     @Column(name = "avatar_url")
     private String avatarURL;

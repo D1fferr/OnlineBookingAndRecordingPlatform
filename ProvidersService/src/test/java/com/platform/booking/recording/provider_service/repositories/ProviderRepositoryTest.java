@@ -178,7 +178,7 @@ class ProviderRepositoryTest extends AbstractBaseRepositoryTest {
 
         // Assert
         assertThat(projection).isPresent();
-        assertThat(projection.get().getProvider().getId()).isEqualTo(provider1.getId());
-        assertThat(projection.get().getService().getId()).isEqualTo(service1.getId());
+        assertThat(projection.get().provider().getId()).isEqualTo(provider1.getId());
+        assertThat(projection.get().service().getId()).isEqualTo(service1.getId());
     }
 }

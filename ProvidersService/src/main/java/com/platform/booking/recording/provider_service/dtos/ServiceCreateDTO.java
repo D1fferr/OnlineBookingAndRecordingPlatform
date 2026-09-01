@@ -12,14 +12,14 @@ import java.util.UUID;
 @Getter
 @Setter
 public class ServiceCreateDTO {
-    @NotNull
+    @NotNull(message = "This field cannot be empty")
     private UUID providerId;
-    @NotEmpty
+    @NotEmpty(message = "This field cannot be empty")
     private String serviceName;
-    @NotNull
+    @NotNull(message = "This field cannot be empty")
     private Integer duration;
-    @NotNull
+    @NotNull(message = "This field cannot be empty")
     private Double price;
-    @NotEmpty
+    @NotEmpty(message = "This field cannot be empty")
     private String description;
 }

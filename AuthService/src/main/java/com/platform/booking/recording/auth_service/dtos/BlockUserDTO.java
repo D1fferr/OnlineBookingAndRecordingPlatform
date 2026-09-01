@@ -14,6 +14,6 @@ import java.util.UUID;
 public class BlockUserDTO {
     @NotNull
     private UUID userId;
-    @NotEmpty
+    @NotEmpty(message = "This field cannot be empty")
     private String reason;
 }

@@ -11,14 +11,11 @@ import java.time.LocalTime;
 @Getter
 @Setter
 public class WorkingHoursCreateDTO {
-
     private Integer dayOfWeek;
     private LocalTime startTime;
     private LocalTime endTime;
     private LocalTime breakStartTime;
     private LocalTime breakEndTime;
     private Integer slotStep;
-    @NotEmpty
     private Boolean isActive;
-
 }

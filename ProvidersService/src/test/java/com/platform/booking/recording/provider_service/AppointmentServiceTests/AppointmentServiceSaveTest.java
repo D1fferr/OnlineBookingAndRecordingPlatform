@@ -71,8 +71,8 @@ public class AppointmentServiceSaveTest {
         service.setId(serviceId);
 
         ProviderAndServiceProjection projection = mock(ProviderAndServiceProjection.class);
-        when(projection.getProvider()).thenReturn(provider);
-        when(projection.getService()).thenReturn(service);
+        when(projection.provider()).thenReturn(provider);
+        when(projection.service()).thenReturn(service);
 
         Appointment appointment = new Appointment();
         appointment.setId(UUID.randomUUID());
@@ -128,7 +128,7 @@ public class AppointmentServiceSaveTest {
         AppointmentCreateDTO createDTO = createBaseDTO();
         ProviderAndServiceProjection projection = mock(ProviderAndServiceProjection.class);
 
-        when(projection.getService()).thenReturn(null);
+        when(projection.service()).thenReturn(null);
         when(providerRepository.findByIdWithLock(createDTO.getProviderId(), createDTO.getServiceId()))
                 .thenReturn(Optional.of(projection));
 
@@ -146,7 +146,7 @@ public class AppointmentServiceSaveTest {
         // GIVEN
         AppointmentCreateDTO createDTO = createBaseDTO();
         ProviderAndServiceProjection projection = mock(ProviderAndServiceProjection.class);
-        when(projection.getService()).thenReturn(new ServiceProvider());
+        when(projection.service()).thenReturn(new ServiceProvider());
 
         when(providerRepository.findByIdWithLock(createDTO.getProviderId(), createDTO.getServiceId()))
                 .thenReturn(Optional.of(projection));

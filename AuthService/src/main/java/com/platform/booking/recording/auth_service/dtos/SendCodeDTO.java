@@ -9,6 +9,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class SendCodeDTO {
-    @Email
+    @Email(message = "Please provide a valid email address")
     private String email;
 }

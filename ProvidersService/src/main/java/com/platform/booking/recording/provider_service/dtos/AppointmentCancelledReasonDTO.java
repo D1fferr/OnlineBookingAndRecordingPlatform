@@ -9,6 +9,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class AppointmentCancelledReasonDTO {
-    @NotEmpty
+    @NotEmpty(message = "This field cannot be empty")
     private String reason;
 }

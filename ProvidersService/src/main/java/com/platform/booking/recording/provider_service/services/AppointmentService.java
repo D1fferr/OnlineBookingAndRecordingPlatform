@@ -44,17 +44,17 @@ public class AppointmentService {
         Optional<ProviderAndServiceProjection> projection = providerRepository.findByIdWithLock(dto.getProviderId(), dto.getServiceId());
         if (projection.isEmpty())
             throw new ProviderNotFoundException("Provider not found");
-        if (projection.get().getService()==null)
+        if (projection.get().service()==null)
             throw new ServiceProviderNotFoundException("Service not found");
         if (appointmentRepository.existsOverlappingAppointment(dto.getProviderId(), dto.getStartTime(), dto.getEndTime()))
             throw new AppointmentConflictException("This time is already taken by another client!");
-        Appointment appointment = appointmentMapper.createDTOtoEntity(dto, projection.get().getProvider());
+        Appointment appointment = appointmentMapper.createDTOtoEntity(dto, projection.get().provider());
         appointment.setCreatedAt(OffsetDateTime.now());
         appointment.setIsReminderSent(Boolean.FALSE);
         appointment.setSecureToken(UUID.randomUUID());
         appointment.setStatus(AppointmentsStatus.PENDING);
         appointmentRepository.save(appointment);
-        AppointmentGetForCreateDTO createDTO = appointmentMapper.entityToGetForCreateDTO(appointment, projection.get().getService());
+        AppointmentGetForCreateDTO createDTO = appointmentMapper.entityToGetForCreateDTO(appointment, projection.get().service());
         log.atInfo()
                 .addKeyValue("appointmentId", appointment.getId())
                 .log("The appointment was created");

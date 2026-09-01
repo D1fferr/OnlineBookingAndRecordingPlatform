@@ -14,20 +14,20 @@ import java.util.UUID;
 @Getter
 @Setter
 public class AppointmentCreateDTO {
-    @NotNull
+    @NotNull(message = "This field cannot be empty")
     private UUID providerId;
-    @NotNull
-    @Future
+    @NotNull(message = "This field cannot be empty")
+    @Future(message = "The time must be in the future.")
     private OffsetDateTime startTime;
-    @NotNull
-    @Future
+    @NotNull(message = "This field cannot be empty")
+    @Future(message = "The time must be in the future.")
     private OffsetDateTime endTime;
-    @NotEmpty
+    @NotEmpty(message = "This field cannot be empty")
     private String clientName;
-    @NotEmpty
+    @NotEmpty(message = "This field cannot be empty")
     private String clientEmail;
-    @NotEmpty
+    @NotEmpty(message = "This field cannot be empty")
     private String clientComment;
-    @NotNull
+    @NotNull(message = "This field cannot be empty")
     private UUID serviceId;
 }

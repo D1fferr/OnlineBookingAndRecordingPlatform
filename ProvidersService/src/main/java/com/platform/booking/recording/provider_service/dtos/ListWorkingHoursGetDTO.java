@@ -14,6 +14,6 @@ import java.util.UUID;
 public class ListWorkingHoursGetDTO {
 
     private List<WorkingHoursGetDTO> workingHoursGetDTODTOList;
-    @NotNull
+    @NotNull(message = "This field cannot be empty")
     private UUID providerId;
 }

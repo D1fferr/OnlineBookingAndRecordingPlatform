@@ -6,6 +6,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -25,10 +26,11 @@ public class User {
     @Column(name = "id")
     private UUID id;
     @Column(name = "email")
-    @Email
+    @Email(message = "Please provide a valid email address")
     private String email;
     @Column(name = "password_hash")
-    @NotEmpty
+    @NotEmpty(message = "Password cannot be empty")
+    @Size(min = 8, message = "Password must be at least 8 characters long")
     private String password;
     @Column(name = "role")
     private String role;

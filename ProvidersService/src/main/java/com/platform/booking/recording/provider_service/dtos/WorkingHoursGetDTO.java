@@ -20,7 +20,6 @@ public class WorkingHoursGetDTO {
     private LocalTime breakStartTime;
     private LocalTime breakEndTime;
     private Integer slotStep;
-    @NotEmpty
     private Boolean isActive;
 
 }

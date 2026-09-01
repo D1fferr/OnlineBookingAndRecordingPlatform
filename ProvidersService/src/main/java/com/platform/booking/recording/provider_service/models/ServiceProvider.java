@@ -23,19 +23,19 @@ public class ServiceProvider {
     @UuidGenerator(style = UuidGenerator.Style.TIME)
     private UUID id;
     @Column(name = "service_name")
-    @NotEmpty
+    @NotEmpty(message = "This field cannot be empty")
     private String serviceName;
     @Column(name = "duration")
-    @NotNull
+    @NotNull(message = "This field cannot be empty")
     private Integer duration;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "provider_id")
     private Provider provider;
     @Column(name = "price")
-    @NotNull
+    @NotNull(message = "This field cannot be empty")
     private Double price;
     @Column(name = "description")
-    @NotEmpty
+    @NotEmpty(message = "This field cannot be empty")
     private String description;
     @Column(name = "created_at")
     private OffsetDateTime createdAt;
