@@ -1,1 +1,0 @@
-ALTER TABLE working_hours ALTER COLUMN slot_step DROP NOT NULL;

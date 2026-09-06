@@ -18,7 +18,7 @@ CREATE TABLE working_hours
     end_time TIME,
     break_start_time TIME,
     break_end_time TIME,
-    slot_step INT NOT NULL DEFAULT 30,
+    slot_step INT DEFAULT 30,
     is_active BOOLEAN DEFAULT FALSE,
     unique (provider_id, day_of_week)
 );

@@ -1,37 +1,30 @@
 INSERT INTO providers (id, name, email, service_type, timezone, avatar_url, is_blocked, created_at)
 VALUES
-    ('11111111-1111-4111-8111-111111111111', 'Admin Management Center', 'admin@example.com', 'CONSULTING', 'Europe/Kyiv', '', FALSE, NOW()),
-    ('22222222-2222-4222-8222-222222222222', 'John Doe Barbering', 'provider1@example.com', 'HAIRCUT', 'Europe/Kyiv', '', FALSE, NOW()),
-    ('33333333-3333-4333-8333-333333333333', 'Dr. Smith Dental Clinic', 'provider2@example.com', 'DENTISTRY', 'Europe/Kyiv', '', FALSE, NOW()),
-    ('44444444-4444-4444-8444-444444444444', 'Auto Repair Expert', 'provider3@example.com', 'AUTO_SERVICE', 'Europe/Kyiv', '', FALSE, NOW()),
-    ('55555555-5555-4555-8555-555555555555', 'Fitness Studio Hub', 'user1@example.com', 'FITNESS', 'Europe/Kyiv', '', FALSE, NOW()),
-    ('66666666-6666-4666-8666-666666666666', 'English Tutor Online', 'user2@example.com', 'EDUCATION', 'Europe/Kyiv', '', FALSE, NOW())
+    ('11111111-1111-4111-8111-111111111111', 'Trump Donald', 'trump@example.com', 'Consulting', 'Europe/Kyiv',               '/api/images/11111111-1111-4111-8111-111111111111.jpg', FALSE, NOW()),
+    ('22222222-2222-4222-8222-222222222222', 'Edward Scissorhands', 'edward@example.com', 'Barber', 'Europe/Kyiv',           '/api/images/22222222-2222-4222-8222-222222222222.jpg', FALSE, NOW()),
+    ('33333333-3333-4333-8333-333333333333', 'Mary Streep', 'mary@example.com', 'Stylist', 'Europe/Kyiv',                    '/api/images/33333333-3333-4333-8333-333333333333.jpg', FALSE, NOW()),
+    ('44444444-4444-4444-8444-444444444444', 'Quentin Tarantino', 'quentin@example.com', 'Foot massage', 'Europe/Kyiv',      '/api/images/44444444-4444-4444-8444-444444444444.jpg', FALSE, NOW()),
+    ('55555555-5555-4555-8555-555555555555', 'Dominic Toretto', 'dominic@example.com', 'Auto-service', 'Europe/Kyiv',        '/api/images/55555555-5555-4555-8555-555555555555.jpg', FALSE, NOW()),
+    ('66666666-6666-4666-8666-666666666666', 'Heisenberg', 'heisenberg@example.com', 'Education', 'Europe/Kyiv',             '/api/images/66666666-6666-4666-8666-666666666666.jpg', FALSE, NOW())
 ON CONFLICT (id) DO NOTHING;
 INSERT INTO services (id, provider_id, service_name, duration, price, description, created_at, updated_at)
 VALUES
-    -- Provider 1 (Admin)
-    ('a1111111-1111-4111-8111-111111111111', '11111111-1111-4111-8111-111111111111', 'System Audit Consultation', 60, 2000, 'IT infrastructure consultation', NOW(), NOW()),
-    ('a2222222-2222-4222-8222-222222222222', '11111111-1111-4111-8111-111111111111', 'Security Review', 90, 3500, 'Full security audit of services', NOW(), NOW()),
+    ('a1111111-1111-4111-8111-111111111111', '11111111-1111-4111-8111-111111111111', 'The greatest business deals', 60, 2000, 'I will teach you the art of making the best deals.', NOW(), NOW()),
 
-    -- Provider 2 (Barber)
     ('b1111111-1111-4111-8111-111111111111', '22222222-2222-4222-8222-222222222222', 'Men Haircut', 45, 500, 'Classic men haircut and styling', NOW(), NOW()),
     ('b2222222-2222-4222-8222-222222222222', '22222222-2222-4222-8222-222222222222', 'Beard Trim', 30, 300, 'Beard shaping and hot towel', NOW(), NOW()),
 
-    -- Provider 3 (Dentist)
-    ('c1111111-1111-4111-8111-111111111111', '33333333-3333-4333-8333-333333333333', 'Dental Checkup', 30, 600, 'Routine consultation and X-ray', NOW(), NOW()),
-    ('c2222222-2222-4222-8222-222222222222', '33333333-3333-4333-8333-333333333333', 'Teeth Cleaning', 60, 1200, 'Professional ultrasonic hygiene', NOW(), NOW()),
+    ('c1111111-1111-4111-8111-111111111111', '33333333-3333-4333-8333-333333333333', 'Searching for a style', 30, 600, 'I will find the best style for you. Humiliation is already included.', NOW(), NOW()),
+    ('c2222222-2222-4222-8222-222222222222', '33333333-3333-4333-8333-333333333333', 'Clothing development based on your sketches', 60, 1200, 'I’ll explain to you why your sketch is worthless and why you need to turn it into a spline.', NOW(), NOW()),
 
-    -- Provider 4 (Auto)
-    ('d1111111-1111-4111-8111-111111111111', '44444444-4444-4444-8444-444444444444', 'Oil Change', 40, 800, 'Engine oil and filter replacement', NOW(), NOW()),
-    ('d2222222-2222-4222-8222-222222222222', '44444444-4444-4444-8444-444444444444', 'Wheel Alignment', 50, 1000, 'Computerized 3D wheel alignment', NOW(), NOW()),
+    ('d1111111-1111-4111-8111-111111111111', '44444444-4444-4444-8444-444444444444', 'Foot massage', 40, 800, 'A massage for your foots—and more.', NOW(), NOW()),
 
-    -- Provider 5 (Fitness)
-    ('e1111111-1111-4111-8111-111111111111', '55555555-5555-4555-8555-555555555555', 'Personal Training', 60, 700, '1-on-1 personal fitness session', NOW(), NOW()),
-    ('e2222222-2222-4222-8222-222222222222', '55555555-5555-4555-8555-555555555555', 'Nutrition Plan', 45, 900, 'Custom diet plan development', NOW(), NOW()),
+    ('e1111111-1111-4111-8111-111111111111', '55555555-5555-4555-8555-555555555555', 'Auto-service', 30, 700, 'I’ll turn your car into a real beauty.', NOW(), NOW()),
+    ('e2222222-2222-4222-8222-222222222222', '55555555-5555-4555-8555-555555555555', 'Driving lessons', 60, 900, 'I will teach you how to truly drive a car.', NOW(), NOW()),
+    ('e2222222-2222-4222-8222-222222222223', '55555555-5555-4555-8555-555555555555', 'Family lessons', 60, 2000, 'I will explain to you what a family is..', NOW(), NOW()),
 
-    -- Provider 6 (Tutor)
-    ('f1111111-1111-4111-8111-111111111111', '66666666-6666-4666-8666-666666666666', 'Speaking Club Session', 60, 400, 'Interactive English conversation class', NOW(), NOW()),
-    ('f2222222-2222-4222-8222-222222222222', '66666666-6666-4666-8666-666666666666', 'Grammar Intensive', 90, 800, 'In-depth English grammar review', NOW(), NOW())
+    ('f1111111-1111-4111-8111-111111111111', '66666666-6666-4666-8666-666666666666', 'Lessons in Chemistry', 60, 400, 'Do you want to cook?', NOW(), NOW()),
+    ('f2222222-2222-4222-8222-222222222222', '66666666-6666-4666-8666-666666666666', 'Business Lessons', 90, 800, 'I will teach you how to build a million-dollar empire', NOW(), NOW())
 ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO working_hours (id, provider_id, day_of_week, start_time, end_time, break_start_time, break_end_time, slot_step, is_active)
