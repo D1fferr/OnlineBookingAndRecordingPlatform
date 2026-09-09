@@ -3,6 +3,7 @@ package com.platform.booking.recording.provider_service.models;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -23,14 +24,14 @@ public class Appointment {
     private UUID id;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "provider_id")
-    @NotEmpty(message = "This field cannot be empty")
+    @NotNull(message = "This field cannot be empty")
     private Provider provider;
     @Column(name = "start_time")
-    @NotEmpty(message = "This field cannot be empty")
+    @NotNull(message = "This field cannot be empty")
     @Future(message = "The time must be in the future.")
     private OffsetDateTime startTime;
     @Column(name = "end_time")
-    @NotEmpty(message = "This field cannot be empty")
+    @NotNull(message = "This field cannot be empty")
     @Future(message = "The time must be in the future.")
     private OffsetDateTime endTime;
     @Column(name = "client_name")

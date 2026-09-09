@@ -1,0 +1,110 @@
+spring:
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-names: true
+      globals:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "http://localhost:8081"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
+            allowCredentials: true
+      server:
+        webflux:
+          metrics:
+            enabled: true
+
+server:
+  port: 8080
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, prometheus, metrics
+  metrics:
+    tags:
+      application: ${spring.application.name}
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+        spring.cloud.gateway.requests: true
+
+security:
+  public-routes:
+    - "/api/reset-password/public/**"
+    - "/api/user/public/**"
+    - "/api/appointments/public/**"
+    - "/api/providers/public/**"
+    - "/api/working-hours/public/**"
+    - "/api/images/**"
+
+  role-permissions:
+    "/api/user/auth/logout-user/**":
+      - "ROLE_ADMIN"
+    "/api/user/auth/block-user":
+      - "ROLE_ADMIN"
+    "/api/user/auth/unblock-user/**":
+      - "ROLE_ADMIN"
+    "/api/user/auth/get-one-user/**":
+      - "ROLE_PROVIDER"
+      - "ROLE_ADMIN"
+    "/api/user/auth/get-all-users":
+      - "ROLE_ADMIN"
+    "/api/user/auth/delete/**":
+      - "ROLE_PROVIDER"
+      - "ROLE_ADMIN"
+    "/api/user/auth/change-avatar/**":
+      - "ROLE_PROVIDER"
+      - "ROLE_ADMIN"
+    "/api/user/auth/change-credentials/**":
+      - "ROLE_PROVIDER"
+      - "ROLE_ADMIN"
+    "/api/user/auth/logout":
+      - "ROLE_PROVIDER"
+      - "ROLE_ADMIN"
+
+    "/api/working-hours/auth/set-working-hours":
+      - "ROLE_PROVIDER"
+      - "ROLE_ADMIN"
+
+    "/api/providers/auth/change-avatar/**":
+      - "ROLE_PROVIDER"
+      - "ROLE_ADMIN"
+    "/api/providers/auth/change-profile/**":
+      - "ROLE_PROVIDER"
+      - "ROLE_ADMIN"
+    "/api/providers/auth/get-one/**":
+      - "ROLE_PROVIDER"
+      - "ROLE_ADMIN"
+
+    "/api/appointments/auth/get-appointment/**":
+      - "ROLE_PROVIDER"
+      - "ROLE_ADMIN"
+    "/api/appointments/auth/get-appointments-by-provider/**":
+      - "ROLE_PROVIDER"
+      - "ROLE_ADMIN"
+    "/api/appointments/auth/change-status-to-cancelled/**":
+      - "ROLE_PROVIDER"
+    "/api/appointments/auth/change-status-to-confirmed/**":
+      - "ROLE_PROVIDER"
+
+    "/api/services/auth/create":
+      - "ROLE_PROVIDER"
+      - "ROLE_ADMIN"
+    "/api/services/auth/update/**":
+      - "ROLE_PROVIDER"
+      - "ROLE_ADMIN"
+    "/api/services/auth/get-services/**":
+      - "ROLE_PROVIDER"
+      - "ROLE_ADMIN"
+    "/api/services/auth/delete/**":
+      - "ROLE_PROVIDER"
+      - "ROLE_ADMIN"

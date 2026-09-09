@@ -1,0 +1,4 @@
+eureka:
+  instance:
+    hostname: ${EUREKA_INSTANCE_HOSTNAME:discovery-server}
+    prefer-ip-address: true
