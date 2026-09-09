@@ -51,31 +51,18 @@ The platform is fully instrumented for production-grade system visibility:
 
 ### 1. Environment Configuration
 Create a .env file in the root directory based on your environment needs:
-
-# ==========================================
-# DATABASE CREDENTIALS (POSTGRES)
-# ==========================================
+```
 POSTGRES_DB=booking_db
 POSTGRES_USER=your_user
 POSTGRES_PASSWORD=your_password
 POSTGRES_PORT=5432
 
-# ==========================================
-# REDIS
-# ==========================================
 REDIS_HOST=redis
 REDIS_PORT=6379
-
-# ==========================================
-# KAFKA
-# ==========================================
 KAFKA_PORT=9092
 KAFKA_ENDPOINT=kafka:29092
 KAFKA_CLUSTER_ID=MkU3OEVBNTcwNTJENDM2Qk
 
-# ==========================================
-# MINIO (S3 OBJECT STORAGE)
-# ==========================================
 MINIO_ROOT_USER=your_user
 MINIO_ROOT_PASSWORD=your_password
 MINIO_BUCKET_NAME=images
@@ -83,9 +70,6 @@ MINIO_API_PORT=9000
 MINIO_CONSOLE_PORT=9001
 MINIO_URL=http://minio:9000
 
-# ==========================================
-# SERVICES PORTS
-# ==========================================
 CONFIG_SERVER_PORT=8888
 DISCOVERY_SERVER_PORT=8761
 AUTH_SERVICE_PORT=8082
@@ -94,28 +78,16 @@ EMAIL_SERVICE_PORT=8084
 API_GATEWAY_PORT=8080
 FRONTEND_PORT=8081
 
-# ==========================================
-# SPRING CLOUD CONFIG & PROFILES
-# ==========================================
 SPRING_CLOUD_CONFIG_URI=http://config-server:8888
 SPRING_PROFILES_ACTIVE=prod
 
-# ==========================================
-# INTER-SERVICE URLS (FOR EUREKA & GATEWAY)
-# ==========================================
 GATEWAY_URL=http://api-gateway:8080
 PROVIDERS_URL=lb://PROVIDER-SERVICE
 AUTH_URL=lb://AUTH-SERVICE
 FRONTEND_URL=http://frontend:80
 
-# ==========================================
-# JWT CONFIGURATION
-# ==========================================
 JWT_SECRET=your_jwt_secret
 
-# ==========================================
-# MAIL SERVICE (BREVO / SMTP)
-# ==========================================
 MAIL_LOGIN=your_user
 MAIL_PASSWORD=your_login
 MAIL_FROM=your_data
@@ -127,6 +99,7 @@ PROMETHEUS_PORT=9090
 GRAFANA_PORT=3000
 GRAFANA_ADMIN_PASSWORD=your_password
 LOKI_PORT=3100
+```
 
 ### 2. Build & Run the Application
 
@@ -144,8 +117,11 @@ Docker will automatically download the necessary database images, message broker
 All requests to the system go exclusively through the API Gateway (port 8080).
 So, you can type http://localhost:8080 in your browser. A frontend with all the functionality will open in front of you.
 You can enter the following credentials to see the system from the inside:
+
 admin: login: admin@service.com password: password
+
 provider: login: trump@example.com password: password
+
 
 ## 🌐 Management Dashboards & Web Interfaces
 
