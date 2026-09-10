@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: email-service
+  profiles:
+    active: local
+  config:
+    import: "configserver:${SPRING_CLOUD_CONFIG_URI:http://localhost:8888}"
