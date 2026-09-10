@@ -103,14 +103,62 @@ LOKI_PORT=3100
 
 ### 2. Build & Run the Application
 
-Spin up the entire microservice ecosystem and infrastructure with a single command:
+### Option 1: Full Repository Clone (Development)
 
-docker compose up -d --build
+Use this method if you plan to inspect, modify, or develop the source code for the microservices.
 
-Verify that all containers are healthy and running:
-
+1. Clone the complete repository:
+```
+git clone https://github.com/D1fferr/OnlineBookingAndRecordingPlatform.git platform-deployment
+```
+2. Navigate into the project directory:
+```
+cd platform-deployment
+```
+3. Create and configure your environment variables:
+```
+cp .env.example .env
+```
+4. Start the entire platform using Docker Hub images:
+```
+docker compose up -d
+```
+5. Verify that all containers are up and running:
+```
 docker compose ps
+```
 
+### Option 2: Lightweight Setup (Deployment Only)
+
+Since all services are pre-built and pulled directly from Docker Hub, you do not need the full microservices source code to run the system. You only need the runtime configuration files (`docker-compose.yml`, `.env`, `init-minio.sh`, and configuration folders).
+
+#### Using Sparse Checkout (Automated Git Download)
+
+1. Clone only the required configuration files without the microservices source code:
+```
+git clone --depth 1 --filter=blob:none --sparse https://github.com/D1fferr/OnlineBookingAndRecordingPlatform.git platform-deployment
+```
+2. Navigate to the deployment folder:
+```   
+cd platform-deployment
+```
+3. Set sparse-checkout to retrieve only necessary runtime directories and files:
+```
+   git sparse-checkout set prometheus promtail images init-minio.sh docker-compose.yml .env.example
+```
+4. Create your environment variables file:
+```
+cp .env.example .env
+```
+5. Pull images and launch the environment:
+```
+docker compose pull
+docker compose up -d
+```
+6. Check container status:
+```
+docker compose ps
+```
 ---
 Docker will automatically download the necessary database images, message broker, mount the initialization scripts for MinIO.
 
