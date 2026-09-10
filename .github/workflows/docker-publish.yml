@@ -32,6 +32,9 @@ jobs:
           - service: discovery-server
             image_name: discovery-server
             context: ./discovery-server
+          - service: frontend-service
+            image_name: frontend-service
+            context: ./frontend-service
 
     steps:
       - name: Checkout Repository
