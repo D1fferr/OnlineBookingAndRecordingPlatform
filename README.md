@@ -118,6 +118,8 @@ cd platform-deployment
 3. Create and configure your environment variables:
 ```
 cp .env.example .env
+
+(Get-Content init-minio.sh -Raw).Replace("`r`n", "`n") | Set-Content -NoNewline init-minio.sh
 ```
 4. Start the entire platform using Docker Hub images:
 ```
@@ -144,11 +146,13 @@ cd platform-deployment
 ```
 3. Set sparse-checkout to retrieve only necessary runtime directories and files:
 ```
-   git sparse-checkout set prometheus promtail images init-minio.sh docker-compose.yml .env.example
+git sparse-checkout set prometheus promtail images
 ```
 4. Create your environment variables file:
 ```
 cp .env.example .env
+
+(Get-Content init-minio.sh -Raw).Replace("`r`n", "`n") | Set-Content -NoNewline init-minio.sh
 ```
 5. Pull images and launch the environment:
 ```
